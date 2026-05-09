@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLUSTER 7 — Rede de Colaboração</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c1: #0D1B2A;
+  --c2: #1B3A4B;
+  --accent: #00C896;
+  --accent2: #FF6B6B;
+  --accent3: #FFD166;
+  --accent4: #7B5EA7;
+  --white: #FFFFFF;
+  --gray1: #F4F6F9;
+  --gray2: #E2E8F0;
+  --gray3: #94A3B8;
+  --text: #1E293B;
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --radius: 14px;
+  --header-h: 64px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+/* ===== MODAL ACCESS ===== */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(13,27,42,.9); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.active { display:flex; }
+.modal-box { background:white; border-radius:20px; padding:40px 36px; max-width:420px; width:100%; box-shadow:0 24px 64px rgba(0,0,0,.25); animation:popIn .35s cubic-bezier(.34,1.56,.64,1); }
+.modal-wide { max-width:560px; }
+@keyframes popIn { from{transform:scale(.85);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-logo { width:72px; height:72px; background:linear-gradient(135deg,var(--accent),var(--accent4)); border-radius:20px; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:22px; font-weight:700; color:white; margin:0 auto 20px; box-shadow:0 8px 24px rgba(0,200,150,.4); }
+.modal-box h2 { font-size:28px; font-weight:800; text-align:center; letter-spacing:-.5px; color:var(--c1); margin-bottom:6px; }
+.modal-sub { text-align:center; color:var(--gray3); font-size:13px; margin-bottom:28px; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.modal-header h3 { font-size:18px; font-weight:700; }
+.modal-header button { background:none; border:none; font-size:18px; cursor:pointer; color:var(--gray3); transition:color .2s; }
+.modal-header button:hover { color:var(--accent2); }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:12px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; color:var(--gray3); margin-bottom:6px; }
+.form-group input, .form-group textarea, .form-group select { width:100%; padding:12px 14px; border:2px solid var(--gray2); border-radius:10px; font-family:'Sora',sans-serif; font-size:14px; color:var(--text); background:white; transition:border-color .2s; outline:none; resize:vertical; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color:var(--accent); }
+.btn-primary { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),#00A87A); color:white; border:none; border-radius:12px; font-family:'Sora',sans-serif; font-size:15px; font-weight:700; cursor:pointer; letter-spacing:.5px; transition:transform .15s,box-shadow .15s; margin-top:8px; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,200,150,.4); }
+.error-msg { color:var(--accent2); font-size:13px; text-align:center; margin-top:10px; min-height:18px; }
+
+/* ===== HEADER ===== */
+#mainHeader { position:fixed; top:0; left:0; right:0; height:var(--header-h); background:var(--c1); display:flex; align-items:center; padding:0 28px; gap:20px; z-index:900; box-shadow:0 2px 20px rgba(0,0,0,.3); }
+.logo-badge { width:40px; height:40px; background:linear-gradient(135deg,var(--accent),var(--accent4)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; color:white; flex-shrink:0; }
+.header-left { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.header-title { font-family:'Space Mono',monospace; font-size:15px; font-weight:700; color:white; letter-spacing:2px; display:block; line-height:1.1; }
+.header-sub { font-size:10px; color:var(--accent); letter-spacing:1px; display:block; }
+.header-nav { display:flex; gap:4px; flex:1; justify-content:center; }
+.nav-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:none; border:none; color:rgba(255,255,255,.5); font-family:'Sora',sans-serif; font-size:13px; font-weight:600; cursor:pointer; border-radius:8px; transition:all .2s; white-space:nowrap; }
+.nav-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.nav-btn:hover { background:rgba(255,255,255,.08); color:white; }
+.nav-btn.active { background:rgba(0,200,150,.15); color:var(--accent); }
+.header-user { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.user-dot { width:8px; height:8px; background:var(--accent); border-radius:50%; box-shadow:0 0 8px var(--accent); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+#headerUserName { font-size:13px; color:white; font-weight:600; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.btn-logout { padding:6px 12px; background:rgba(255,255,255,.1); border:none; border-radius:6px; color:var(--gray3); font-size:12px; cursor:pointer; transition:all .2s; }
+.btn-logout:hover { background:var(--accent2); color:white; }
+
+/* ===== MAIN ===== */
+#mainContent { margin-top:var(--header-h); padding:32px 28px; max-width:1200px; margin-left:auto; margin-right:auto; }
+.tab-section { display:none; }
+.tab-section.active { display:block; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+.section-header h1 { font-size:26px; font-weight:800; color:var(--c1); letter-spacing:-.5px; }
+.btn-add { padding:10px 20px; background:linear-gradient(135deg,var(--accent),#00A87A); color:white; border:none; border-radius:10px; font-family:'Sora',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:transform .15s,box-shadow .15s; }
+.btn-add:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,200,150,.4); }
+.btn-secondary { background:linear-gradient(135deg,var(--accent4),#5C4090) !important; }
+.btn-secondary:hover { box-shadow:0 6px 20px rgba(123,94,167,.4) !important; }
+.padlet-actions { display:flex; gap:10px; }
+
+/* ===== FEED ===== */
+.feed-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+.feed-card { background:white; border-radius:var(--radius); padding:24px; box-shadow:var(--card-shadow); transition:transform .2s,box-shadow .2s; animation:fadeUp .4s ease; border-left:4px solid var(--accent); }
+.feed-card:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(0,0,0,.12); }
+.feed-card-img { width:100%; max-height:200px; object-fit:cover; border-radius:10px; margin-bottom:14px; }
+.feed-card-title { font-size:16px; font-weight:700; color:var(--c1); margin-bottom:8px; }
+.feed-card-content { font-size:14px; color:#4A5568; line-height:1.7; margin-bottom:14px; }
+.feed-card-meta { display:flex; align-items:center; gap:10px; font-size:11px; color:var(--gray3); flex-wrap:wrap; }
+.feed-card-author { font-weight:700; color:var(--accent4); }
+
+/* ===== REDE ===== */
+.network-stats { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+.stat-box { background:white; border-radius:12px; padding:16px 24px; box-shadow:var(--card-shadow); text-align:center; flex:1; min-width:100px; }
+.stat-box .stat-num { font-size:32px; font-weight:800; color:var(--accent); font-family:'Space Mono',monospace; }
+.stat-box .stat-label { font-size:11px; color:var(--gray3); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+.network-canvas { background:white; border-radius:var(--radius); padding:20px; box-shadow:var(--card-shadow); margin-bottom:24px; min-height:300px; position:relative; overflow:hidden; }
+.member-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.member-card { background:white; border-radius:var(--radius); padding:20px; box-shadow:var(--card-shadow); display:flex; gap:14px; animation:fadeUp .4s ease; transition:transform .2s; cursor:pointer; position:relative; }
+.member-card:hover { transform:translateY(-3px); }
+.member-avatar { width:56px; height:56px; border-radius:14px; background:linear-gradient(135deg,var(--accent),var(--accent4)); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:white; flex-shrink:0; overflow:hidden; }
+.member-avatar img { width:100%; height:100%; object-fit:cover; }
+.member-info .member-name { font-size:14px; font-weight:700; color:var(--c1); margin-bottom:2px; }
+.member-info .member-inst { font-size:12px; color:var(--accent4); font-weight:600; margin-bottom:4px; }
+.member-info .member-area { font-size:11px; color:var(--gray3); }
+.connection-count { position:absolute; top:12px; right:14px; background:var(--accent); color:white; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; font-family:'Space Mono',monospace; }
+
+/* ===== AGENDA ===== */
+.event-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+.event-card { background:white; border-radius:var(--radius); padding:20px; box-shadow:var(--card-shadow); animation:fadeUp .4s ease; transition:transform .2s; display:flex; gap:16px; }
+.event-card:hover { transform:translateY(-3px); }
+.event-date-box { width:56px; flex-shrink:0; background:var(--c1); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 6px; }
+.event-date-day { font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--accent); line-height:1; }
+.event-date-mon { font-size:10px; color:rgba(255,255,255,.7); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+.event-info .event-title { font-size:15px; font-weight:700; color:var(--c1); margin-bottom:4px; }
+.event-type-badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.event-participants { font-size:12px; color:var(--gray3); }
+
+/* ===== MURAL ===== */
+.padlet-board { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:16px; }
+.padlet-note { border-radius:14px; padding:20px; box-shadow:0 4px 20px rgba(0,0,0,.1); animation:fadeUp .4s ease; transition:transform .2s,box-shadow .2s; min-height:140px; display:flex; flex-direction:column; }
+.padlet-note:hover { transform:translateY(-4px) rotate(.5deg); box-shadow:0 10px 30px rgba(0,0,0,.15); }
+.padlet-note-title { font-size:14px; font-weight:700; color:var(--c1); margin-bottom:8px; }
+.padlet-note-content { font-size:13px; color:#4A5568; line-height:1.6; flex:1; }
+.padlet-note-meta { font-size:11px; color:rgba(0,0,0,.4); margin-top:12px; }
+.padlet-photo { border-radius:14px; overflow:hidden; box-shadow:var(--card-shadow); animation:fadeUp .4s ease; transition:transform .2s; }
+.padlet-photo:hover { transform:translateY(-4px) rotate(-.5deg); }
+.padlet-photo img { width:100%; height:200px; object-fit:cover; display:block; }
+.padlet-photo-caption { background:white; padding:12px 16px; font-size:12px; color:var(--gray3); }
+
+/* ===== ATIVIDADES ===== */
+.activity-filters { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+.filter-btn { padding:8px 16px; background:white; border:2px solid var(--gray2); border-radius:20px; font-family:'Sora',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; color:var(--gray3); }
+.filter-btn:hover { border-color:var(--accent); color:var(--accent); }
+.filter-btn.active { background:var(--accent); border-color:var(--accent); color:white; }
+.activity-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+.activity-card { background:white; border-radius:var(--radius); padding:22px; box-shadow:var(--card-shadow); animation:fadeUp .4s ease; transition:transform .2s; position:relative; overflow:hidden; }
+.activity-card:hover { transform:translateY(-3px); }
+.activity-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
+.activity-card[data-type="artigo"]::before { background:var(--accent); }
+.activity-card[data-type="banca"]::before { background:var(--accent2); }
+.activity-card[data-type="palestra"]::before { background:var(--accent3); }
+.activity-card[data-type="orientacao"]::before { background:var(--accent4); }
+.activity-card[data-type="projeto"]::before { background:#06B6D4; }
+.activity-card[data-type="resumo"]::before { background:#10B981; }
+.activity-card[data-type="acao"]::before { background:#F59E0B; }
+.activity-type-badge { display:inline-block; padding:3px 12px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+.activity-title { font-size:15px; font-weight:700; color:var(--c1); margin-bottom:8px; line-height:1.4; }
+.activity-img { width:100%; height:130px; object-fit:cover; border-radius:8px; margin-bottom:12px; }
+.activity-participants { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.participant-tag { background:var(--gray1); color:var(--accent4); font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+.activity-meta { font-size:11px; color:var(--gray3); display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; }
+
+/* Network vis */
+.network-node { position:absolute; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent4)); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:11px; cursor:pointer; transition:transform .2s,box-shadow .2s; box-shadow:0 4px 16px rgba(0,200,150,.4); text-align:center; overflow:hidden; z-index:2; }
+.network-node:hover { transform:scale(1.15); box-shadow:0 8px 24px rgba(0,200,150,.6); z-index:10; }
+.network-edge { position:absolute; background:var(--accent); opacity:.2; transform-origin:left center; height:2px; border-radius:2px; pointer-events:none; z-index:1; }
+.network-edge.strong { opacity:.7; height:3px; }
+.network-edge.medium { opacity:.4; }
+
+/* Color picker */
+.color-picker { display:flex; gap:10px; padding:6px 0; }
+.color-dot { width:28px; height:28px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:transform .15s; }
+.color-dot:hover { transform:scale(1.2); }
+.color-dot.selected { border-color:var(--c1); }
+
+/* Type badge colors */
+.type-artigo { background:rgba(0,200,150,.15); color:#00A87A; }
+.type-banca { background:rgba(255,107,107,.15); color:#D94F4F; }
+.type-palestra { background:rgba(255,209,102,.2); color:#B8860B; }
+.type-orientacao { background:rgba(123,94,167,.15); color:#5C4090; }
+.type-projeto { background:rgba(6,182,212,.15); color:#0891B2; }
+.type-resumo { background:rgba(16,185,129,.15); color:#059669; }
+.type-acao { background:rgba(245,158,11,.15); color:#D97706; }
+.type-reuniao { background:rgba(123,94,167,.15); color:#5C4090; }
+.type-defesa { background:rgba(255,107,107,.15); color:#D94F4F; }
+.type-campo { background:rgba(16,185,129,.15); color:#059669; }
+.type-outro { background:var(--gray2); color:var(--gray3); }
+
+/* Toast */
+.toast { position:fixed; bottom:30px; right:30px; background:var(--c1); color:white; padding:14px 22px; border-radius:12px; font-size:14px; font-weight:600; z-index:9999; opacity:0; transform:translateY(20px); transition:all .3s; pointer-events:none; border-left:4px solid var(--accent); }
+.toast.show { opacity:1; transform:translateY(0); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.empty-state { grid-column:1/-1; text-align:center; padding:60px 20px; color:var(--gray3); }
+.empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+.empty-state p { font-size:15px; }
+
+@media(max-width:768px) {
+  .nav-btn span { display:none; }
+  .header-sub { display:none; }
+  #mainContent { padding:20px 14px; }
+  .section-header h1 { font-size:20px; }
+  .header-title { font-size:12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MODAL DE ACESSO -->
+<div id="accessModal" class="modal-overlay active">
+  <div class="modal-box">
+    <div class="modal-logo">C7</div>
+    <h2>CLUSTER 7</h2>
+    <p class="modal-sub">Rede colaborativa de pesquisa e extensão</p>
+    <div class="form-group">
+      <label>Seu nome completo</label>
+      <input type="text" id="inputName" placeholder="Ex: Ernandes Sobreira Oliveira Junior" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Sua instituição</label>
+      <input type="text" id="inputInstitution" placeholder="Ex: UNEMAT – Cáceres" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Código de acesso</label>
+      <input type="password" id="inputCode" placeholder="••••••••" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">ENTRAR NO CLUSTER</button>
+    <p id="accessError" class="error-msg"></p>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="mainHeader">
+  <div class="header-left">
+    <div class="logo-badge">C7</div>
+    <div class="header-titles">
+      <span class="header-title">CLUSTER 7</span>
+      <span class="header-sub">Rede de Colaboração Científica</span>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-btn active" data-tab="feed" onclick="switchTab('feed')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Feed</span>
+    </button>
+    <button class="nav-btn" data-tab="network" onclick="switchTab('network')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><circle cx="19" cy="19" r="3"/><circle cx="5" cy="19" r="3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="12" y1="16" x2="5" y2="19"/><line x1="12" y1="16" x2="19" y2="19"/></svg>
+      <span>Rede</span>
+    </button>
+    <button class="nav-btn" data-tab="agenda" onclick="switchTab('agenda')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Agenda</span>
+    </button>
+    <button class="nav-btn" data-tab="padlet" onclick="switchTab('padlet')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Mural</span>
+    </button>
+    <button class="nav-btn" data-tab="activities" onclick="switchTab('activities')">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Atividades</span>
+    </button>
+  </nav>
+  <div class="header-user" id="headerUser">
+    <div class="user-dot"></div>
+    <span id="headerUserName">–</span>
+    <button class="btn-logout" onclick="doLogout()">Sair</button>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main id="mainContent">
+
+  <!-- TAB: FEED -->
+  <section id="tab-feed" class="tab-section active">
+    <div class="section-header">
+      <h1>Feed do Cluster</h1>
+      <button class="btn-add" onclick="openModal('postModal')">+ Nova publicação</button>
+    </div>
+    <div id="feedList" class="feed-list"></div>
+  </section>
+
+  <!-- TAB: REDE -->
+  <section id="tab-network" class="tab-section">
+    <div class="section-header">
+      <h1>Mapa de Conexões</h1>
+      <button class="btn-add" onclick="openModal('memberModal')">+ Adicionar membro</button>
+    </div>
+    <div class="network-stats" id="networkStats"></div>
+    <div id="networkCanvas" class="network-canvas"></div>
+    <div id="memberCards" class="member-cards"></div>
+  </section>
+
+  <!-- TAB: AGENDA -->
+  <section id="tab-agenda" class="tab-section">
+    <div class="section-header">
+      <h1>Agenda Colaborativa</h1>
+      <button class="btn-add" onclick="openModal('eventModal')">+ Novo evento</button>
+    </div>
+    <div id="eventList" class="event-list"></div>
+  </section>
+
+  <!-- TAB: MURAL -->
+  <section id="tab-padlet" class="tab-section">
+    <div class="section-header">
+      <h1>Mural Colaborativo</h1>
+      <div class="padlet-actions">
+        <button class="btn-add" onclick="openModal('noteModal')">+ Nota</button>
+        <button class="btn-add btn-secondary" onclick="openModal('photoModal')">📷 Foto</button>
+      </div>
+    </div>
+    <div id="padletBoard" class="padlet-board"></div>
+  </section>
+
+  <!-- TAB: ATIVIDADES -->
+  <section id="tab-activities" class="tab-section">
+    <div class="section-header">
+      <h1>Atividades e Conexões</h1>
+      <button class="btn-add" onclick="openModal('activityModal')">+ Registrar atividade</button>
+    </div>
+    <div class="activity-filters">
+      <button class="filter-btn active" onclick="filterActivities(this,'all')">Todas</button>
+      <button class="filter-btn" onclick="filterActivities(this,'artigo')">Artigos</button>
+      <button class="filter-btn" onclick="filterActivities(this,'banca')">Bancas</button>
+      <button class="filter-btn" onclick="filterActivities(this,'palestra')">Palestras</button>
+      <button class="filter-btn" onclick="filterActivities(this,'orientacao')">Orientações</button>
+      <button class="filter-btn" onclick="filterActivities(this,'projeto')">Projetos</button>
+      <button class="filter-btn" onclick="filterActivities(this,'resumo')">Resumos</button>
+    </div>
+    <div id="activityList" class="activity-list"></div>
+  </section>
+
+</main>
+
+<!-- MODAIS -->
+<div id="postModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Nova Publicação</h3><button onclick="closeModal('postModal')">✕</button></div>
+    <div class="form-group"><label>Título</label><input type="text" id="postTitle" placeholder="Assunto da publicação"></div>
+    <div class="form-group"><label>Mensagem</label><textarea id="postContent" rows="4" placeholder="O que você quer compartilhar com o Cluster?"></textarea></div>
+    <div class="form-group"><label>URL de imagem (opcional)</label><input type="url" id="postImage" placeholder="https://..."></div>
+    <button class="btn-primary" onclick="savePost()">Publicar</button>
+  </div>
+</div>
+
+<div id="memberModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Adicionar Membro</h3><button onclick="closeModal('memberModal')">✕</button></div>
+    <div class="form-group"><label>Nome completo</label><input type="text" id="memName" placeholder="Nome do pesquisador"></div>
+    <div class="form-group"><label>Instituição</label><input type="text" id="memInstitution" placeholder="Universidade / Órgão"></div>
+    <div class="form-group"><label>Área de pesquisa</label><input type="text" id="memArea" placeholder="Ex: Limnologia, Ecologia, Hidrologia..."></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="memEmail" placeholder="email@inst.br"></div>
+    <div class="form-group"><label>Lattes / Site (URL)</label><input type="url" id="memLattes" placeholder="http://lattes.cnpq.br/..."></div>
+    <div class="form-group"><label>Foto (URL)</label><input type="url" id="memPhoto" placeholder="https://..."></div>
+    <button class="btn-primary" onclick="saveMember()">Adicionar ao Cluster</button>
+  </div>
+</div>
+
+<div id="eventModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Novo Evento</h3><button onclick="closeModal('eventModal')">✕</button></div>
+    <div class="form-group"><label>Título do evento</label><input type="text" id="evTitle" placeholder="Ex: Defesa de dissertação - Maria Silva"></div>
+    <div class="form-group"><label>Data e hora</label><input type="datetime-local" id="evDate"></div>
+    <div class="form-group"><label>Tipo</label>
+      <select id="evType">
+        <option value="banca">Banca</option>
+        <option value="palestra">Palestra / Seminário</option>
+        <option value="reuniao">Reunião do Cluster</option>
+        <option value="defesa">Defesa</option>
+        <option value="campo">Trabalho de campo</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Participantes (nomes separados por vírgula)</label><input type="text" id="evParticipants" placeholder="Ex: Ernandes Sobreira, Maria Silva..."></div>
+    <div class="form-group"><label>Descrição / Link</label><textarea id="evDesc" rows="3" placeholder="Detalhes, link de acesso, local..."></textarea></div>
+    <button class="btn-primary" onclick="saveEvent()">Agendar</button>
+  </div>
+</div>
+
+<div id="noteModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Nova Nota no Mural</h3><button onclick="closeModal('noteModal')">✕</button></div>
+    <div class="form-group"><label>Título</label><input type="text" id="noteTitle" placeholder="Título da nota"></div>
+    <div class="form-group"><label>Conteúdo</label><textarea id="noteContent" rows="5" placeholder="Sua mensagem, link, ideia..."></textarea></div>
+    <div class="form-group"><label>Cor</label>
+      <div class="color-picker" id="noteColorPicker">
+        <span class="color-dot selected" style="background:#FFE566" data-color="#FFE566"></span>
+        <span class="color-dot" style="background:#B5EAD7" data-color="#B5EAD7"></span>
+        <span class="color-dot" style="background:#C7CEEA" data-color="#C7CEEA"></span>
+        <span class="color-dot" style="background:#FF9AA2" data-color="#FF9AA2"></span>
+        <span class="color-dot" style="background:#FFD6A5" data-color="#FFD6A5"></span>
+        <span class="color-dot" style="background:#9EE7E2" data-color="#9EE7E2"></span>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveNote()">Colocar no mural</button>
+  </div>
+</div>
+
+<div id="photoModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h3>Foto no Mural</h3><button onclick="closeModal('photoModal')">✕</button></div>
+    <div class="form-group"><label>URL da imagem</label><input type="url" id="photoUrl" placeholder="https://..."></div>
+    <div class="form-group"><label>Legenda</label><input type="text" id="photoCaption" placeholder="Descreva a foto..."></div>
+    <button class="btn-primary" onclick="savePhoto()">Colocar no mural</button>
+  </div>
+</div>
+
+<div id="activityModal" class="modal-overlay">
+  <div class="modal-box modal-wide">
+    <div class="modal-header"><h3>Registrar Atividade Colaborativa</h3><button onclick="closeModal('activityModal')">✕</button></div>
+    <div class="form-group"><label>Título da atividade</label><input type="text" id="actTitle" placeholder="Ex: Artigo: PM2.5 no Pantanal..."></div>
+    <div class="form-group"><label>Tipo</label>
+      <select id="actType">
+        <option value="artigo">Artigo científico</option>
+        <option value="resumo">Resumo / Congresso</option>
+        <option value="banca">Banca (TCC/Dissertação/Tese)</option>
+        <option value="palestra">Palestra / Seminário</option>
+        <option value="orientacao">Co-orientação</option>
+        <option value="projeto">Projeto conjunto</option>
+        <option value="acao">Ação de extensão</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Participantes do Cluster envolvidos (nomes, vírgula)</label><input type="text" id="actParticipants" placeholder="Quem participou desta atividade?"></div>
+    <div class="form-group"><label>Ano / Data</label><input type="text" id="actYear" placeholder="Ex: 2024 ou 15/03/2025"></div>
+    <div class="form-group"><label>Descrição</label><textarea id="actDesc" rows="3" placeholder="Detalhes, DOI, link, notas..."></textarea></div>
+    <div class="form-group"><label>URL imagem / capa (opcional)</label><input type="url" id="actImage" placeholder="https://..."></div>
+    <button class="btn-primary" onclick="saveActivity()">📌 Registrar e fixar</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase via REST -->
+<script>
+const DB = "https://som-ambiental-default-rtdb.firebaseio.com";
+const API_KEY = "AIzaSyBzL_Pic_2JETKQqs4tD9EC2TRynEFaZG4";
+
+// Wrappers REST para Firebase Realtime Database
+function fbUrl(path){ return `${DB}/${path}.json?auth=${API_KEY}`; }
+
+async function push(path, data){
+  await fetch(fbUrl(path), {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(data)
+  });
+}
+
+function onValue(path, cb){
+  // Polling a cada 3s (SSE não funciona em todos os ambientes)
+  async function poll(){
+    try {
+      const r = await fetch(fbUrl(path));
+      const data = await r.json();
+      cb(data);
+    } catch(e){}
+  }
+  poll();
+  setInterval(poll, 3000);
+}
+
+async function get(path){
+  const r = await fetch(fbUrl(path));
+  return await r.json();
+}
+
+const ACCESS_CODE = "cluster7unemat";
+let currentUser = null, currentInstitution = null;
+let selectedNoteColor = "#FFE566";
+let currentFilter = "all";
+let allActivities = null;
+
+function esc(s){ if(!s)return""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function showToast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),3000); }
+
+// ---- Auth ----
+window.doLogin = function(){
+  const name=document.getElementById("inputName").value.trim();
+  const inst=document.getElementById("inputInstitution").value.trim();
+  const code=document.getElementById("inputCode").value.trim();
+  const err=document.getElementById("accessError");
+  if(!name){err.textContent="Informe seu nome.";return;}
+  if(!inst){err.textContent="Informe sua instituição.";return;}
+  if(code!==ACCESS_CODE){err.textContent="Código incorreto. Verifique com a coordenação.";return;}
+  currentUser=name; currentInstitution=inst;
+  sessionStorage.setItem("c7u",name); sessionStorage.setItem("c7i",inst);
+  document.getElementById("accessModal").classList.remove("active");
+  document.getElementById("headerUserName").textContent=name.split(" ")[0];
+  initListeners();
+  showToast(`Bem-vindo(a) ao Cluster 7, ${name.split(" ")[0]}! 🌿`);
+};
+
+window.doLogout = function(){
+  sessionStorage.clear(); currentUser=null;
+  document.getElementById("accessModal").classList.add("active");
+};
+
+const su=sessionStorage.getItem("c7u"), si=sessionStorage.getItem("c7i");
+if(su&&si){ currentUser=su; currentInstitution=si; document.getElementById("accessModal").classList.remove("active"); document.getElementById("headerUserName").textContent=su.split(" ")[0]; initListeners(); }
+
+// ---- Tabs ----
+window.switchTab = function(tab){
+  document.querySelectorAll(".tab-section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById(`tab-${tab}`).classList.add("active");
+  document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
+  if(tab==="network") setTimeout(redrawGraph, 100);
+};
+
+// ---- Modals ----
+window.openModal = s=>document.getElementById(s).classList.add("active");
+window.closeModal = s=>document.getElementById(s).classList.remove("active");
+document.querySelectorAll(".modal-overlay").forEach(m=>{
+  m.addEventListener("click",e=>{ if(e.target===m&&m.id!=="accessModal") closeModal(m.id); });
+});
+
+// ---- Color Picker ----
+document.querySelectorAll(".color-dot").forEach(d=>{
+  d.addEventListener("click",()=>{
+    document.querySelectorAll(".color-dot").forEach(x=>x.classList.remove("selected"));
+    d.classList.add("selected"); selectedNoteColor=d.dataset.color;
+  });
+});
+
+// ---- FEED ----
+window.savePost = function(){
+  const title=document.getElementById("postTitle").value.trim();
+  const content=document.getElementById("postContent").value.trim();
+  const image=document.getElementById("postImage").value.trim();
+  if(!title||!content){showToast("Preencha título e mensagem.");return;}
+  push("cluster7/feed",{title,content,image,author:currentUser,institution:currentInstitution,ts:Date.now()});
+  ["postTitle","postContent","postImage"].forEach(id=>document.getElementById(id).value="");
+  closeModal("postModal"); showToast("Publicação enviada ao Cluster! 📢");
+};
+
+function renderFeed(data){
+  const el=document.getElementById("feedList");
+  if(!data){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhuma publicação ainda. Seja o primeiro!</p></div>`;return;}
+  el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
+    const d=new Date(p.ts).toLocaleDateString("pt-BR",{day:"2-digit",month:"short",year:"numeric"});
+    return `<div class="feed-card">
+      ${p.image?`<img class="feed-card-img" src="${esc(p.image)}" onerror="this.style.display='none'" alt="">` :""}
+      <div class="feed-card-title">${esc(p.title)}</div>
+      <div class="feed-card-content">${esc(p.content).replace(/\n/g,"<br>")}</div>
+      <div class="feed-card-meta"><span class="feed-card-author">✍ ${esc(p.author)}</span><span>🏛 ${esc(p.institution)}</span><span>📅 ${d}</span></div>
+    </div>`;
+  }).join("");
+}
+
+// ---- MEMBROS ----
+window.saveMember = function(){
+  const name=document.getElementById("memName").value.trim();
+  const institution=document.getElementById("memInstitution").value.trim();
+  if(!name||!institution){showToast("Nome e instituição são obrigatórios.");return;}
+  push("cluster7/members",{
+    name,institution,
+    area:document.getElementById("memArea").value.trim(),
+    email:document.getElementById("memEmail").value.trim(),
+    lattes:document.getElementById("memLattes").value.trim(),
+    photo:document.getElementById("memPhoto").value.trim(),
+    addedBy:currentUser,ts:Date.now()
+  });
+  ["memName","memInstitution","memArea","memEmail","memLattes","memPhoto"].forEach(id=>document.getElementById(id).value="");
+  closeModal("memberModal"); showToast("Membro adicionado ao Cluster! 🤝");
+};
+
+function buildConnMap(activities){
+  const map={};
+  if(!activities)return map;
+  Object.values(activities).forEach(a=>{
+    if(!a.participants)return;
+    const parts=a.participants.split(",").map(p=>p.trim()).filter(Boolean);
+    parts.forEach(p=>{ map[p]=(map[p]||0)+parts.length-1; });
+  });
+  return map;
+}
+function buildConnPairs(activities){
+  const pairs=new Set();
+  if(!activities)return pairs;
+  Object.values(activities).forEach(a=>{
+    if(!a.participants)return;
+    const parts=a.participants.split(",").map(p=>p.trim()).filter(Boolean);
+    for(let i=0;i<parts.length;i++) for(let j=i+1;j<parts.length;j++) pairs.add([parts[i],parts[j]].sort().join("|||"));
+  });
+  return pairs;
+}
+
+let cachedMembers=null, cachedActivitiesForNet=null;
+function redrawGraph(){
+  if(cachedMembers!==undefined) renderNetworkGraph(cachedMembers,cachedActivitiesForNet);
+}
+
+function renderNetwork(members,activities){
+  cachedMembers=members; cachedActivitiesForNet=activities;
+  // Stats
+  const el=document.getElementById("networkStats");
+  const mc=members?Object.keys(members).length:0;
+  const ac=activities?Object.keys(activities).length:0;
+  const insts=members?[...new Set(Object.values(members).map(m=>m.institution))].length:0;
+  const cp=buildConnPairs(activities);
+  el.innerHTML=`
+    <div class="stat-box"><div class="stat-num">${mc}</div><div class="stat-label">Pesquisadores</div></div>
+    <div class="stat-box"><div class="stat-num">${insts}</div><div class="stat-label">Instituições</div></div>
+    <div class="stat-box"><div class="stat-num">${ac}</div><div class="stat-label">Atividades</div></div>
+    <div class="stat-box"><div class="stat-num">${cp.size}</div><div class="stat-label">Conexões</div></div>
+  `;
+  // Cards
+  const mEl=document.getElementById("memberCards");
+  if(!members){mEl.innerHTML=`<div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum membro cadastrado.</p></div>`;return;}
+  const connMap=buildConnMap(activities);
+  mEl.innerHTML=Object.entries(members).map(([id,m])=>{
+    const ini=m.name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+    const conns=connMap[m.name]||0;
+    const av=m.photo?`<img src="${esc(m.photo)}" onerror="this.parentElement.textContent='${ini}'" alt="">`:ini;
+    return `<div class="member-card">
+      <div class="member-avatar">${av}</div>
+      <div class="member-info">
+        <div class="member-name">${esc(m.name)}</div>
+        <div class="member-inst">${esc(m.institution)}</div>
+        <div class="member-area">${esc(m.area||"")}</div>
+        ${m.lattes?`<a href="${esc(m.lattes)}" target="_blank" style="font-size:11px;color:var(--accent);text-decoration:none;margin-top:4px;display:inline-block">🔗 Lattes</a>`:""}
+      </div>
+      ${conns>0?`<div class="connection-count">${conns}</div>`:""}
+    </div>`;
+  }).join("");
+  renderNetworkGraph(members,activities);
+}
+
+function renderNetworkGraph(members,activities){
+  const canvas=document.getElementById("networkCanvas");
+  canvas.innerHTML="";
+  if(!members){canvas.innerHTML=`<div style="text-align:center;padding:60px;color:var(--gray3)">Adicione membros para visualizar a rede.</div>`;return;}
+  const items=Object.values(members);
+  const n=items.length;
+  if(n===0){canvas.innerHTML=`<div style="text-align:center;padding:60px;color:var(--gray3)">Nenhum membro ainda.</div>`;return;}
+  const w=canvas.offsetWidth||700, h=300;
+  canvas.style.height=h+"px";
+  const connMap=buildConnMap(activities);
+  const connPairs=buildConnPairs(activities);
+  const positions={};
+  items.forEach((m,i)=>{
+    const angle=(i/n)*2*Math.PI-Math.PI/2;
+    const rx=(w/2-70)*.8, ry=(h/2-50)*.8;
+    positions[m.name]={x:w/2+rx*Math.cos(angle),y:h/2+ry*Math.sin(angle)};
+  });
+  // Edges
+  connPairs.forEach(pair=>{
+    const [a,b]=pair.split("|||");
+    const pa=positions[a],pb=positions[b];
+    if(!pa||!pb)return;
+    const str=(connMap[a]||0)+(connMap[b]||0);
+    const line=document.createElement("div");
+    line.className=`network-edge${str>=6?" strong":str>=3?" medium":""}`;
+    const dx=pb.x-pa.x,dy=pb.y-pa.y,len=Math.sqrt(dx*dx+dy*dy),ang=Math.atan2(dy,dx)*180/Math.PI;
+    line.style.cssText=`left:${pa.x}px;top:${pa.y}px;width:${len}px;transform:rotate(${ang}deg)`;
+    canvas.appendChild(line);
+  });
+  // Nodes
+  items.forEach(m=>{
+    const pos=positions[m.name];if(!pos)return;
+    const conns=connMap[m.name]||0;
+    const size=42+Math.min(conns*7,34);
+    const node=document.createElement("div");
+    node.className="network-node";
+    node.style.cssText=`width:${size}px;height:${size}px;left:${pos.x-size/2}px;top:${pos.y-size/2}px;font-size:${Math.max(9,size/5)}px;`;
+    node.title=`${m.name}\n${m.institution}\n${conns} conexões`;
+    const ini=m.name.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase();
+    node.innerHTML=m.photo?`<img src="${esc(m.photo)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;pointer-events:none" onerror="this.parentElement.textContent='${ini}'">`:ini;
+    canvas.appendChild(node);
+  });
+}
+
+// ---- EVENTOS ----
+window.saveEvent = function(){
+  const title=document.getElementById("evTitle").value.trim();
+  const date=document.getElementById("evDate").value;
+  if(!title||!date){showToast("Título e data são obrigatórios.");return;}
+  push("cluster7/events",{
+    title,date,
+    type:document.getElementById("evType").value,
+    participants:document.getElementById("evParticipants").value.trim(),
+    desc:document.getElementById("evDesc").value.trim(),
+    createdBy:currentUser,ts:Date.now()
+  });
+  ["evTitle","evDate","evParticipants","evDesc"].forEach(id=>document.getElementById(id).value="");
+  closeModal("eventModal"); showToast("Evento adicionado à agenda! 📅");
+};
+
+function renderEvents(data){
+  const el=document.getElementById("eventList");
+  if(!data){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📆</div><p>Nenhum evento agendado ainda.</p></div>`;return;}
+  el.innerHTML=Object.entries(data).sort((a,b)=>new Date(a[1].date)-new Date(b[1].date)).map(([id,ev])=>{
+    const d=new Date(ev.date);
+    const day=d.getDate().toString().padStart(2,"0");
+    const mon=d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","").toUpperCase();
+    const time=d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    return `<div class="event-card">
+      <div class="event-date-box"><div class="event-date-day">${day}</div><div class="event-date-mon">${mon}</div></div>
+      <div class="event-info">
+        <div class="event-type-badge type-${ev.type}">${ev.type}</div>
+        <div class="event-title">${esc(ev.title)}</div>
+        <div class="event-participants">⏰ ${time} · 👥 ${esc(ev.participants||"—")}</div>
+        ${ev.desc?`<div style="font-size:12px;color:var(--gray3);margin-top:6px">${esc(ev.desc)}</div>`:""}
+        <div style="font-size:11px;color:var(--gray3);margin-top:8px">Por ${esc(ev.createdBy)}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ---- MURAL ----
+window.saveNote = function(){
+  const content=document.getElementById("noteContent").value.trim();
+  if(!content){showToast("Escreva algo na nota!");return;}
+  push("cluster7/padlet",{
+    type:"note",
+    title:document.getElementById("noteTitle").value.trim(),
+    content,color:selectedNoteColor,
+    author:currentUser,institution:currentInstitution,ts:Date.now()
+  });
+  document.getElementById("noteTitle").value=""; document.getElementById("noteContent").value="";
+  closeModal("noteModal"); showToast("Nota adicionada ao mural! 📝");
+};
+
+window.savePhoto = function(){
+  const url=document.getElementById("photoUrl").value.trim();
+  if(!url){showToast("Informe a URL da foto.");return;}
+  push("cluster7/padlet",{
+    type:"photo",url,
+    caption:document.getElementById("photoCaption").value.trim(),
+    author:currentUser,institution:currentInstitution,ts:Date.now()
+  });
+  document.getElementById("photoUrl").value=""; document.getElementById("photoCaption").value="";
+  closeModal("photoModal"); showToast("Foto adicionada ao mural! 📷");
+};
+
+function renderPadlet(data){
+  const el=document.getElementById("padletBoard");
+  if(!data){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🎨</div><p>O mural está vazio. Deixe uma nota ou foto!</p></div>`;return;}
+  el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
+    const d=new Date(p.ts).toLocaleDateString("pt-BR",{day:"2-digit",month:"short"});
+    if(p.type==="photo") return `<div class="padlet-photo">
+      <img src="${esc(p.url)}" alt="${esc(p.caption||"")}" onerror="this.src='https://placehold.co/300x200?text=Imagem'">
+      <div class="padlet-photo-caption">📷 ${esc(p.caption||"")} · ${esc(p.author)} · ${d}</div>
+    </div>`;
+    return `<div class="padlet-note" style="background:${esc(p.color||"#FFE566")}">
+      ${p.title?`<div class="padlet-note-title">${esc(p.title)}</div>`:""}
+      <div class="padlet-note-content">${esc(p.content).replace(/\n/g,"<br>")}</div>
+      <div class="padlet-note-meta">✍ ${esc(p.author)} · 🏛 ${esc(p.institution)} · ${d}</div>
+    </div>`;
+  }).join("");
+}
+
+// ---- ATIVIDADES ----
+window.saveActivity = function(){
+  const title=document.getElementById("actTitle").value.trim();
+  if(!title){showToast("Informe o título da atividade.");return;}
+  push("cluster7/activities",{
+    title,
+    type:document.getElementById("actType").value,
+    participants:document.getElementById("actParticipants").value.trim(),
+    year:document.getElementById("actYear").value.trim(),
+    desc:document.getElementById("actDesc").value.trim(),
+    image:document.getElementById("actImage").value.trim(),
+    registeredBy:currentUser,institution:currentInstitution,ts:Date.now()
+  });
+  ["actTitle","actParticipants","actYear","actDesc","actImage"].forEach(id=>document.getElementById(id).value="");
+  closeModal("activityModal"); showToast("Atividade registrada e fixada! 📌");
+};
+
+const tLabel={artigo:"Artigo",banca:"Banca",palestra:"Palestra",orientacao:"Orientação",projeto:"Projeto",resumo:"Resumo",acao:"Ação",outro:"Outro"};
+
+window.filterActivities = function(btn, type){
+  currentFilter=type;
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderActivitiesFiltered();
+};
+
+function renderActivities(data){
+  allActivities=data;
+  renderActivitiesFiltered();
+}
+
+function renderActivitiesFiltered(){
+  const el=document.getElementById("activityList");
+  if(!allActivities){el.innerHTML=`<div class="empty-state"><div class="empty-icon">📌</div><p>Nenhuma atividade registrada ainda.</p></div>`;return;}
+  let items=Object.entries(allActivities).reverse();
+  if(currentFilter!=="all") items=items.filter(([,a])=>a.type===currentFilter);
+  if(!items.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhuma atividade nesta categoria.</p></div>`;return;}
+  el.innerHTML=items.map(([id,a])=>{
+    const parts=a.participants?a.participants.split(",").map(p=>p.trim()).filter(Boolean):[];
+    const tags=parts.map(p=>`<span class="participant-tag">👤 ${esc(p)}</span>`).join("");
+    return `<div class="activity-card" data-type="${a.type||"outro"}">
+      <div class="activity-type-badge type-${a.type||"outro"}">📌 ${tLabel[a.type]||"Outro"}</div>
+      ${a.image?`<img class="activity-img" src="${esc(a.image)}" onerror="this.style.display='none'" alt="">`:""}
+      <div class="activity-title">${esc(a.title)}</div>
+      ${tags?`<div class="activity-participants">${tags}</div>`:""}
+      ${a.desc?`<div style="font-size:13px;color:#4A5568;margin-bottom:8px;line-height:1.6">${esc(a.desc)}</div>`:""}
+      <div class="activity-meta">
+        ${a.year?`<span>📅 ${esc(a.year)}</span>`:""}
+        <span>Por ${esc(a.registeredBy)}</span>
+        <span>🏛 ${esc(a.institution)}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ---- INIT LISTENERS ----
+
+// ── SEED: popula dados iniciais se o banco estiver vazio ──
+async function seedIfEmpty(){
+  const existing = await get("cluster7/members");
+  if(existing && Object.keys(existing).length > 0) return;
+
+  const members = [
+    {name:"Ernandes Sobreira Oliveira Junior", institution:"UNEMAT – Cáceres", area:"Biogeoquímica, Limnologia, Qualidade do Ar, Mudanças Climáticas", email:"ernandes.sobreira@unemat.br", lattes:"http://lattes.cnpq.br/7461346615427709", addedBy:"Sistema", ts:1000},
+    {name:"Áurea Ignácio", institution:"UNEMAT", area:"Gestão Ambiental, Coordenação Cluster 7", email:"", lattes:"", addedBy:"Sistema", ts:1001},
+    {name:"Walter Ruggeri Waldman", institution:"UFSCar – Sorocaba", area:"Microplásticos, Planejamento e Uso de Recursos Renováveis", email:"", lattes:"", addedBy:"Sistema", ts:1002},
+    {name:"Representante UFSCar", institution:"Universidade Federal de São Carlos", area:"Recursos Renováveis, Sustentabilidade", email:"", lattes:"", addedBy:"Sistema", ts:1003},
+    {name:"Representante UFS", institution:"Universidade Federal de Sergipe", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1004},
+    {name:"Representante UNIRIO", institution:"Univ. Federal do Estado do Rio de Janeiro", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1005},
+    {name:"Representante UFCG", institution:"Universidade Federal de Campina Grande", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1006},
+    {name:"Representante UFF", institution:"Universidade Federal Fluminense", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1007},
+    {name:"Representante UTFPR", institution:"Univ. Tecnológica Federal do Paraná", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1008},
+    {name:"Representante UFAM", institution:"Universidade Federal do Amazonas", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1009},
+    {name:"Representante UNIOESTE", institution:"Univ. Estadual do Oeste do Paraná", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1010},
+    {name:"Representante UFPE", institution:"Universidade Federal de Pernambuco", area:"Desenvolvimento Sustentável", email:"", lattes:"", addedBy:"Sistema", ts:1011},
+  ];
+
+  const activities = [
+    {title:"Microplásticos: natureza, ocorrência e impacto ambiental", type:"palestra", participants:"Walter Ruggeri Waldman, Representante UFSCar", year:"Jul 2025", desc:"Ação de Internacionalização e Democratização do Conhecimento – PPGPUR UFSCar Sorocaba. Formato: vídeos. Público: sociedade geral. ODS 12.", image:"", registeredBy:"Sistema", institution:"UFSCar", ts:900},
+    {title:"COP PANTANAL", type:"acao", participants:"Ernandes Sobreira Oliveira Junior, Áurea Ignácio", year:"Ago 2025", desc:"Apresentação da COP PANTANAL para a população pantaneira como marco histórico. Formato: oficinas. Público: movimentos sociais, gestores públicos. ODS 13.", image:"", registeredBy:"Sistema", institution:"UNEMAT", ts:901},
+    {title:"Palestra: Mudanças Climáticas, Urbanização e Extensão", type:"palestra", participants:"Ernandes Sobreira Oliveira Junior, Representante UTFPR", year:"2025", desc:"Palestra sobre mudanças climáticas e urbanização e o impacto das pesquisas nas ações de extensão. UNEMAT + UTFPR. ODS 11.", image:"", registeredBy:"Sistema", institution:"UNEMAT / UTFPR", ts:902},
+    {title:"Reunião do Cluster 7", type:"reuniao", participants:"Áurea Ignácio, Ernandes Sobreira Oliveira Junior, Representante UFS, Representante UNIRIO, Representante UFCG, Representante UFF, Representante UTFPR, Representante UFAM, Representante UNIOESTE, Representante UFSCar, Representante UFPE", year:"11 Ago 2025", desc:"Reunião do Cluster Temático 7 com participação de 10 instituições de 5 regiões do Brasil. ODS 17.", image:"", registeredBy:"Sistema", institution:"UNEMAT (sede)", ts:903},
+  ];
+
+  for(const m of members){
+    await push("cluster7/members", m);
+  }
+  for(const a of activities){
+    await push("cluster7/activities", a);
+  }
+  console.log("Seed concluído.");
+}
+
+function initListeners(){
+  seedIfEmpty();
+  onValue("cluster7/feed", data=>renderFeed(data));
+  onValue("cluster7/events", data=>renderEvents(data));
+  onValue("cluster7/padlet", data=>renderPadlet(data));
+  onValue("cluster7/activities", data=>{
+    renderActivities(data);
+    get("cluster7/members").then(m=>renderNetwork(m, data));
+  });
+  onValue("cluster7/members", data=>{
+    get("cluster7/activities").then(a=>renderNetwork(data, a));
+  });
+}
+
+window.addEventListener("resize",()=>{
+  if(document.getElementById("tab-network").classList.contains("active")) redrawGraph();
+});
+</script>
+</body>
+</html>
