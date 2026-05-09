@@ -436,15 +436,17 @@ async function push(path, data){
 
 function onValue(path, cb){
   // Polling a cada 3s (SSE não funciona em todos os ambientes)
+  let _lastJson={};
   async function poll(){
     try {
       const r = await fetch(fbUrl(path));
       const data = await r.json();
-      cb(data);
+      const sig=JSON.stringify(data);
+      if(sig!==_lastJson[path]){ _lastJson[path]=sig; cb(data); }
     } catch(e){}
   }
   poll();
-  setInterval(poll, 3000);
+  setInterval(poll, 4000);
 }
 
 async function get(path){
@@ -651,156 +653,227 @@ function sharedActivities(nameA, nameB, activities){
   return count;
 }
 
-function renderNetworkGraph(members,activities){
-  const container=document.getElementById("networkCanvas");
-  container.innerHTML="";
-  if(!members){container.innerHTML=`<div style="text-align:center;padding:60px;color:var(--gray3)">Adicione membros para visualizar a rede.</div>`;return;}
-  const items=Object.values(members);
-  if(items.length===0){container.innerHTML=`<div style="text-align:center;padding:60px;color:var(--gray3)">Nenhum membro ainda.</div>`;return;}
+function renderNetworkGraph(members, activities){
+  const container = document.getElementById("networkCanvas");
 
-  const W=container.offsetWidth||750, H=420;
-  container.style.height=H+"px";
-  container.style.position="relative";
-  container.style.overflow="hidden";
-  container.style.cursor="grab";
+  // Só reconstrói se os dados mudaram de verdade
+  const sig = JSON.stringify({members, activities});
+  if(container._lastSig === sig) return;
+  container._lastSig = sig;
 
-  // Canvas SVG para arestas
-  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("width",W); svg.setAttribute("height",H);
-  svg.style.cssText="position:absolute;top:0;left:0;pointer-events:none;z-index:1;";
+  // Para simulação anterior se existir
+  if(container._simStop) container._simStop();
+  container.innerHTML = "";
+
+  if(!members){
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray3)">Adicione membros para visualizar a rede.</div>`;
+    return;
+  }
+  const items = Object.values(members);
+  if(!items.length){
+    container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray3)">Nenhum membro ainda.</div>`;
+    return;
+  }
+
+  const W = container.offsetWidth || 780;
+  const H = 460;
+  container.style.height = H + "px";
+  container.style.position = "relative";
+  container.style.overflow = "hidden";
+  container.style.background = "white";
+
+  // SVG para as arestas
+  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;";
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   container.appendChild(svg);
 
-  // Construir nós com física
-  const connMap=buildConnMap(activities);
-  const nodes=items.map((m,i)=>{
-    const angle=(i/items.length)*2*Math.PI;
-    const r=Math.min(W,H)*0.32;
-    const conns=connMap[m.name]||0;
-    const size=38+Math.min(conns*8,36);
+  // Construir mapa de conexões
+  const connMap = buildConnMap(activities);
+
+  // Nós com posição inicial em círculo
+  const nodes = items.map((m, i) => {
+    const angle = (i / items.length) * 2 * Math.PI - Math.PI/2;
+    const r = Math.min(W, H) * 0.3;
     return {
-      m, size,
-      x: W/2 + r*Math.cos(angle) + (Math.random()-0.5)*20,
-      y: H/2 + r*Math.sin(angle) + (Math.random()-0.5)*20,
-      vx:0, vy:0, conns
+      m,
+      x: W/2 + r * Math.cos(angle),
+      y: H/2 + r * Math.sin(angle),
+      vx: 0, vy: 0,
+      size: 40 + Math.min((connMap[m.name]||0) * 7, 36),
+      conns: connMap[m.name] || 0,
+      pinned: false
     };
   });
 
-  // Construir arestas com peso
-  const edges=[];
-  const connPairs=buildConnPairs(activities);
-  connPairs.forEach(pair=>{
-    const [na,nb]=pair.split("|||");
-    const a=nodes.find(n=>n.m.name===na);
-    const b=nodes.find(n=>n.m.name===nb);
-    if(!a||!b) return;
-    const w=sharedActivities(na,nb,activities)||1;
-    edges.push({a,b,w});
+  // Arestas com peso = nº de atividades compartilhadas
+  const edges = [];
+  buildConnPairs(activities).forEach(pair => {
+    const [na, nb] = pair.split("|||");
+    const a = nodes.find(n => n.m.name === na);
+    const b = nodes.find(n => n.m.name === nb);
+    if(!a || !b) return;
+    const w = sharedActivities(na, nb, activities) || 1;
+    edges.push({a, b, w});
   });
 
-  // Criar elementos SVG das arestas
-  const edgeEls=edges.map(e=>{
-    const line=document.createElementNS("http://www.w3.org/2000/svg","line");
-    const op=Math.min(0.15+e.w*0.2,0.85);
-    const sw=Math.min(1+e.w*1.5,6);
-    line.setAttribute("stroke","#00C896");
-    line.setAttribute("stroke-opacity",op);
-    line.setAttribute("stroke-width",sw);
+  // Criar SVG lines para arestas
+  const edgeEls = edges.map(e => {
+    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    const op = Math.min(0.12 + e.w * 0.22, 0.9);
+    const sw = Math.min(1 + e.w * 1.8, 7);
+    line.setAttribute("stroke", "#00C896");
+    line.setAttribute("stroke-opacity", op);
+    line.setAttribute("stroke-width", sw);
+    line.setAttribute("stroke-linecap", "round");
     svg.appendChild(line);
-    return {el:line, e};
+    return {line, e};
   });
 
   // Criar nós DOM
-  const nodeEls=nodes.map(nd=>{
-    const div=document.createElement("div");
-    const sigla=iesSigla(nd.m.institution);
-    div.className="network-node";
-    div.style.cssText=`width:${nd.size}px;height:${nd.size}px;position:absolute;font-size:${Math.max(8,nd.size/5.5)}px;font-weight:800;cursor:grab;user-select:none;z-index:2;`;
-    div.title=`${nd.m.name}\n${nd.m.institution}\n${nd.conns} conexões`;
-    div.textContent=sigla;
-    // tooltip label abaixo do nó
-    const label=document.createElement("div");
-    label.style.cssText="position:absolute;top:100%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:#1E293B;font-weight:600;margin-top:3px;pointer-events:none;background:rgba(255,255,255,.9);padding:1px 5px;border-radius:4px;";
-    label.textContent=nd.m.name.split(" ")[0]+" "+nd.m.name.split(" ").slice(-1)[0];
-    div.appendChild(label);
-    container.appendChild(div);
+  const nodeEls = nodes.map(nd => {
+    const sigla = iesSigla(nd.m.institution);
+    const div = document.createElement("div");
+    div.style.cssText = `
+      position:absolute;
+      width:${nd.size}px;height:${nd.size}px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#00C896,#7B5EA7);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      color:white;font-weight:800;font-size:${Math.max(8, nd.size/5.5)}px;
+      cursor:grab;user-select:none;z-index:3;
+      box-shadow:0 3px 14px rgba(0,200,150,.35);
+      transition:box-shadow .15s;
+      text-align:center;
+      line-height:1.1;
+    `;
+    div.textContent = sigla;
+    div.title = `${nd.m.name}\n${nd.m.institution}\n${nd.conns} conexões`;
 
-    // Drag
-    let dragging=false, ox=0, oy=0;
-    div.addEventListener("mousedown",e=>{
-      dragging=true; ox=e.clientX-nd.x; oy=e.clientY-nd.y;
-      nd.vx=0; nd.vy=0; div.style.cursor="grabbing"; e.preventDefault();
+    // Label abaixo
+    const lbl = document.createElement("div");
+    lbl.style.cssText = "position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:#334155;font-weight:600;pointer-events:none;background:rgba(255,255,255,.92);padding:1px 6px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.1);";
+    const parts = nd.m.name.split(" ");
+    lbl.textContent = parts[0] + (parts.length > 1 ? " " + parts[parts.length-1] : "");
+    container.appendChild(div);
+    container.appendChild(lbl);
+
+    // ── Drag com mouse ──
+    let dragging = false, ox = 0, oy = 0;
+    const rect = () => container.getBoundingClientRect();
+
+    div.addEventListener("mousedown", ev => {
+      dragging = true;
+      nd.pinned = true;
+      nd.vx = nd.vy = 0;
+      const r = rect();
+      ox = ev.clientX - r.left - nd.x;
+      oy = ev.clientY - r.top - nd.y;
+      div.style.cursor = "grabbing";
+      div.style.boxShadow = "0 8px 28px rgba(0,200,150,.6)";
+      div.style.zIndex = 10;
+      ev.preventDefault();
     });
-    document.addEventListener("mousemove",e=>{
+    window.addEventListener("mousemove", ev => {
       if(!dragging) return;
-      nd.x=e.clientX-ox; nd.y=e.clientY-oy;
+      const r = rect();
+      nd.x = Math.max(nd.size/2, Math.min(W - nd.size/2, ev.clientX - r.left - ox));
+      nd.y = Math.max(nd.size/2, Math.min(H - nd.size/2, ev.clientY - r.top - oy));
     });
-    document.addEventListener("mouseup",()=>{ dragging=false; div.style.cursor="grab"; });
-    // Touch
-    div.addEventListener("touchstart",e=>{
-      dragging=true; const t=e.touches[0]; ox=t.clientX-nd.x; oy=t.clientY-nd.y; nd.vx=0; nd.vy=0; e.preventDefault();
-    },{passive:false});
-    document.addEventListener("touchmove",e=>{
-      if(!dragging) return; const t=e.touches[0]; nd.x=t.clientX-ox; nd.y=t.clientY-oy;
+    window.addEventListener("mouseup", () => {
+      if(!dragging) return;
+      dragging = false;
+      nd.pinned = false;
+      div.style.cursor = "grab";
+      div.style.boxShadow = "0 3px 14px rgba(0,200,150,.35)";
+      div.style.zIndex = 3;
     });
-    document.addEventListener("touchend",()=>{ dragging=false; });
-    return {el:div, nd};
+
+    // ── Drag touch ──
+    div.addEventListener("touchstart", ev => {
+      dragging = true; nd.pinned = true; nd.vx = nd.vy = 0;
+      const t = ev.touches[0]; const r = rect();
+      ox = t.clientX - r.left - nd.x; oy = t.clientY - r.top - nd.y;
+      ev.preventDefault();
+    }, {passive:false});
+    window.addEventListener("touchmove", ev => {
+      if(!dragging) return;
+      const t = ev.touches[0]; const r = rect();
+      nd.x = Math.max(nd.size/2, Math.min(W - nd.size/2, t.clientX - r.left - ox));
+      nd.y = Math.max(nd.size/2, Math.min(H - nd.size/2, t.clientY - r.top - oy));
+    }, {passive:true});
+    window.addEventListener("touchend", () => { dragging = false; nd.pinned = false; });
+
+    return {div, lbl, nd};
   });
 
-  // Simulação de física
-  let running=true;
-  function tick(){
-    if(!running) return;
-    // Repulsão entre nós
-    for(let i=0;i<nodes.length;i++){
-      for(let j=i+1;j<nodes.length;j++){
-        const a=nodes[i],b=nodes[j];
-        const dx=b.x-a.x, dy=b.y-a.y;
-        const dist=Math.sqrt(dx*dx+dy*dy)||1;
-        const minDist=(a.size+b.size)/2+20;
-        if(dist<minDist){
-          const force=(minDist-dist)/dist*0.4;
-          a.vx-=dx*force; a.vy-=dy*force;
-          b.vx+=dx*force; b.vy+=dy*force;
-        }
+  // ── Simulação de força ──
+  let active = true;
+  container._simStop = () => { active = false; };
+
+  const REPEL    = 3200;   // repulsão entre nós
+  const ATTRACT  = 0.04;   // atração por aresta (× peso)
+  const REST_LEN = 140;    // comprimento ideal da aresta
+  const CENTER_G = 0.004;  // gravidade central
+  const DAMP     = 0.78;   // amortecimento
+
+  function simulate(){
+    if(!active) return;
+
+    // Repulsão
+    for(let i = 0; i < nodes.length; i++){
+      for(let j = i+1; j < nodes.length; j++){
+        const a = nodes[i], b = nodes[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        const d2 = dx*dx + dy*dy || 1;
+        const d = Math.sqrt(d2);
+        const f = REPEL / d2;
+        const nx = dx/d, ny = dy/d;
+        if(!a.pinned){ a.vx -= nx*f; a.vy -= ny*f; }
+        if(!b.pinned){ b.vx += nx*f; b.vy += ny*f; }
       }
     }
-    // Atração pelas arestas (proporcional ao peso)
-    edges.forEach(e=>{
-      const dx=e.b.x-e.a.x, dy=e.b.y-e.a.y;
-      const dist=Math.sqrt(dx*dx+dy*dy)||1;
-      const ideal=120+80/e.w;
-      const force=(dist-ideal)/dist*0.03*e.w;
-      e.a.vx+=dx*force; e.a.vy+=dy*force;
-      e.b.vx-=dx*force; e.b.vy-=dy*force;
-    });
-    // Gravidade central
-    nodes.forEach(n=>{
-      n.vx+=(W/2-n.x)*0.003;
-      n.vy+=(H/2-n.y)*0.003;
-      n.vx*=0.85; n.vy*=0.85;
-      n.x+=n.vx; n.y+=n.vy;
-      // Limites
-      const r=n.size/2+8;
-      n.x=Math.max(r,Math.min(W-r,n.x));
-      n.y=Math.max(r,Math.min(H-r,n.y));
-    });
-    // Atualizar posições DOM
-    nodeEls.forEach(({el,nd})=>{
-      el.style.left=(nd.x-nd.size/2)+"px";
-      el.style.top=(nd.y-nd.size/2)+"px";
-    });
-    // Atualizar arestas SVG
-    edgeEls.forEach(({el,e})=>{
-      el.setAttribute("x1",e.a.x); el.setAttribute("y1",e.a.y);
-      el.setAttribute("x2",e.b.x); el.setAttribute("y2",e.b.y);
-    });
-    requestAnimationFrame(tick);
-  }
-  tick();
-  // Para a física após 5s para economizar CPU
-  setTimeout(()=>{ running=false; }, 5000);
-}
 
+    // Atração pelas arestas
+    edges.forEach(e => {
+      const dx = e.b.x - e.a.x, dy = e.b.y - e.a.y;
+      const d = Math.sqrt(dx*dx + dy*dy) || 1;
+      const idealLen = Math.max(60, REST_LEN - e.w * 15);
+      const f = (d - idealLen) * ATTRACT * e.w;
+      const nx = dx/d, ny = dy/d;
+      if(!e.a.pinned){ e.a.vx += nx*f; e.a.vy += ny*f; }
+      if(!e.b.pinned){ e.b.vx -= nx*f; e.b.vy -= ny*f; }
+    });
+
+    // Gravidade central + damping + integração
+    nodes.forEach(nd => {
+      if(nd.pinned) return;
+      nd.vx += (W/2 - nd.x) * CENTER_G;
+      nd.vy += (H/2 - nd.y) * CENTER_G;
+      nd.vx *= DAMP; nd.vy *= DAMP;
+      nd.x += nd.vx; nd.y += nd.vy;
+      const r = nd.size/2 + 4;
+      nd.x = Math.max(r, Math.min(W - r, nd.x));
+      nd.y = Math.max(r, Math.min(H - r, nd.y));
+    });
+
+    // Atualizar DOM
+    nodeEls.forEach(({div, lbl, nd}) => {
+      div.style.left = (nd.x - nd.size/2) + "px";
+      div.style.top  = (nd.y - nd.size/2) + "px";
+      lbl.style.left = nd.x + "px";
+      lbl.style.top  = (nd.y + nd.size/2 + 4) + "px";
+      lbl.style.transform = "translateX(-50%)";
+    });
+    edgeEls.forEach(({line, e}) => {
+      line.setAttribute("x1", e.a.x); line.setAttribute("y1", e.a.y);
+      line.setAttribute("x2", e.b.x); line.setAttribute("y2", e.b.y);
+    });
+
+    requestAnimationFrame(simulate);
+  }
+  simulate();
+}
 // ---- EVENTOS ----
 window.saveEvent = function(){
   const title=document.getElementById("evTitle").value.trim();
