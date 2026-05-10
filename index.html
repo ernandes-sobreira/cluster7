@@ -53,7 +53,8 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
 .header-left { display:flex; align-items:center; gap:12px; flex-shrink:0; }
 .header-title { font-family:'Space Mono',monospace; font-size:15px; font-weight:700; color:white; letter-spacing:2px; display:block; line-height:1.1; }
 .header-sub { font-size:10px; color:var(--accent); letter-spacing:1px; display:block; }
-.header-nav { display:flex; gap:4px; flex:1; justify-content:center; }
+.header-nav { display:flex; gap:2px; flex:1; justify-content:center; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+.header-nav::-webkit-scrollbar { display:none; }
 .nav-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:none; border:none; color:rgba(255,255,255,.5); font-family:'Sora',sans-serif; font-size:13px; font-weight:600; cursor:pointer; border-radius:8px; transition:all .2s; white-space:nowrap; }
 .nav-btn svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
 .nav-btn:hover { background:rgba(255,255,255,.08); color:white; }
@@ -204,6 +205,9 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
 .upload-bar { width:100%; height:6px; background:var(--gray2); border-radius:3px; overflow:hidden; }
 .upload-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent4)); border-radius:3px; transition:width .2s; }
 .upload-pct { font-size:12px; color:var(--gray3); font-family:'Space Mono',monospace; }
+.item-actions { margin-top:10px; display:flex; gap:8px; }
+.item-del-btn { background:none; border:1px solid rgba(0,0,0,.12); border-radius:6px; padding:3px 10px; font-size:11px; color:var(--accent2); cursor:pointer; font-family:'Sora',sans-serif; transition:all .2s; }
+.item-del-btn:hover { background:var(--accent2); color:white; border-color:var(--accent2); }
 
 /* ===== PROPOSTAS ===== */
 .proposal-filters { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
@@ -808,7 +812,8 @@ function renderFeed(data){
       ${p.image?`<img class="feed-card-img" src="${esc(p.image)}" onerror="this.style.display='none'" alt="">` :""}
       <div class="feed-card-title">${esc(p.title)}</div>
       <div class="feed-card-content">${esc(p.content).replace(/\n/g,"<br>")}</div>
-      <div class="feed-card-meta"><span class="feed-card-author">✍ ${esc(p.author)}</span><span>🏛 ${esc(p.institution)}</span><span>📅 ${d}</span></div>
+      <div class="feed-card-meta"><span class="feed-card-author">✍ ${esc(p.author)}</span><span>🏛 ${esc(p.institution)}</span><span>📅 ${d}</span>${p.author===currentUser?`<button class="item-del-btn" onclick="deleteItem('cluster7/feed','${id}')">🗑</button>`:""}</div>
+    </div>`;
     </div>`;
   }).join("");
 }
@@ -979,7 +984,7 @@ function renderNetworkGraph(members, activities){
       x: W/2 + r * Math.cos(angle) + (Math.random()-.5)*10,
       y: H/2 + r * Math.sin(angle) + (Math.random()-.5)*10,
       vx: 0, vy: 0,
-      r: 22 + Math.min(conns * 5, 28),
+      r: 16 + Math.min(conns * 4, 20),
       conns,
       color: instColors[m.institution] || "#00C896",
       pinned: false
@@ -998,11 +1003,11 @@ function renderNetworkGraph(members, activities){
   });
 
   // ── Physics constants ──
-  const REPEL = 4500;
-  const SPRING_K = 0.028;
-  const REST = 160;
-  const GRAVITY = 0.003;
-  const DAMP = 0.82;
+  const REPEL = 2200;
+  const SPRING_K = 0.018;
+  const REST = 130;
+  const GRAVITY = 0.002;
+  const DAMP = 0.88;
 
   let frame;
   let hoveredNode = null;
@@ -1047,7 +1052,7 @@ function renderNetworkGraph(members, activities){
       n.y = Math.max(n.r+4, Math.min(H-n.r-4, n.y));
     });
 
-    draw();
+    drawWithZoom();
     frame = requestAnimationFrame(tick);
   }
 
@@ -1213,6 +1218,57 @@ function renderNetworkGraph(members, activities){
     hoveredNode = null; tooltip.classList.remove("show");
   });
 
+  // ── Zoom + Pan ──
+  let zoom = 1, panX = 0, panY = 0;
+  let isPanning = false, panStartX = 0, panStartY = 0, panStartOX = 0, panStartOY = 0;
+
+  canvas.addEventListener("wheel", ev => {
+    ev.preventDefault();
+    const delta = ev.deltaY > 0 ? 0.9 : 1.1;
+    zoom = Math.max(0.3, Math.min(3, zoom * delta));
+  }, {passive:false});
+
+  // Pinch zoom touch
+  let lastPinchDist = 0;
+  canvas.addEventListener("touchstart", ev => {
+    if(ev.touches.length === 2){
+      const dx = ev.touches[0].clientX - ev.touches[1].clientX;
+      const dy = ev.touches[0].clientY - ev.touches[1].clientY;
+      lastPinchDist = Math.sqrt(dx*dx+dy*dy);
+    }
+  }, {passive:true});
+  canvas.addEventListener("touchmove", ev => {
+    if(ev.touches.length === 2){
+      const dx = ev.touches[0].clientX - ev.touches[1].clientX;
+      const dy = ev.touches[0].clientY - ev.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      if(lastPinchDist > 0){
+        const delta = dist / lastPinchDist;
+        zoom = Math.max(0.3, Math.min(3, zoom * delta));
+      }
+      lastPinchDist = dist;
+    }
+  }, {passive:true});
+
+  // Apply zoom transform to canvas draw
+  const origDraw = draw;
+  const drawWithZoom = () => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(W/2 + panX, H/2 + panY);
+    ctx.scale(zoom, zoom);
+    ctx.translate(-W/2, -H/2);
+    origDraw();
+    ctx.restore();
+    // Zoom indicator
+    if(zoom !== 1){
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
+      ctx.font = "10px Space Mono";
+      ctx.textAlign = "right";
+      ctx.fillText(`${Math.round(zoom*100)}%`, W-10, H-10);
+    }
+  };
+
   container._simStop = () => { cancelAnimationFrame(frame); };
   tick();
 }
@@ -1286,12 +1342,12 @@ function renderPadlet(data){
     const d=new Date(p.ts).toLocaleDateString("pt-BR",{day:"2-digit",month:"short"});
     if(p.type==="photo") return `<div class="padlet-photo">
       <img src="${esc(p.url)}" alt="${esc(p.caption||"")}" onerror="this.src='https://placehold.co/300x200?text=Imagem'">
-      <div class="padlet-photo-caption">📷 ${esc(p.caption||"")} · ${esc(p.author)} · ${d}</div>
+      <div class="padlet-photo-caption">📷 ${esc(p.caption||"")} · ${esc(p.author)} · ${d}${p.author===currentUser?` <button class="item-del-btn" onclick="deleteItem('cluster7/padlet','${id}')">🗑</button>`:""}</div>
     </div>`;
     return `<div class="padlet-note" style="background:${esc(p.color||"#FFE566")}">
       ${p.title?`<div class="padlet-note-title">${esc(p.title)}</div>`:""}
       <div class="padlet-note-content">${esc(p.content).replace(/\n/g,"<br>")}</div>
-      <div class="padlet-note-meta">✍ ${esc(p.author)} · 🏛 ${esc(p.institution)} · ${d}</div>
+      <div class="padlet-note-meta">✍ ${esc(p.author)} · 🏛 ${esc(p.institution)} · ${d}${p.author===currentUser?` <button class="item-del-btn" onclick="deleteItem('cluster7/padlet','${id}')">🗑</button>`:""}</div>
     </div>`;
   }).join("");
 }
@@ -1586,6 +1642,12 @@ function renderScoreboard(members, activities, proposals){
 }
 
 // ============================================================
+async function deleteItem(path, id){
+  if(!confirm("Excluir este item?")) return;
+  await fetch(`\${DB}/\${path}/\${id}.json`, {method:"DELETE"});
+  showToast("Item excluído.");
+}
+
 // ---- INIT LISTENERS ----
 
 // ── SEED: popula dados iniciais se o banco estiver vazio ──
