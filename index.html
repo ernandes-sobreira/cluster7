@@ -92,7 +92,9 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
 .stat-box { background:white; border-radius:12px; padding:16px 24px; box-shadow:var(--card-shadow); text-align:center; flex:1; min-width:100px; }
 .stat-box .stat-num { font-size:32px; font-weight:800; color:var(--accent); font-family:'Space Mono',monospace; }
 .stat-box .stat-label { font-size:11px; color:var(--gray3); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
-.network-canvas { background:white; border-radius:var(--radius); padding:0; box-shadow:var(--card-shadow); margin-bottom:24px; min-height:420px; position:relative; overflow:hidden; }
+.network-canvas { background:#0a1628; border-radius:var(--radius); box-shadow:var(--card-shadow),0 0 60px rgba(0,200,150,.08); margin-bottom:24px; min-height:520px; position:relative; overflow:hidden; }
+.net-tooltip { position:absolute; background:rgba(10,22,40,.95); color:white; padding:10px 14px; border-radius:10px; font-size:12px; pointer-events:none; opacity:0; transition:opacity .2s; border:1px solid rgba(0,200,150,.3); backdrop-filter:blur(8px); z-index:20; max-width:220px; line-height:1.6; }
+.net-tooltip.show { opacity:1; }
 .member-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
 .member-card { background:white; border-radius:var(--radius); padding:20px; box-shadow:var(--card-shadow); display:flex; gap:14px; animation:fadeUp .4s ease; transition:transform .2s; cursor:pointer; position:relative; }
 .member-card:hover { transform:translateY(-3px); }
@@ -191,6 +193,111 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
   .section-header h1 { font-size:20px; }
   .header-title { font-size:12px; }
 }
+
+/* ===== UPLOAD ===== */
+.upload-area { border:2px dashed var(--gray2); border-radius:12px; padding:20px; cursor:pointer; transition:all .2s; background:var(--gray1); }
+.upload-area:hover, .upload-area.drag-over { border-color:var(--accent); background:rgba(0,200,150,.04); }
+.upload-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:90px; }
+.upload-preview { flex-direction:column; align-items:center; gap:10px; position:relative; }
+.upload-remove { background:var(--accent2); color:white; border:none; border-radius:8px; padding:5px 12px; font-size:12px; cursor:pointer; font-family:Sora,sans-serif; }
+.upload-progress { flex-direction:column; align-items:center; gap:6px; min-height:60px; justify-content:center; }
+.upload-bar { width:100%; height:6px; background:var(--gray2); border-radius:3px; overflow:hidden; }
+.upload-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent4)); border-radius:3px; transition:width .2s; }
+.upload-pct { font-size:12px; color:var(--gray3); font-family:'Space Mono',monospace; }
+
+/* ===== PROPOSTAS ===== */
+.proposal-filters { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+.proposal-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:20px; }
+
+.proposal-card {
+  background:white; border-radius:var(--radius); padding:24px;
+  box-shadow:var(--card-shadow); animation:fadeUp .4s ease;
+  transition:transform .2s; position:relative; overflow:hidden;
+}
+.proposal-card:hover { transform:translateY(-3px); }
+.proposal-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
+.proposal-card[data-status="aberta"]::before { background:linear-gradient(90deg,var(--accent),#00A87A); }
+.proposal-card[data-status="em_andamento"]::before { background:linear-gradient(90deg,var(--accent3),#F59E0B); }
+.proposal-card[data-status="concluida"]::before { background:linear-gradient(90deg,var(--gray3),var(--gray2)); }
+
+.proposal-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:10px; }
+.proposal-title { font-size:16px; font-weight:700; color:var(--c1); line-height:1.4; flex:1; }
+.proposal-status-badge { padding:3px 12px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; flex-shrink:0; }
+.status-aberta { background:rgba(0,200,150,.15); color:#00A87A; }
+.status-em_andamento { background:rgba(255,209,102,.2); color:#B8860B; }
+.status-concluida { background:var(--gray2); color:var(--gray3); }
+
+.proposal-desc { font-size:13px; color:#4A5568; line-height:1.7; margin-bottom:14px; }
+.proposal-meta { font-size:11px; color:var(--gray3); display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+
+.vote-section { display:flex; align-items:center; gap:12px; padding-top:14px; border-top:1px solid var(--gray2); flex-wrap:wrap; }
+.vote-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:20px;
+  border:2px solid var(--gray2);
+  background:white; cursor:pointer;
+  font-family:'Sora',sans-serif; font-size:12px; font-weight:700;
+  transition:all .2s; color:var(--text);
+}
+.vote-btn:hover { border-color:var(--accent); color:var(--accent); }
+.vote-btn.voted { background:var(--accent); border-color:var(--accent); color:white; }
+.vote-btn.against:hover { border-color:var(--accent2); color:var(--accent2); }
+.vote-btn.against.voted { background:var(--accent2); border-color:var(--accent2); color:white; }
+.vote-count { font-family:'Space Mono',monospace; }
+.advance-btn {
+  margin-left:auto; padding:7px 14px;
+  background:var(--gray1); border:2px solid var(--gray2);
+  border-radius:8px; font-size:11px; font-weight:700;
+  cursor:pointer; font-family:'Sora',sans-serif; color:var(--gray3);
+  transition:all .2s;
+}
+.advance-btn:hover { background:var(--accent3); border-color:var(--accent3); color:var(--c1); }
+
+/* ===== PLACAR ===== */
+.scoreboard-content { display:flex; flex-direction:column; gap:24px; }
+.score-period-tabs { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.score-section { background:white; border-radius:var(--radius); padding:28px; box-shadow:var(--card-shadow); }
+.score-section h2 { font-size:18px; font-weight:800; color:var(--c1); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+.score-row {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 0; border-bottom:1px solid var(--gray1);
+  animation:fadeUp .4s ease;
+}
+.score-row:last-child { border-bottom:none; }
+.score-rank {
+  font-family:'Space Mono',monospace; font-size:18px; font-weight:700;
+  width:36px; text-align:center; flex-shrink:0;
+  color:var(--gray3);
+}
+.score-rank.gold { color:#F59E0B; }
+.score-rank.silver { color:#94A3B8; }
+.score-rank.bronze { color:#B45309; }
+.score-bar-wrap { flex:1; }
+.score-name { font-size:14px; font-weight:700; color:var(--c1); margin-bottom:2px; }
+.score-inst { font-size:11px; color:var(--gray3); margin-bottom:6px; }
+.score-bar-bg { height:8px; background:var(--gray2); border-radius:4px; overflow:hidden; }
+.score-bar-fill { height:100%; border-radius:4px; transition:width .8s cubic-bezier(.4,0,.2,1); }
+.score-num {
+  font-family:'Space Mono',monospace; font-size:20px; font-weight:700;
+  color:var(--accent); flex-shrink:0; min-width:40px; text-align:right;
+}
+.score-label { font-size:10px; color:var(--gray3); text-align:right; }
+
+.inst-score-row { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--gray1); }
+.inst-score-row:last-child { border-bottom:none; }
+.inst-badge { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; color:white; flex-shrink:0; font-family:'Space Mono',monospace; }
+.inst-info { flex:1; }
+.inst-name { font-size:13px; font-weight:700; color:var(--c1); margin-bottom:3px; }
+.inst-acts { font-size:11px; color:var(--gray3); }
+.inst-bar-bg { height:6px; background:var(--gray2); border-radius:3px; overflow:hidden; margin-top:6px; }
+.inst-bar-fill { height:100%; border-radius:3px; transition:width .8s cubic-bezier(.4,0,.2,1); }
+.inst-num { font-family:'Space Mono',monospace; font-size:22px; font-weight:700; flex-shrink:0; }
+
+.score-medals { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
+.medal-box { background:white; border-radius:12px; padding:16px 20px; box-shadow:var(--card-shadow); flex:1; min-width:100px; text-align:center; }
+.medal-icon { font-size:28px; margin-bottom:4px; }
+.medal-num { font-family:'Space Mono',monospace; font-size:28px; font-weight:700; }
+.medal-label { font-size:11px; color:var(--gray3); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
 </style>
 </head>
 <body>
@@ -248,6 +355,14 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       <span>Atividades</span>
     </button>
+    <button class="nav-btn" data-tab="proposals" onclick="switchTab('proposals')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Propostas</span>
+    </button>
+    <button class="nav-btn" data-tab="scoreboard" onclick="switchTab('scoreboard')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <span>Placar</span>
+    </button>
   </nav>
   <div class="header-user" id="headerUser">
     <div class="user-dot"></div>
@@ -275,7 +390,7 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
       <button class="btn-add" onclick="openModal('memberModal')">+ Adicionar membro</button>
     </div>
     <div class="network-stats" id="networkStats"></div>
-    <div id="networkCanvas" class="network-canvas"></div>
+    <div id="networkCanvas" class="network-canvas"><canvas id="netCanvas"></canvas><div id="netTooltip" class="net-tooltip"></div></div>
     <div id="memberCards" class="member-cards"></div>
   </section>
 
@@ -318,6 +433,31 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
     <div id="activityList" class="activity-list"></div>
   </section>
 
+
+  <!-- TAB: PROPOSTAS -->
+  <section id="tab-proposals" class="tab-section">
+    <div class="section-header">
+      <h1>Propostas do Cluster</h1>
+      <button class="btn-add" onclick="openModal('proposalModal')">+ Nova proposta</button>
+    </div>
+    <div class="proposal-filters">
+      <button class="filter-btn active" onclick="filterProposals(this,'all')">Todas</button>
+      <button class="filter-btn" onclick="filterProposals(this,'aberta')">Abertas</button>
+      <button class="filter-btn" onclick="filterProposals(this,'em_andamento')">Em andamento</button>
+      <button class="filter-btn" onclick="filterProposals(this,'concluida')">Concluídas</button>
+    </div>
+    <div id="proposalList" class="proposal-list"></div>
+  </section>
+
+  <!-- TAB: PLACAR -->
+  <section id="tab-scoreboard" class="tab-section">
+    <div class="section-header">
+      <h1>Placar de Engajamento</h1>
+      <div style="font-size:13px;color:var(--gray3)">Baseado em atividades registradas</div>
+    </div>
+    <div id="scoreboardContent" class="scoreboard-content"></div>
+  </section>
+
 </main>
 
 <!-- MODAIS -->
@@ -326,7 +466,7 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
     <div class="modal-header"><h3>Nova Publicação</h3><button onclick="closeModal('postModal')">✕</button></div>
     <div class="form-group"><label>Título</label><input type="text" id="postTitle" placeholder="Assunto da publicação"></div>
     <div class="form-group"><label>Mensagem</label><textarea id="postContent" rows="4" placeholder="O que você quer compartilhar com o Cluster?"></textarea></div>
-    <div class="form-group"><label>URL de imagem (opcional)</label><input type="url" id="postImage" placeholder="https://..."></div>
+    <div id="postImageUploadSlot"></div>
     <button class="btn-primary" onclick="savePost()">Publicar</button>
   </div>
 </div>
@@ -339,7 +479,7 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
     <div class="form-group"><label>Área de pesquisa</label><input type="text" id="memArea" placeholder="Ex: Limnologia, Ecologia, Hidrologia..."></div>
     <div class="form-group"><label>E-mail</label><input type="email" id="memEmail" placeholder="email@inst.br"></div>
     <div class="form-group"><label>Lattes / Site (URL)</label><input type="url" id="memLattes" placeholder="http://lattes.cnpq.br/..."></div>
-    <div class="form-group"><label>Foto (URL)</label><input type="url" id="memPhoto" placeholder="https://..."></div>
+    <div id="memPhotoUploadSlot"></div>
     <button class="btn-primary" onclick="saveMember()">Adicionar ao Cluster</button>
   </div>
 </div>
@@ -387,7 +527,7 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
 <div id="photoModal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header"><h3>Foto no Mural</h3><button onclick="closeModal('photoModal')">✕</button></div>
-    <div class="form-group"><label>URL da imagem</label><input type="url" id="photoUrl" placeholder="https://..."></div>
+    <div id="photoUploadSlot"></div>
     <div class="form-group"><label>Legenda</label><input type="text" id="photoCaption" placeholder="Descreva a foto..."></div>
     <button class="btn-primary" onclick="savePhoto()">Colocar no mural</button>
   </div>
@@ -412,15 +552,40 @@ body { font-family:'Sora',sans-serif; background:var(--gray1); color:var(--text)
     <div class="form-group"><label>Participantes do Cluster envolvidos (nomes, vírgula)</label><input type="text" id="actParticipants" placeholder="Quem participou desta atividade?"></div>
     <div class="form-group"><label>Ano / Data</label><input type="text" id="actYear" placeholder="Ex: 2024 ou 15/03/2025"></div>
     <div class="form-group"><label>Descrição</label><textarea id="actDesc" rows="3" placeholder="Detalhes, DOI, link, notas..."></textarea></div>
-    <div class="form-group"><label>URL imagem / capa (opcional)</label><input type="url" id="actImage" placeholder="https://..."></div>
+    <div id="actImageUploadSlot"></div>
     <button class="btn-primary" onclick="saveActivity()">📌 Registrar e fixar</button>
+  </div>
+</div>
+
+<!-- Modal: Nova proposta -->
+<div id="proposalModal" class="modal-overlay">
+  <div class="modal-box modal-wide">
+    <div class="modal-header"><h3>Nova Proposta</h3><button onclick="closeModal('proposalModal')">✕</button></div>
+    <div class="form-group"><label>Título da proposta</label><input type="text" id="propTitle" placeholder="Ex: Artigo conjunto sobre PM2.5 no Pantanal"></div>
+    <div class="form-group"><label>Tipo</label>
+      <select id="propType">
+        <option value="artigo">Artigo científico conjunto</option>
+        <option value="edital">Submissão de edital / projeto</option>
+        <option value="evento">Organizar evento / webinar</option>
+        <option value="visita">Visita técnica / intercâmbio</option>
+        <option value="curso">Curso ou capacitação</option>
+        <option value="outro">Outro</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Descrição da ideia</label><textarea id="propDesc" rows="4" placeholder="Explique a proposta, o que você precisa do grupo, prazo esperado..."></textarea></div>
+    <div class="form-group"><label>Prazo / Horizonte temporal</label><input type="text" id="propDeadline" placeholder="Ex: Até dezembro 2025, Edital fecha em mar/2026..."></div>
+    <button class="btn-primary" onclick="saveProposal()">🚀 Lançar proposta</button>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
+
+
 <!-- Firebase via REST -->
 <script>
+document.addEventListener('DOMContentLoaded', function(){
+
 const DB = "https://som-ambiental-default-rtdb.firebaseio.com";
 const API_KEY = "AIzaSyBzL_Pic_2JETKQqs4tD9EC2TRynEFaZG4";
 
@@ -454,7 +619,112 @@ async function get(path){
   return await r.json();
 }
 
-const ACCESS_CODE = "cluster7unemat";
+const ACCESS_CODE = "cluster7";
+// Firebase Storage — som-ambiental bucket
+const STORAGE_BUCKET = "som-ambiental.firebasestorage.app";
+const STORAGE_API_KEY = "AIzaSyBzL_Pic_2JETKQqs4tD9EC2TRynEFaZG4";
+
+async function uploadPhoto(file, onProgress){
+  return new Promise((resolve, reject) => {
+    // Unique filename
+    const ext = file.name.split(".").pop() || "jpg";
+    const fname = `cluster7/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const url = `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o?uploadType=media&name=${encodeURIComponent(fname)}&key=${STORAGE_API_KEY}`;
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.setRequestHeader("Content-Type", file.type || "image/jpeg");
+    xhr.upload.onprogress = e => { if(e.lengthComputable && onProgress) onProgress(Math.round(e.loaded/e.total*100)); };
+    xhr.onload = () => {
+      try {
+        const res = JSON.parse(xhr.responseText);
+        if(res.name){
+          const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${STORAGE_BUCKET}/o/${encodeURIComponent(res.name)}?alt=media`;
+          resolve(publicUrl);
+        } else {
+          reject(res.error?.message || "Erro no upload");
+        }
+      } catch(e){ reject("Resposta inválida"); }
+    };
+    xhr.onerror = () => reject("Erro de rede");
+    xhr.send(file);
+  });
+}
+
+function createUploadBtn(labelText, onUrl, opts={}){
+  const wrap = document.createElement("div");
+  wrap.style.cssText = "margin-bottom:16px;";
+  wrap.innerHTML = `
+    <label style="display:block;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gray3);margin-bottom:6px;">${labelText}</label>
+    <div class="upload-area" id="ua_${opts.id||Math.random().toString(36).slice(2)}">
+      <input type="file" accept="image/*" style="display:none" id="fi_${opts.id||'x'}">
+      <div class="upload-placeholder">
+        <span style="font-size:28px">📷</span>
+        <span style="font-size:13px;color:var(--gray3);margin-top:6px">Clique ou arraste uma imagem</span>
+        <span style="font-size:11px;color:var(--gray2);margin-top:2px">JPG, PNG, GIF até 10MB</span>
+      </div>
+      <div class="upload-preview" style="display:none">
+        <img style="max-width:100%;max-height:160px;border-radius:8px;object-fit:cover;">
+        <button class="upload-remove">✕ remover</button>
+      </div>
+      <div class="upload-progress" style="display:none">
+        <div class="upload-bar"><div class="upload-fill"></div></div>
+        <span class="upload-pct">0%</span>
+      </div>
+    </div>
+    ${opts.showUrl !== false ? `<input type="url" class="upload-url-field" placeholder="ou cole uma URL de imagem" style="width:100%;padding:10px 14px;border:2px solid var(--gray2);border-radius:10px;font-family:Sora,sans-serif;font-size:13px;color:var(--text);margin-top:8px;outline:none;">` : ""}
+  `;
+  document.body.appendChild(wrap); // temp, will be moved
+
+  const area = wrap.querySelector(".upload-area");
+  const input = wrap.querySelector("input[type=file]");
+  const placeholder = wrap.querySelector(".upload-placeholder");
+  const preview = wrap.querySelector(".upload-preview");
+  const previewImg = preview.querySelector("img");
+  const removeBtn = preview.querySelector(".upload-remove");
+  const progress = wrap.querySelector(".upload-progress");
+  const fill = wrap.querySelector(".upload-fill");
+  const pct = wrap.querySelector(".upload-pct");
+  const urlField = wrap.querySelector(".upload-url-field");
+
+  let currentUrl = "";
+
+  area.addEventListener("click", () => input.click());
+  area.addEventListener("dragover", e => { e.preventDefault(); area.classList.add("drag-over"); });
+  area.addEventListener("dragleave", () => area.classList.remove("drag-over"));
+  area.addEventListener("drop", e => { e.preventDefault(); area.classList.remove("drag-over"); handleFile(e.dataTransfer.files[0]); });
+  input.addEventListener("change", () => handleFile(input.files[0]));
+  removeBtn.addEventListener("click", e => { e.stopPropagation(); currentUrl=""; preview.style.display="none"; placeholder.style.display="flex"; if(urlField) urlField.value=""; onUrl(""); });
+  if(urlField){
+    urlField.addEventListener("input", () => { currentUrl=urlField.value.trim(); onUrl(currentUrl); if(currentUrl){ previewImg.src=currentUrl; placeholder.style.display="none"; preview.style.display="flex"; } });
+  }
+
+  async function handleFile(file){
+    if(!file || !file.type.startsWith("image/")) return;
+    placeholder.style.display = "none";
+    progress.style.display = "flex";
+    fill.style.width = "0%";
+    try {
+      const url = await uploadPhoto(file, p => { fill.style.width=p+"%"; pct.textContent=p+"%"; });
+      currentUrl = url;
+      progress.style.display = "none";
+      previewImg.src = url;
+      preview.style.display = "flex";
+      if(urlField) urlField.value = url;
+      onUrl(url);
+    } catch(err){
+      progress.style.display = "none";
+      placeholder.style.display = "flex";
+      showToast("Erro no upload: " + err);
+      onUrl("");
+    }
+  }
+
+  wrap._getUrl = () => currentUrl;
+  wrap._reset = () => { currentUrl=""; preview.style.display="none"; placeholder.style.display="flex"; fill.style.width="0%"; if(urlField) urlField.value=""; input.value=""; onUrl(""); };
+  document.body.removeChild(wrap);
+  return wrap;
+}
+
 let currentUser = null, currentInstitution = null;
 let selectedNoteColor = "#FFE566";
 let currentFilter = "all";
@@ -494,7 +764,13 @@ window.switchTab = function(tab){
   document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
   document.getElementById(`tab-${tab}`).classList.add("active");
   document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
-  if(tab==="network") setTimeout(redrawGraph, 100);
+  if(tab==="network"){
+    const c=document.getElementById("networkCanvas"); if(c) c._lastSig=null;
+    setTimeout(redrawGraph, 80);
+  }
+  if(tab==="scoreboard"){
+    get("cluster7/members").then(m=>{ get("cluster7/activities").then(a=>{ get("cluster7/proposals").then(p=>renderScoreboard(m,a,p)); }); });
+  }
 };
 
 // ---- Modals ----
@@ -655,58 +931,62 @@ function sharedActivities(nameA, nameB, activities){
 
 function renderNetworkGraph(members, activities){
   const container = document.getElementById("networkCanvas");
-
-  // Só reconstrói se os dados mudaram de verdade
   const sig = JSON.stringify({members, activities});
   if(container._lastSig === sig) return;
   container._lastSig = sig;
+  if(container._simStop){ container._simStop(); container._simStop = null; }
 
-  // Para simulação anterior se existir
-  if(container._simStop) container._simStop();
-  container.innerHTML = "";
+  const canvas = document.getElementById("netCanvas");
+  const tooltip = document.getElementById("netTooltip");
+  if(!canvas) return;
 
-  if(!members){
-    container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray3)">Adicione membros para visualizar a rede.</div>`;
+  const W = container.offsetWidth || 800;
+  const H = 520;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  if(!members || !Object.keys(members).length){
+    ctx.fillStyle = "#94A3B8";
+    ctx.font = "14px Sora";
+    ctx.textAlign = "center";
+    ctx.fillText("Adicione membros para visualizar a rede.", W/2, H/2);
     return;
   }
+
   const items = Object.values(members);
-  if(!items.length){
-    container.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray3)">Nenhum membro ainda.</div>`;
-    return;
-  }
-
-  const W = container.offsetWidth || 780;
-  const H = 460;
-  container.style.height = H + "px";
-  container.style.position = "relative";
-  container.style.overflow = "hidden";
-  container.style.background = "white";
-
-  // SVG para as arestas
-  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;";
-  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  container.appendChild(svg);
-
-  // Construir mapa de conexões
   const connMap = buildConnMap(activities);
 
-  // Nós com posição inicial em círculo
+  // Color palette by institution
+  const instColors = {};
+  const palette = ["#00C896","#7B5EA7","#FF6B6B","#FFD166","#06B6D4","#F59E0B","#10B981","#EF4444","#8B5CF6","#EC4899","#14B8A6","#F97316"];
+  let colorIdx = 0;
+  items.forEach(m => {
+    const k = m.institution;
+    if(!instColors[k]) instColors[k] = palette[colorIdx++ % palette.length];
+  });
+
+  // Build nodes
   const nodes = items.map((m, i) => {
     const angle = (i / items.length) * 2 * Math.PI - Math.PI/2;
-    const r = Math.min(W, H) * 0.3;
+    const r = Math.min(W, H) * 0.29;
+    const conns = connMap[m.name] || 0;
     return {
       m,
-      x: W/2 + r * Math.cos(angle),
-      y: H/2 + r * Math.sin(angle),
+      x: W/2 + r * Math.cos(angle) + (Math.random()-.5)*10,
+      y: H/2 + r * Math.sin(angle) + (Math.random()-.5)*10,
       vx: 0, vy: 0,
-      size: 40 + Math.min((connMap[m.name]||0) * 7, 36),
-      conns: connMap[m.name] || 0,
+      r: 22 + Math.min(conns * 5, 28),
+      conns,
+      color: instColors[m.institution] || "#00C896",
       pinned: false
     };
   });
 
-  // Arestas com peso = nº de atividades compartilhadas
+  // Build edges with weight
   const edges = [];
   buildConnPairs(activities).forEach(pair => {
     const [na, nb] = pair.split("|||");
@@ -717,162 +997,224 @@ function renderNetworkGraph(members, activities){
     edges.push({a, b, w});
   });
 
-  // Criar SVG lines para arestas
-  const edgeEls = edges.map(e => {
-    const line = document.createElementNS("http://www.w3.org/2000/svg","line");
-    const op = Math.min(0.12 + e.w * 0.22, 0.9);
-    const sw = Math.min(1 + e.w * 1.8, 7);
-    line.setAttribute("stroke", "#00C896");
-    line.setAttribute("stroke-opacity", op);
-    line.setAttribute("stroke-width", sw);
-    line.setAttribute("stroke-linecap", "round");
-    svg.appendChild(line);
-    return {line, e};
-  });
+  // ── Physics constants ──
+  const REPEL = 4500;
+  const SPRING_K = 0.028;
+  const REST = 160;
+  const GRAVITY = 0.003;
+  const DAMP = 0.82;
 
-  // Criar nós DOM
-  const nodeEls = nodes.map(nd => {
-    const sigla = iesSigla(nd.m.institution);
-    const div = document.createElement("div");
-    div.style.cssText = `
-      position:absolute;
-      width:${nd.size}px;height:${nd.size}px;
-      border-radius:50%;
-      background:linear-gradient(135deg,#00C896,#7B5EA7);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      color:white;font-weight:800;font-size:${Math.max(8, nd.size/5.5)}px;
-      cursor:grab;user-select:none;z-index:3;
-      box-shadow:0 3px 14px rgba(0,200,150,.35);
-      transition:box-shadow .15s;
-      text-align:center;
-      line-height:1.1;
-    `;
-    div.textContent = sigla;
-    div.title = `${nd.m.name}\n${nd.m.institution}\n${nd.conns} conexões`;
+  let frame;
+  let hoveredNode = null;
 
-    // Label abaixo
-    const lbl = document.createElement("div");
-    lbl.style.cssText = "position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;color:#334155;font-weight:600;pointer-events:none;background:rgba(255,255,255,.92);padding:1px 6px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.1);";
-    const parts = nd.m.name.split(" ");
-    lbl.textContent = parts[0] + (parts.length > 1 ? " " + parts[parts.length-1] : "");
-    container.appendChild(div);
-    container.appendChild(lbl);
-
-    // ── Drag com mouse ──
-    let dragging = false, ox = 0, oy = 0;
-    const rect = () => container.getBoundingClientRect();
-
-    div.addEventListener("mousedown", ev => {
-      dragging = true;
-      nd.pinned = true;
-      nd.vx = nd.vy = 0;
-      const r = rect();
-      ox = ev.clientX - r.left - nd.x;
-      oy = ev.clientY - r.top - nd.y;
-      div.style.cursor = "grabbing";
-      div.style.boxShadow = "0 8px 28px rgba(0,200,150,.6)";
-      div.style.zIndex = 10;
-      ev.preventDefault();
-    });
-    window.addEventListener("mousemove", ev => {
-      if(!dragging) return;
-      const r = rect();
-      nd.x = Math.max(nd.size/2, Math.min(W - nd.size/2, ev.clientX - r.left - ox));
-      nd.y = Math.max(nd.size/2, Math.min(H - nd.size/2, ev.clientY - r.top - oy));
-    });
-    window.addEventListener("mouseup", () => {
-      if(!dragging) return;
-      dragging = false;
-      nd.pinned = false;
-      div.style.cursor = "grab";
-      div.style.boxShadow = "0 3px 14px rgba(0,200,150,.35)";
-      div.style.zIndex = 3;
-    });
-
-    // ── Drag touch ──
-    div.addEventListener("touchstart", ev => {
-      dragging = true; nd.pinned = true; nd.vx = nd.vy = 0;
-      const t = ev.touches[0]; const r = rect();
-      ox = t.clientX - r.left - nd.x; oy = t.clientY - r.top - nd.y;
-      ev.preventDefault();
-    }, {passive:false});
-    window.addEventListener("touchmove", ev => {
-      if(!dragging) return;
-      const t = ev.touches[0]; const r = rect();
-      nd.x = Math.max(nd.size/2, Math.min(W - nd.size/2, t.clientX - r.left - ox));
-      nd.y = Math.max(nd.size/2, Math.min(H - nd.size/2, t.clientY - r.top - oy));
-    }, {passive:true});
-    window.addEventListener("touchend", () => { dragging = false; nd.pinned = false; });
-
-    return {div, lbl, nd};
-  });
-
-  // ── Simulação de força ──
-  let active = true;
-  container._simStop = () => { active = false; };
-
-  const REPEL    = 3200;   // repulsão entre nós
-  const ATTRACT  = 0.04;   // atração por aresta (× peso)
-  const REST_LEN = 140;    // comprimento ideal da aresta
-  const CENTER_G = 0.004;  // gravidade central
-  const DAMP     = 0.78;   // amortecimento
-
-  function simulate(){
-    if(!active) return;
-
-    // Repulsão
+  function tick(){
+    // Repulsion
     for(let i = 0; i < nodes.length; i++){
       for(let j = i+1; j < nodes.length; j++){
         const a = nodes[i], b = nodes[j];
-        let dx = b.x - a.x, dy = b.y - a.y;
+        const dx = b.x - a.x, dy = b.y - a.y;
         const d2 = dx*dx + dy*dy || 1;
         const d = Math.sqrt(d2);
+        const minD = a.r + b.r + 12;
         const f = REPEL / d2;
-        const nx = dx/d, ny = dy/d;
-        if(!a.pinned){ a.vx -= nx*f; a.vy -= ny*f; }
-        if(!b.pinned){ b.vx += nx*f; b.vy += ny*f; }
+        if(!a.pinned){ a.vx -= dx/d*f; a.vy -= dy/d*f; }
+        if(!b.pinned){ b.vx += dx/d*f; b.vy += dy/d*f; }
+        // Overlap push
+        if(d < minD){
+          const push = (minD - d) * 0.5;
+          if(!a.pinned){ a.vx -= dx/d*push*0.4; a.vy -= dy/d*push*0.4; }
+          if(!b.pinned){ b.vx += dx/d*push*0.4; b.vy += dy/d*push*0.4; }
+        }
       }
     }
-
-    // Atração pelas arestas
+    // Springs
     edges.forEach(e => {
       const dx = e.b.x - e.a.x, dy = e.b.y - e.a.y;
       const d = Math.sqrt(dx*dx + dy*dy) || 1;
-      const idealLen = Math.max(60, REST_LEN - e.w * 15);
-      const f = (d - idealLen) * ATTRACT * e.w;
-      const nx = dx/d, ny = dy/d;
-      if(!e.a.pinned){ e.a.vx += nx*f; e.a.vy += ny*f; }
-      if(!e.b.pinned){ e.b.vx -= nx*f; e.b.vy -= ny*f; }
+      const ideal = Math.max(70, REST - e.w * 18);
+      const f = (d - ideal) * SPRING_K * Math.sqrt(e.w);
+      if(!e.a.pinned){ e.a.vx += dx/d*f; e.a.vy += dy/d*f; }
+      if(!e.b.pinned){ e.b.vx -= dx/d*f; e.b.vy -= dy/d*f; }
+    });
+    // Center gravity + integrate
+    nodes.forEach(n => {
+      if(n.pinned) return;
+      n.vx += (W/2 - n.x) * GRAVITY;
+      n.vy += (H/2 - n.y) * GRAVITY;
+      n.vx *= DAMP; n.vy *= DAMP;
+      n.x += n.vx; n.y += n.vy;
+      n.x = Math.max(n.r+4, Math.min(W-n.r-4, n.x));
+      n.y = Math.max(n.r+4, Math.min(H-n.r-4, n.y));
     });
 
-    // Gravidade central + damping + integração
-    nodes.forEach(nd => {
-      if(nd.pinned) return;
-      nd.vx += (W/2 - nd.x) * CENTER_G;
-      nd.vy += (H/2 - nd.y) * CENTER_G;
-      nd.vx *= DAMP; nd.vy *= DAMP;
-      nd.x += nd.vx; nd.y += nd.vy;
-      const r = nd.size/2 + 4;
-      nd.x = Math.max(r, Math.min(W - r, nd.x));
-      nd.y = Math.max(r, Math.min(H - r, nd.y));
-    });
-
-    // Atualizar DOM
-    nodeEls.forEach(({div, lbl, nd}) => {
-      div.style.left = (nd.x - nd.size/2) + "px";
-      div.style.top  = (nd.y - nd.size/2) + "px";
-      lbl.style.left = nd.x + "px";
-      lbl.style.top  = (nd.y + nd.size/2 + 4) + "px";
-      lbl.style.transform = "translateX(-50%)";
-    });
-    edgeEls.forEach(({line, e}) => {
-      line.setAttribute("x1", e.a.x); line.setAttribute("y1", e.a.y);
-      line.setAttribute("x2", e.b.x); line.setAttribute("y2", e.b.y);
-    });
-
-    requestAnimationFrame(simulate);
+    draw();
+    frame = requestAnimationFrame(tick);
   }
-  simulate();
+
+  function hexToRgb(hex){
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `${r},${g},${b}`;
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+
+    // Background grid dots
+    ctx.fillStyle = "rgba(255,255,255,0.025)";
+    for(let gx = 30; gx < W; gx += 40){
+      for(let gy = 30; gy < H; gy += 40){
+        ctx.beginPath(); ctx.arc(gx, gy, 1, 0, Math.PI*2); ctx.fill();
+      }
+    }
+
+    // Draw edges
+    edges.forEach(e => {
+      const isHovered = hoveredNode && (e.a === hoveredNode || e.b === hoveredNode);
+      const op = isHovered ? 0.85 : Math.min(0.08 + e.w * 0.15, 0.55);
+      const sw = isHovered ? Math.min(1.5 + e.w * 2, 8) : Math.min(0.8 + e.w * 1.2, 5);
+
+      // Gradient line
+      const grad = ctx.createLinearGradient(e.a.x, e.a.y, e.b.x, e.b.y);
+      grad.addColorStop(0, `rgba(${hexToRgb(e.a.color)},${op})`);
+      grad.addColorStop(1, `rgba(${hexToRgb(e.b.color)},${op})`);
+
+      ctx.beginPath();
+      ctx.moveTo(e.a.x, e.a.y);
+      ctx.lineTo(e.b.x, e.b.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = sw;
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      // Weight label on hovered edges
+      if(isHovered && e.w > 1){
+        const mx = (e.a.x + e.b.x)/2, my = (e.a.y + e.b.y)/2;
+        ctx.fillStyle = "rgba(255,255,255,.7)";
+        ctx.font = "bold 10px Sora";
+        ctx.textAlign = "center";
+        ctx.fillText(`${e.w}×`, mx, my - 4);
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(n => {
+      const isHovered = n === hoveredNode;
+      const glow = isHovered ? 18 : 8;
+
+      // Outer glow
+      const glowGrad = ctx.createRadialGradient(n.x, n.y, n.r*0.5, n.x, n.y, n.r + glow);
+      glowGrad.addColorStop(0, `rgba(${hexToRgb(n.color)},${isHovered ? 0.35 : 0.15})`);
+      glowGrad.addColorStop(1, `rgba(${hexToRgb(n.color)},0)`);
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + glow, 0, Math.PI*2);
+      ctx.fillStyle = glowGrad; ctx.fill();
+
+      // Ring
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 2.5, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(${hexToRgb(n.color)},${isHovered ? 0.9 : 0.4})`;
+      ctx.lineWidth = isHovered ? 2.5 : 1.5;
+      ctx.stroke();
+
+      // Node fill
+      const fill = ctx.createRadialGradient(n.x - n.r*0.25, n.y - n.r*0.25, 0, n.x, n.y, n.r);
+      fill.addColorStop(0, `rgba(${hexToRgb(n.color)},0.95)`);
+      fill.addColorStop(1, `rgba(${hexToRgb(n.color)},0.55)`);
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+      ctx.fillStyle = fill; ctx.fill();
+
+      // Sigla
+      const sigla = iesSigla(n.m.institution);
+      ctx.fillStyle = "white";
+      ctx.font = `800 ${Math.max(8, Math.min(12, n.r * 0.48))}px 'Space Mono', monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(sigla, n.x, n.y);
+
+      // Name label below
+      const firstName = n.m.name.split(" ")[0];
+      ctx.font = `600 ${Math.max(8, Math.min(10, n.r*0.38))}px Sora`;
+      ctx.fillStyle = isHovered ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.6)";
+      ctx.fillText(firstName, n.x, n.y + n.r + 10);
+    });
+  }
+
+  // ── Interação mouse ──
+  function getNodeAt(mx, my){
+    return nodes.find(n => Math.hypot(n.x - mx, n.y - my) < n.r + 8) || null;
+  }
+
+  let dragging = null, dragOX = 0, dragOY = 0;
+
+  canvas.addEventListener("mousemove", ev => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = ev.clientX - rect.left;
+    const my = ev.clientY - rect.top;
+    if(dragging){
+      dragging.x = Math.max(dragging.r+4, Math.min(W-dragging.r-4, mx - dragOX));
+      dragging.y = Math.max(dragging.r+4, Math.min(H-dragging.r-4, my - dragOY));
+      return;
+    }
+    const n = getNodeAt(mx, my);
+    hoveredNode = n;
+    canvas.style.cursor = n ? "grab" : "default";
+    if(n){
+      const sigla = iesSigla(n.m.institution);
+      tooltip.innerHTML = `<strong style="color:${n.color}">${sigla}</strong><br>${n.m.name}<br><span style="color:#94A3B8;font-size:11px">${n.m.institution}</span>${n.m.area ? `<br><span style="color:#64748B;font-size:10px">${n.m.area}</span>` : ""}${n.conns > 0 ? `<br><span style="color:#00C896;font-size:11px;margin-top:4px;display:block">⬡ ${n.conns} conexões</span>` : ""}`;
+      let tx = mx + 14, ty = my - 10;
+      if(tx + 230 > W) tx = mx - 230;
+      if(ty + 120 > H) ty = H - 120;
+      tooltip.style.left = tx + "px";
+      tooltip.style.top = ty + "px";
+      tooltip.classList.add("show");
+    } else {
+      tooltip.classList.remove("show");
+    }
+  });
+
+  canvas.addEventListener("mousedown", ev => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    const n = getNodeAt(mx, my);
+    if(n){
+      dragging = n; n.pinned = true;
+      dragOX = mx - n.x; dragOY = my - n.y;
+      canvas.style.cursor = "grabbing";
+      n.vx = n.vy = 0;
+    }
+    ev.preventDefault();
+  });
+  window.addEventListener("mouseup", () => {
+    if(dragging){ dragging.pinned = false; dragging = null; canvas.style.cursor = "default"; }
+  });
+
+  // Touch
+  canvas.addEventListener("touchstart", ev => {
+    const rect = canvas.getBoundingClientRect();
+    const t = ev.touches[0];
+    const mx = t.clientX - rect.left, my = t.clientY - rect.top;
+    const n = getNodeAt(mx, my);
+    if(n){ dragging = n; n.pinned = true; dragOX = mx - n.x; dragOY = my - n.y; n.vx = n.vy = 0; }
+    ev.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener("touchmove", ev => {
+    if(!dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = ev.touches[0];
+    dragging.x = Math.max(dragging.r+4, Math.min(W-dragging.r-4, t.clientX - rect.left - dragOX));
+    dragging.y = Math.max(dragging.r+4, Math.min(H-dragging.r-4, t.clientY - rect.top - dragOY));
+    ev.preventDefault();
+  }, {passive:false});
+  canvas.addEventListener("touchend", () => {
+    if(dragging){ dragging.pinned = false; dragging = null; }
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    hoveredNode = null; tooltip.classList.remove("show");
+  });
+
+  container._simStop = () => { cancelAnimationFrame(frame); };
+  tick();
 }
 // ---- EVENTOS ----
 window.saveEvent = function(){
@@ -1009,6 +1351,241 @@ function renderActivitiesFiltered(){
   }).join("");
 }
 
+// ============================================================
+// PROPOSTAS
+// ============================================================
+let allProposals = null;
+let proposalFilter = 'all';
+
+window.saveProposal = function(){
+  const title = document.getElementById("propTitle").value.trim();
+  const desc  = document.getElementById("propDesc").value.trim();
+  if(!title){ showToast("Informe o título da proposta."); return; }
+  push("cluster7/proposals", {
+    title, desc,
+    type: document.getElementById("propType").value,
+    deadline: document.getElementById("propDeadline").value.trim(),
+    status: "aberta",
+    author: currentUser,
+    institution: currentInstitution,
+    votesFor: {}, votesAgainst: {},
+    ts: Date.now()
+  });
+  ["propTitle","propDesc","propDeadline"].forEach(id => document.getElementById(id).value = "");
+  closeModal("proposalModal");
+  showToast("Proposta lançada para o Cluster! 🚀");
+};
+
+window.filterProposals = function(btn, type){
+  proposalFilter = type;
+  document.querySelectorAll(".proposal-filters .filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderProposalsFiltered();
+};
+
+async function voteProposal(id, direction){
+  const data = await get(`cluster7/proposals/${id}`);
+  if(!data) return;
+  const field = direction === 'for' ? 'votesFor' : 'votesAgainst';
+  const other  = direction === 'for' ? 'votesAgainst' : 'votesFor';
+  const votes  = data[field] || {};
+  const oVotes = data[other]  || {};
+  const key = currentUser.replace(/[^a-zA-Z0-9]/g,'_');
+  if(votes[key]){ delete votes[key]; }
+  else { votes[key] = true; delete oVotes[key]; }
+  await fbSet(`cluster7/proposals/${id}/${field}`, votes);
+  await fbSet(`cluster7/proposals/${id}/${other}`, oVotes);
+}
+
+async function advanceProposal(id, currentStatus){
+  const next = currentStatus === 'aberta' ? 'em_andamento' : 'concluida';
+  await fbSet(`cluster7/proposals/${id}/status`, next);
+  showToast(`Proposta marcada como: ${next.replace('_',' ')} ✅`);
+}
+
+function fbSet(path, value){
+  return fetch(`${DB}/${path}.json`, {
+    method: "PUT",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify(value)
+  });
+}
+
+function renderProposals(data){
+  allProposals = data;
+  renderProposalsFiltered();
+}
+
+const propTypeLabel = {
+  artigo:"Artigo conjunto", edital:"Edital / Projeto",
+  evento:"Evento / Webinar", visita:"Visita técnica",
+  curso:"Curso / Capacitação", outro:"Outro"
+};
+
+function renderProposalsFiltered(){
+  const el = document.getElementById("proposalList");
+  if(!allProposals){
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🚀</div><p>Nenhuma proposta ainda. Lance uma ideia!</p></div>`;
+    return;
+  }
+  let items = Object.entries(allProposals).reverse();
+  if(proposalFilter !== 'all') items = items.filter(([,p]) => p.status === proposalFilter);
+  if(!items.length){
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>Nenhuma proposta nesta categoria.</p></div>`;
+    return;
+  }
+  el.innerHTML = items.map(([id, p]) => {
+    const votesFor  = Object.keys(p.votesFor  || {}).length;
+    const votesAgainst = Object.keys(p.votesAgainst || {}).length;
+    const key = currentUser.replace(/[^a-zA-Z0-9]/g,'_');
+    const votedFor  = (p.votesFor  || {})[key];
+    const votedAgainst = (p.votesAgainst || {})[key];
+    const d = new Date(p.ts).toLocaleDateString("pt-BR",{day:"2-digit",month:"short",year:"numeric"});
+    const canAdvance = p.status !== 'concluida' && p.author === currentUser;
+    return `<div class="proposal-card" data-status="${p.status||'aberta'}">
+      <div class="proposal-header">
+        <div class="proposal-title">${esc(p.title)}</div>
+        <span class="proposal-status-badge status-${p.status||'aberta'}">${(p.status||'aberta').replace('_',' ')}</span>
+      </div>
+      <div style="margin-bottom:10px">
+        <span class="activity-type-badge type-${p.type||'outro'}">${propTypeLabel[p.type]||'Outro'}</span>
+      </div>
+      ${p.desc ? `<div class="proposal-desc">${esc(p.desc)}</div>` : ""}
+      <div class="proposal-meta">
+        <span>✍ ${esc(p.author)}</span>
+        <span>🏛 ${esc(p.institution)}</span>
+        <span>📅 ${d}</span>
+        ${p.deadline ? `<span>⏰ ${esc(p.deadline)}</span>` : ""}
+      </div>
+      <div class="vote-section">
+        <button class="vote-btn ${votedFor?'voted':''}" onclick="voteProposal('${id}','for')">
+          👍 <span class="vote-count">${votesFor}</span> Apoio
+        </button>
+        <button class="vote-btn against ${votedAgainst?'voted':''}" onclick="voteProposal('${id}','against')">
+          👎 <span class="vote-count">${votesAgainst}</span>
+        </button>
+        ${canAdvance ? `<button class="advance-btn" onclick="advanceProposal('${id}','${p.status||'aberta'}')">${p.status==='aberta'?'▶ Iniciar':'✓ Concluir'}</button>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ============================================================
+// PLACAR DE ENGAJAMENTO
+// ============================================================
+const instPalette = ["#00C896","#7B5EA7","#FF6B6B","#FFD166","#06B6D4","#F59E0B","#10B981","#EF4444","#8B5CF6","#EC4899","#14B8A6","#F97316"];
+
+function renderScoreboard(members, activities, proposals){
+  const el = document.getElementById("scoreboardContent");
+  if(!el) return;
+
+  // ── Engajamento por pessoa ──
+  const personScore = {};
+  const personInst  = {};
+  if(members){
+    Object.values(members).forEach(m => {
+      personScore[m.name] = 0;
+      personInst[m.name]  = m.institution;
+    });
+  }
+  if(activities){
+    Object.values(activities).forEach(a => {
+      if(!a.participants) return;
+      a.participants.split(",").map(p=>p.trim()).forEach(p => {
+        if(p) personScore[p] = (personScore[p]||0) + 1;
+      });
+    });
+  }
+  if(proposals){
+    Object.values(proposals).forEach(p => {
+      if(p.author) personScore[p.author] = (personScore[p.author]||0) + 1;
+      Object.keys(p.votesFor||{}).forEach(k => {
+        const name = k.replace(/_/g,' ');
+        personScore[name] = (personScore[name]||0) + 0.5;
+      });
+    });
+  }
+
+  // ── Engajamento por IES ──
+  const instScore = {};
+  const instColor = {};
+  let ci = 0;
+  Object.entries(personScore).forEach(([name, score]) => {
+    const inst = personInst[name] || "Não identificado";
+    instScore[inst] = (instScore[inst]||0) + score;
+    if(!instColor[inst]) instColor[inst] = instPalette[ci++ % instPalette.length];
+  });
+
+  const topPersons = Object.entries(personScore).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const topInsts   = Object.entries(instScore).sort((a,b)=>b[1]-a[1]);
+  const maxP = topPersons[0]?.[1] || 1;
+  const maxI = topInsts[0]?.[1] || 1;
+
+  const totalActs = activities ? Object.keys(activities).length : 0;
+  const totalProps = proposals ? Object.keys(proposals).length : 0;
+  const totalMembers = members ? Object.keys(members).length : 0;
+  const totalInsts = topInsts.length;
+
+  const rankIcon = i => i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+  const rankClass = i => i===0?'gold':i===1?'silver':i===2?'bronze':'';
+
+  el.innerHTML = `
+    <div class="score-medals">
+      <div class="medal-box"><div class="medal-icon">👥</div><div class="medal-num">${totalMembers}</div><div class="medal-label">Pesquisadores</div></div>
+      <div class="medal-box"><div class="medal-icon">🏛</div><div class="medal-num">${totalInsts}</div><div class="medal-label">Instituições</div></div>
+      <div class="medal-box"><div class="medal-icon">📌</div><div class="medal-num">${totalActs}</div><div class="medal-label">Atividades</div></div>
+      <div class="medal-box"><div class="medal-icon">🚀</div><div class="medal-num">${totalProps}</div><div class="medal-label">Propostas</div></div>
+    </div>
+
+    <div class="score-section">
+      <h2>🏆 Ranking de Pesquisadores</h2>
+      ${topPersons.length === 0
+        ? `<div style="color:var(--gray3);text-align:center;padding:20px">Nenhuma atividade registrada ainda.</div>`
+        : topPersons.map(([name, score], i) => {
+            const pct = Math.round((score/maxP)*100);
+            const color = instColor[personInst[name]] || "#00C896";
+            return `<div class="score-row">
+              <div class="score-rank ${rankClass(i)}">${rankIcon(i)}</div>
+              <div class="score-bar-wrap">
+                <div class="score-name">${esc(name)}</div>
+                <div class="score-inst">${esc(personInst[name]||'')}</div>
+                <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+              </div>
+              <div>
+                <div class="score-num">${Math.round(score)}</div>
+                <div class="score-label">pts</div>
+              </div>
+            </div>`;
+          }).join("")
+      }
+    </div>
+
+    <div class="score-section">
+      <h2>🏛 Engajamento por Instituição</h2>
+      ${topInsts.length === 0
+        ? `<div style="color:var(--gray3);text-align:center;padding:20px">Nenhuma atividade registrada ainda.</div>`
+        : topInsts.map(([inst, score], i) => {
+            const pct = Math.round((score/maxI)*100);
+            const color = instColor[inst] || "#00C896";
+            const sigla = iesSigla(inst);
+            return `<div class="inst-score-row">
+              <div class="inst-badge" style="background:${color}">${sigla}</div>
+              <div class="inst-info">
+                <div class="inst-name">${esc(inst)}</div>
+                <div class="inst-acts">${Math.round(score)} ponto${score!==1?'s':''} de engajamento</div>
+                <div class="inst-bar-bg"><div class="inst-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+              </div>
+              <div>
+                <div class="inst-num" style="color:${color}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':''} ${Math.round(score)}</div>
+              </div>
+            </div>`;
+          }).join("")
+      }
+    </div>
+  `;
+}
+
+// ============================================================
 // ---- INIT LISTENERS ----
 
 // ── SEED: popula dados iniciais se o banco estiver vazio ──
@@ -1049,20 +1626,103 @@ async function seedIfEmpty(){
 
 function initListeners(){
   seedIfEmpty();
+
+  // Init upload widgets
+  let _photoUrl="", _memPhotoUrl="", _actImageUrl="", _postImageUrl="";
+
+  const photoUpload = createUploadBtn("Foto", url=>{ _photoUrl=url; }, {id:"photo", showUrl:false});
+  document.getElementById("photoUploadSlot").appendChild(photoUpload);
+
+  const memPhotoUpload = createUploadBtn("Foto do membro", url=>{ _memPhotoUrl=url; }, {id:"memphoto"});
+  document.getElementById("memPhotoUploadSlot").appendChild(memPhotoUpload);
+
+  const actImageUpload = createUploadBtn("Imagem / capa (opcional)", url=>{ _actImageUrl=url; }, {id:"actimg"});
+  document.getElementById("actImageUploadSlot").appendChild(actImageUpload);
+
+  const postImageUpload = createUploadBtn("Imagem (opcional)", url=>{ _postImageUrl=url; }, {id:"postimg"});
+  document.getElementById("postImageUploadSlot").appendChild(postImageUpload);
+
+  // Override save functions to use upload URLs
+  const _origSavePhoto = window.savePhoto;
+  window.savePhoto = function(){
+    const content2=document.getElementById("photoCaption").value.trim();
+    if(!_photoUrl){ showToast("Adicione uma foto primeiro."); return; }
+    push("cluster7/padlet",{type:"photo",url:_photoUrl,caption:content2,author:currentUser,institution:currentInstitution,ts:Date.now()});
+    document.getElementById("photoCaption").value="";
+    photoUpload._reset(); _photoUrl="";
+    closeModal("photoModal"); showToast("Foto adicionada ao mural! 📷");
+  };
+
+  const _origSaveMember = window.saveMember;
+  window.saveMember = function(){
+    const name=document.getElementById("memName").value.trim();
+    const institution=document.getElementById("memInstitution").value.trim();
+    if(!name||!institution){showToast("Nome e instituição são obrigatórios.");return;}
+    push("cluster7/members",{
+      name,institution,
+      area:document.getElementById("memArea").value.trim(),
+      email:document.getElementById("memEmail").value.trim(),
+      lattes:document.getElementById("memLattes").value.trim(),
+      photo:_memPhotoUrl,
+      addedBy:currentUser,ts:Date.now()
+    });
+    ["memName","memInstitution","memArea","memEmail","memLattes"].forEach(id=>document.getElementById(id).value="");
+    memPhotoUpload._reset(); _memPhotoUrl="";
+    closeModal("memberModal"); showToast("Membro adicionado ao Cluster! 🤝");
+  };
+
+  const _origSaveActivity = window.saveActivity;
+  window.saveActivity = function(){
+    const title=document.getElementById("actTitle").value.trim();
+    if(!title){showToast("Informe o título da atividade.");return;}
+    push("cluster7/activities",{
+      title,type:document.getElementById("actType").value,
+      participants:document.getElementById("actParticipants").value.trim(),
+      year:document.getElementById("actYear").value.trim(),
+      desc:document.getElementById("actDesc").value.trim(),
+      image:_actImageUrl,
+      registeredBy:currentUser,institution:currentInstitution,ts:Date.now()
+    });
+    ["actTitle","actParticipants","actYear","actDesc"].forEach(id=>document.getElementById(id).value="");
+    actImageUpload._reset(); _actImageUrl="";
+    closeModal("activityModal"); showToast("Atividade registrada! 📌");
+  };
+
+  const _origSavePost = window.savePost;
+  window.savePost = function(){
+    const title=document.getElementById("postTitle").value.trim();
+    const content2=document.getElementById("postContent").value.trim();
+    if(!title||!content2){showToast("Preencha título e mensagem.");return;}
+    push("cluster7/feed",{title,content:content2,image:_postImageUrl,author:currentUser,institution:currentInstitution,ts:Date.now()});
+    document.getElementById("postTitle").value=""; document.getElementById("postContent").value="";
+    postImageUpload._reset(); _postImageUrl="";
+    closeModal("postModal"); showToast("Publicação enviada! 📢");
+  };
+
   onValue("cluster7/feed", data=>renderFeed(data));
   onValue("cluster7/events", data=>renderEvents(data));
   onValue("cluster7/padlet", data=>renderPadlet(data));
+  onValue("cluster7/proposals", data=>renderProposals(data));
+
   onValue("cluster7/activities", data=>{
     renderActivities(data);
     get("cluster7/members").then(m=>renderNetwork(m, data));
+    get("cluster7/members").then(m=>{ get("cluster7/proposals").then(p=>renderScoreboard(m, data, p)); });
   });
   onValue("cluster7/members", data=>{
     get("cluster7/activities").then(a=>renderNetwork(data, a));
+    get("cluster7/activities").then(a=>{ get("cluster7/proposals").then(p=>renderScoreboard(data, a, p)); });
+  });
+  onValue("cluster7/proposals", data=>{
+    renderProposals(data);
+    get("cluster7/members").then(m=>{ get("cluster7/activities").then(a=>renderScoreboard(m, a, data)); });
   });
 }
 
 window.addEventListener("resize",()=>{
   if(document.getElementById("tab-network").classList.contains("active")) redrawGraph();
+});
+
 });
 </script>
 </body>
