@@ -206,17 +206,54 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 </head>
 <body>
 
-<!-- ACCESS MODAL -->
+<!-- ACCESS MODAL: STEP 1 - código -->
 <div id="accessModal" class="overlay show">
   <div class="mbox">
     <div class="mlogo">C7</div>
     <h2>CLUSTER 7</h2>
     <p class="msub">Rede colaborativa de pesquisa e extensão</p>
-    <div class="fg"><label>Seu nome completo</label><input id="iName" type="text" placeholder="Ex: Ernandes Sobreira"></div>
-    <div class="fg"><label>Sua instituição</label><input id="iInst" type="text" placeholder="Ex: UNEMAT – Cáceres"></div>
-    <div class="fg"><label>Código de acesso</label><input id="iCode" type="password" placeholder="••••••••"></div>
-    <button class="btn" id="btnLogin">ENTRAR NO CLUSTER</button>
+    <div class="fg">
+      <label>Código de acesso</label>
+      <input id="iCode" type="password" placeholder="••••••••" autocomplete="off">
+    </div>
+    <button class="btn" id="btnCheckCode">ACESSAR</button>
     <p class="err" id="loginErr"></p>
+  </div>
+</div>
+
+<!-- ACCESS MODAL: STEP 2 - perfil -->
+<div id="profileModal" class="overlay">
+  <div class="mbox" style="max-width:480px">
+    <div class="mlogo" style="background:linear-gradient(135deg,#7B5EA7,#00C896)">C7</div>
+    <h2 style="font-size:22px">Seu perfil no Cluster</h2>
+    <p class="msub">Preencha seus dados. Você entrará automaticamente na rede.</p>
+    <div class="fg"><label>Nome completo *</label><input id="pName" type="text" placeholder="Ex: Ernandes Sobreira Oliveira Junior" autocomplete="name"></div>
+    <div class="fg"><label>E-mail *</label><input id="pEmail" type="email" placeholder="seu@email.br" autocomplete="email"></div>
+    <div class="fg"><label>Instituição *</label><input id="pInst" type="text" placeholder="Ex: UNEMAT – Cáceres" autocomplete="organization"></div>
+    <div class="fg"><label>Área de pesquisa</label><input id="pArea" type="text" placeholder="Ex: Limnologia, Hidrologia, Gestão Hídrica..."></div>
+    <div class="fg"><label>ORCID</label><input id="pOrcid" type="url" placeholder="https://orcid.org/0000-0000-0000-0000"></div>
+    <div class="fg"><label>Lattes</label><input id="pLattes" type="url" placeholder="http://lattes.cnpq.br/..."></div>
+    <div class="fg"><label>Foto (URL)</label><input id="pPhoto" type="url" placeholder="https://..."></div>
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:14px;background:rgba(0,200,150,.06);border-radius:10px;border:1px solid rgba(0,200,150,.2)">
+      <input type="checkbox" id="pAgree" style="margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0">
+      <label for="pAgree" style="font-size:13px;color:#4A5568;cursor:pointer;line-height:1.5">Concordo em participar do <strong>Cluster Temático 7</strong> e que meu perfil seja visível para os demais membros da rede.</label>
+    </div>
+    <button class="btn" id="btnJoin">🌿 ENTRAR NA REDE</button>
+    <p class="err" id="joinErr"></p>
+    <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px">Já é membro? <button id="btnAlreadyMember" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">Entrar com meu nome</button></p>
+  </div>
+</div>
+
+<!-- ACCESS MODAL: RETURNING - busca por nome -->
+<div id="returningModal" class="overlay">
+  <div class="mbox">
+    <div class="mlogo">C7</div>
+    <h2 style="font-size:22px">Bem-vindo de volta</h2>
+    <p class="msub">Digite seu nome para entrar</p>
+    <div class="fg"><label>Seu nome completo</label><input id="rName" type="text" placeholder="Como está cadastrado no Cluster" autocomplete="name"></div>
+    <button class="btn" id="btnReturn">ENTRAR</button>
+    <p class="err" id="returnErr"></p>
+    <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px">Primeira vez? <button id="btnNewMember" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">Cadastrar meu perfil</button></p>
   </div>
 </div>
 
@@ -424,6 +461,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="fg"><label>Área de pesquisa</label><input id="emArea" type="text"></div>
   <div class="fg"><label>E-mail</label><input id="emEmail" type="email"></div>
   <div class="fg"><label>Lattes (URL)</label><input id="emLattes" type="url"></div>
+  <div class="fg"><label>ORCID (URL)</label><input id="emOrcid" type="url" placeholder="https://orcid.org/..."></div>
   <div class="fg"><label>Foto (URL)</label><input id="emPhoto" type="url"></div>
   <button class="btn" id="btnUpdateMember">💾 Salvar alterações</button>
 </div></div>
@@ -500,37 +538,163 @@ document.getElementById('mmLogout').addEventListener('click',()=>{
   document.getElementById('menuOverlay').classList.remove('open');
 });
 
-// ── LOGIN ──
-document.getElementById('btnLogin').addEventListener('click', function(){
-  const n=document.getElementById('iName').value.trim();
-  const i=document.getElementById('iInst').value.trim();
-  const c=document.getElementById('iCode').value.trim();
-  const e=document.getElementById('loginErr');
-  if(!n){e.textContent='Informe seu nome.';return;}
-  if(!i){e.textContent='Informe sua instituição.';return;}
-  if(c!==CODE){e.textContent='Código incorreto.';return;}
-  CU=n; CI=i;
-  sessionStorage.setItem('c7u',n); sessionStorage.setItem('c7i',i);
+// ── LOGIN: STEP 1 — verifica código ──
+document.getElementById('btnCheckCode').addEventListener('click', function(){
+  const c = document.getElementById('iCode').value.trim();
+  const e = document.getElementById('loginErr');
+  if(c !== CODE){ e.textContent = 'Código incorreto.'; return; }
+  // Código correto — vai para step 2 ou retorno
   document.getElementById('accessModal').classList.remove('show');
-  document.getElementById('uname').textContent=n.split(' ')[0];
-  startListeners();
-  toast('Bem-vindo(a), '+n.split(' ')[0]+'! 🌿');
+  document.getElementById('returningModal').classList.add('show');
+});
+document.getElementById('iCode').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnCheckCode').click(); });
+
+// ── STEP 2a — membro novo ──
+document.getElementById('btnJoin').addEventListener('click', async function(){
+  const name  = document.getElementById('pName').value.trim();
+  const email = document.getElementById('pEmail').value.trim();
+  const inst  = document.getElementById('pInst').value.trim();
+  const area  = document.getElementById('pArea').value.trim();
+  const orcid = document.getElementById('pOrcid').value.trim();
+  const lattes= document.getElementById('pLattes').value.trim();
+  const photo = document.getElementById('pPhoto').value.trim();
+  const agree = document.getElementById('pAgree').checked;
+  const e = document.getElementById('joinErr');
+  if(!name){ e.textContent='Informe seu nome completo.'; return; }
+  if(!email){ e.textContent='Informe seu e-mail.'; return; }
+  if(!inst){ e.textContent='Informe sua instituição.'; return; }
+  if(!agree){ e.textContent='Você precisa concordar para entrar na rede.'; return; }
+  e.textContent='';
+  // Verificar se já existe membro com este nome
+  const existing = await fbGet('cluster7/members');
+  if(existing){
+    const found = Object.values(existing).find(m=>m.name.toLowerCase()===name.toLowerCase());
+    if(found){ e.textContent='Este nome já está cadastrado. Use "Entrar com meu nome".'; return; }
+  }
+  // Adiciona como membro
+  await fbPost('cluster7/members', {name,email,institution:inst,area,orcid,lattes,photo,addedBy:'Auto',ts:Date.now()});
+  // Faz login
+  doLogin(name, inst);
+  document.getElementById('profileModal').classList.remove('show');
+  toast('Bem-vindo(a) ao Cluster 7, '+name.split(' ')[0]+'! 🌿 Você já está na rede.');
 });
 
+// ── STEP 2b — membro existente ──
+document.getElementById('btnReturn').addEventListener('click', async function(){
+  const name = document.getElementById('rName').value.trim();
+  const e = document.getElementById('returnErr');
+  if(!name){ e.textContent='Informe seu nome.'; return; }
+  // Busca no banco
+  const existing = await fbGet('cluster7/members');
+  let found = null;
+  if(existing){
+    const entries = Object.entries(existing);
+    const match = entries.find(([k,m])=>m.name.toLowerCase()===name.toLowerCase());
+    if(match) found = match[1];
+  }
+  if(!found){
+    e.textContent='Nome não encontrado. Verifique a grafia ou cadastre-se.';
+    return;
+  }
+  doLogin(found.name, found.institution);
+  document.getElementById('returningModal').classList.remove('show');
+  toast('Bem-vindo(a) de volta, '+found.name.split(' ')[0]+'! 🌿');
+});
+document.getElementById('rName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnReturn').click(); });
+
+// ── Navegação entre modais ──
+document.getElementById('btnAlreadyMember').addEventListener('click',()=>{
+  document.getElementById('profileModal').classList.remove('show');
+  document.getElementById('returningModal').classList.add('show');
+});
+document.getElementById('btnNewMember').addEventListener('click',()=>{
+  document.getElementById('returningModal').classList.remove('show');
+  document.getElementById('profileModal').classList.add('show');
+});
+
+// ── Logout ──
 document.getElementById('btnLogout').addEventListener('click',()=>{
   sessionStorage.clear(); CU=''; CI='';
+  document.getElementById('iCode').value='';
+  document.getElementById('loginErr').textContent='';
   document.getElementById('accessModal').classList.add('show');
 });
 
+// ── doLogin helper ──
+function doLogin(name, inst){
+  CU=name; CI=inst;
+  sessionStorage.setItem('c7u',name); sessionStorage.setItem('c7i',inst);
+  document.getElementById('uname').textContent=name.split(' ')[0];
+  document.getElementById('mmUser').textContent=name;
+  startListeners();
+}
+
 // ── SESSION ──
 const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
-if(su&&si){ CU=su; CI=si; document.getElementById('accessModal').classList.remove('show'); document.getElementById('uname').textContent=su.split(' ')[0]; document.getElementById('mmUser').textContent=su; startListeners(); }
+if(su&&si){ doLogin(su,si); }
 
 // ── COLOR PICKER ──
 document.querySelectorAll('.cdot').forEach(d=>d.addEventListener('click',()=>{
   document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('on'));
   d.classList.add('on'); noteColor=d.dataset.c;
 }));
+
+// ── ORCID AUTO-FILL ──
+async function fetchOrcid(orcidInput){
+  // Extract ORCID ID from URL or raw input
+  const raw = orcidInput.trim();
+  const match = raw.match(/\d{4}-\d{4}-\d{4}-\d{3}[\dX]/);
+  if(!match) return null;
+  const id = match[0];
+  try {
+    // ORCID public API — works from browser
+    const r = await fetch(`https://pub.orcid.org/v3.0/${id}/record`, {
+      headers: { 'Accept': 'application/vnd.orcid+json' }
+    });
+    if(!r.ok) return null;
+    const data = await r.json();
+    // Name
+    const nameObj = data?.person?.name || {};
+    const given  = nameObj['given-names']?.value || '';
+    const family = nameObj['family-name']?.value || '';
+    const name   = (given + ' ' + family).trim();
+    // Institution (last employment)
+    const emps = data?.['activities-summary']?.employments?.['affiliation-group'] || [];
+    let inst = '';
+    if(emps.length > 0){
+      const last = emps[0]?.summaries?.[0]?.['employment-summary'];
+      inst = last?.organization?.name || '';
+    }
+    // Keywords / area
+    const kws = data?.person?.keywords?.keyword || [];
+    const area = kws.slice(0,4).map(k=>k.content).join(', ');
+    return { name, inst, area, orcid: `https://orcid.org/${id}` };
+  } catch(e){
+    return null;
+  }
+}
+
+// Wire ORCID field in profile form
+document.getElementById('pOrcid').addEventListener('blur', async function(){
+  const val = this.value.trim();
+  if(!val) return;
+  this.style.borderColor = 'var(--accent3)';
+  this.placeholder = 'Buscando dados no ORCID...';
+  const data = await fetchOrcid(val);
+  this.style.borderColor = '';
+  this.placeholder = 'https://orcid.org/0000-0000-0000-0000';
+  if(!data){ toast('ORCID não encontrado. Preencha manualmente.'); return; }
+  // Auto-fill fields if empty
+  if(data.name && !document.getElementById('pName').value)
+    document.getElementById('pName').value = data.name;
+  if(data.inst && !document.getElementById('pInst').value)
+    document.getElementById('pInst').value = data.inst;
+  if(data.area && !document.getElementById('pArea').value)
+    document.getElementById('pArea').value = data.area;
+  // Normalize ORCID URL
+  this.value = data.orcid;
+  toast('✓ Dados importados do ORCID! Revise e complete.');
+});
 
 // ── FEED ──
 document.getElementById('btnNewPost').addEventListener('click',()=>openM('mPost'));
@@ -622,7 +786,7 @@ function renderNetwork(members,acts){
     const ini=m.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
     const c=cm[m.name]||0;
     const mActions='<div style="display:flex;gap:5px;margin-top:8px"><button class="dbtn" style="color:var(--accent4)" onclick="editMember(\''+id+'\',event)">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/members\',\''+id+'\')">🗑</button></div>';
-    return '<div class="mcard"><div class="mav" style="background:linear-gradient(135deg,'+(iColors[m.institution]||'#00C896')+','+PAL[(PAL.indexOf(iColors[m.institution]||PAL[0])+3)%PAL.length]+')">'  +(m.photo?'<img src="'+esc(m.photo)+'" onerror="this.style.display=\'none\'">':ini)+'</div><div><div class="mn">'+esc(m.name)+'</div><div class="mi">'+esc(m.institution)+'</div><div class="ma">'+esc(m.area||'')+'</div>'+(m.lattes?'<a href="'+esc(m.lattes)+'" target="_blank" style="font-size:10px;color:var(--accent);text-decoration:none;margin-top:3px;display:inline-block">🔗 Lattes</a>':'')+'</div>'+(c>0?'<div class="cbadge">'+c+'</div>':'')+'<div style="display:flex;gap:5px;margin-top:8px"><button class="dbtn" style="color:var(--accent4);border-color:rgba(123,94,167,.3)" onclick="editMember(\''+id+'\',event)">✏️ editar</button><button class="dbtn" onclick="delItem(\'cluster7/members\',\''+id+'\')">'+(m.addedBy===CU||true?'🗑 excluir':'')+'</button></div></div>';
+    return '<div class="mcard"><div class="mav" style="background:linear-gradient(135deg,'+(iColors[m.institution]||'#00C896')+','+PAL[(PAL.indexOf(iColors[m.institution]||PAL[0])+3)%PAL.length]+')">'  +(m.photo?'<img src="'+esc(m.photo)+'" onerror="this.style.display=\'none\'">':ini)+'</div><div><div class="mn">'+esc(m.name)+'</div><div class="mi">'+esc(m.institution)+'</div><div class="ma">'+esc(m.area||'')+'</div>'+(m.lattes?'<a href="'+esc(m.lattes)+'" target="_blank" style="font-size:10px;color:var(--accent);text-decoration:none;margin-top:3px;display:inline-block;margin-right:8px">🔗 Lattes</a>':'')+(m.orcid?'<a href="'+esc(m.orcid)+'" target="_blank" style="font-size:10px;color:var(--accent4);text-decoration:none;margin-top:3px;display:inline-block">🆔 ORCID</a>':'')+'</div>'+(c>0?'<div class="cbadge">'+c+'</div>':'')+'<div style="display:flex;gap:5px;margin-top:8px"><button class="dbtn" style="color:var(--accent4);border-color:rgba(123,94,167,.3)" onclick="editMember(\''+id+'\',event)">✏️ editar</button><button class="dbtn" onclick="delItem(\'cluster7/members\',\''+id+'\')">'+(m.addedBy===CU||true?'🗑 excluir':'')+'</button></div></div>';
   }).join('');
   if(document.getElementById('tab-network').classList.contains('on')) drawNet();
 }
@@ -806,7 +970,7 @@ function drawNet(){
         <span style="color:#94A3B8;font-size:10px">${d.institution}</span>
         ${d.area ? `<br><span style="color:#64748B;font-size:9px">${d.area}</span>` : ''}
         ${d.conns > 0 ? `<br><span style="color:#00C896;font-size:11px;margin-top:3px;display:block">⬡ ${d.conns} conexões</span>` : ''}
-        ${d.lattes ? `<br><a href="${d.lattes}" target="_blank" style="color:#7B5EA7;font-size:10px">🔗 Lattes</a>` : ''}`;
+        ${d.lattes ? `<br><a href="${d.lattes}" target="_blank" style="color:#7B5EA7;font-size:10px;margin-right:8px">🔗 Lattes</a>` : ''}${d.orcid ? `<a href="${d.orcid}" target="_blank" style="color:#00C896;font-size:10px">🆔 ORCID</a>` : ''}`;
       const rect = container.getBoundingClientRect();
       let tx = ev.clientX - rect.left + 14;
       let ty = ev.clientY - rect.top - 10;
@@ -860,6 +1024,7 @@ window.editMember = function(id, ev){
   document.getElementById('emArea').value = m.area||'';
   document.getElementById('emEmail').value = m.email||'';
   document.getElementById('emLattes').value = m.lattes||'';
+  document.getElementById('emOrcid').value = m.orcid||'';
   document.getElementById('emPhoto').value = m.photo||'';
   openM('mEditMember');
 };
@@ -874,6 +1039,7 @@ document.getElementById('btnUpdateMember').addEventListener('click', async funct
     area:document.getElementById('emArea').value.trim(),
     email:document.getElementById('emEmail').value.trim(),
     lattes:document.getElementById('emLattes').value.trim(),
+    orcid:document.getElementById('emOrcid').value.trim(),
     photo:document.getElementById('emPhoto').value.trim(),
     addedBy:CU, ts:Date.now()
   });
