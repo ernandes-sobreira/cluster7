@@ -206,54 +206,58 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 </head>
 <body>
 
-<!-- ACCESS MODAL: STEP 1 - código -->
+<!-- ACESSO: tela única -->
 <div id="accessModal" class="overlay show">
   <div class="mbox">
     <div class="mlogo">C7</div>
     <h2>CLUSTER 7</h2>
     <p class="msub">Rede colaborativa de pesquisa e extensão</p>
-    <div class="fg">
-      <label>Código de acesso</label>
-      <input id="iCode" type="password" placeholder="••••••••" autocomplete="off">
-    </div>
-    <button class="btn" id="btnCheckCode">ACESSAR</button>
-    <p class="err" id="loginErr"></p>
-  </div>
-</div>
 
-<!-- ACCESS MODAL: STEP 2 - perfil -->
-<div id="profileModal" class="overlay">
-  <div class="mbox" style="max-width:480px">
-    <div class="mlogo" style="background:linear-gradient(135deg,#7B5EA7,#00C896)">C7</div>
-    <h2 style="font-size:22px">Seu perfil no Cluster</h2>
-    <p class="msub">Preencha seus dados. Você entrará automaticamente na rede.</p>
-    <div class="fg"><label>Nome completo *</label><input id="pName" type="text" placeholder="Ex: Ernandes Sobreira Oliveira Junior" autocomplete="name"></div>
-    <div class="fg"><label>E-mail *</label><input id="pEmail" type="email" placeholder="seu@email.br" autocomplete="email"></div>
-    <div class="fg"><label>Instituição *</label><input id="pInst" type="text" placeholder="Ex: UNEMAT – Cáceres" autocomplete="organization"></div>
-    <div class="fg"><label>Área de pesquisa</label><input id="pArea" type="text" placeholder="Ex: Limnologia, Hidrologia, Gestão Hídrica..."></div>
-    <div class="fg"><label>ORCID</label><input id="pOrcid" type="url" placeholder="https://orcid.org/0000-0000-0000-0000"></div>
-    <div class="fg"><label>Lattes</label><input id="pLattes" type="url" placeholder="http://lattes.cnpq.br/..."></div>
-    <div class="fg"><label>Foto (URL)</label><input id="pPhoto" type="url" placeholder="https://..."></div>
-    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:14px;background:rgba(0,200,150,.06);border-radius:10px;border:1px solid rgba(0,200,150,.2)">
-      <input type="checkbox" id="pAgree" style="margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0">
-      <label for="pAgree" style="font-size:13px;color:#4A5568;cursor:pointer;line-height:1.5">Concordo em participar do <strong>Cluster Temático 7</strong> e que meu perfil seja visível para os demais membros da rede.</label>
+    <!-- Etapa código -->
+    <div id="stepCode">
+      <div class="fg">
+        <label>Código de acesso</label>
+        <input id="iCode" type="password" placeholder="••••••••" autocomplete="off">
+      </div>
+      <button class="btn" id="btnCheckCode">ACESSAR</button>
+      <p class="err" id="loginErr"></p>
     </div>
-    <button class="btn" id="btnJoin">🌿 ENTRAR NA REDE</button>
-    <p class="err" id="joinErr"></p>
-    <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px">Já é membro? <button id="btnAlreadyMember" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">Entrar com meu nome</button></p>
-  </div>
-</div>
 
-<!-- ACCESS MODAL: RETURNING - busca por nome -->
-<div id="returningModal" class="overlay">
-  <div class="mbox">
-    <div class="mlogo">C7</div>
-    <h2 style="font-size:22px">Bem-vindo de volta</h2>
-    <p class="msub">Digite seu nome para entrar</p>
-    <div class="fg"><label>Seu nome completo</label><input id="rName" type="text" placeholder="Como está cadastrado no Cluster" autocomplete="name"></div>
-    <button class="btn" id="btnReturn">ENTRAR</button>
-    <p class="err" id="returnErr"></p>
-    <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px">Primeira vez? <button id="btnNewMember" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">Cadastrar meu perfil</button></p>
+    <!-- Etapa escolha -->
+    <div id="stepChoice" style="display:none">
+      <p style="text-align:center;color:var(--gray3);font-size:14px;margin-bottom:20px">Bem-vindo! Você já tem cadastro?</p>
+      <button class="btn" id="btnGoReturn" style="margin-bottom:10px">✓ Já sou membro — Entrar</button>
+      <button class="btn b2" id="btnGoNew">🌿 Primeira vez — Cadastrar</button>
+    </div>
+
+    <!-- Etapa retorno -->
+    <div id="stepReturn" style="display:none">
+      <div class="fg"><label>Seu nome</label>
+        <input id="rName" type="text" placeholder="Como está cadastrado" autocomplete="name" list="memberNames">
+        <datalist id="memberNames"></datalist>
+      </div>
+      <button class="btn" id="btnReturn">ENTRAR</button>
+      <p class="err" id="returnErr"></p>
+      <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px"><button id="backToChoice1" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">← voltar</button></p>
+    </div>
+
+    <!-- Etapa cadastro -->
+    <div id="stepNew" style="display:none;max-height:70vh;overflow-y:auto">
+      <div class="fg"><label>Nome completo *</label><input id="pName" type="text" placeholder="Ex: Ernandes Sobreira" autocomplete="name"></div>
+      <div class="fg"><label>E-mail *</label><input id="pEmail" type="email" placeholder="seu@email.br" autocomplete="email"></div>
+      <div class="fg"><label>Instituição *</label><input id="pInst" type="text" placeholder="Ex: UNEMAT – Cáceres" autocomplete="organization"></div>
+      <div class="fg"><label>ORCID <span style="color:var(--accent);font-weight:400;text-transform:none;letter-spacing:0">(preenche o resto automaticamente)</span></label><input id="pOrcid" type="url" placeholder="https://orcid.org/0000-..."></div>
+      <div class="fg"><label>Área de pesquisa</label><input id="pArea" type="text" placeholder="Limnologia, Hidrologia..."></div>
+      <div class="fg"><label>Lattes</label><input id="pLattes" type="url" placeholder="http://lattes.cnpq.br/..."></div>
+      <div class="fg"><label>Foto (URL)</label><input id="pPhoto" type="url" placeholder="https://..."></div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:12px;background:rgba(0,200,150,.06);border-radius:10px;border:1px solid rgba(0,200,150,.2)">
+        <input type="checkbox" id="pAgree" style="margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0">
+        <label for="pAgree" style="font-size:13px;color:#4A5568;cursor:pointer;line-height:1.5">Concordo em participar do <strong>Cluster Temático 7</strong> e que meu perfil seja visível na rede.</label>
+      </div>
+      <button class="btn" id="btnJoin">🌿 ENTRAR NA REDE</button>
+      <p class="err" id="joinErr"></p>
+      <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px"><button id="backToChoice2" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">← voltar</button></p>
+    </div>
   </div>
 </div>
 
@@ -309,7 +313,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <div id="feedList" class="feed-grid"></div>
   </section>
   <section id="tab-network" class="tab">
-    <div class="shdr"><h1>Mapa de Conexões</h1><button class="badd" id="btnNewMember">+ Adicionar membro</button></div>
+    <div class="shdr"><h1>Mapa de Conexões</h1><button class="badd" id="btnAddMember">+ Adicionar membro</button></div>
     <div class="stats" id="netStats"></div>
     <div class="net-canvas" id="netCanvas"><svg id="netSVG" style="width:100%;height:100%;display:block;"></svg><div class="net-tip" id="netTip"></div></div>
     <div class="mcards" id="memberCards"></div>
@@ -538,106 +542,88 @@ document.getElementById('mmLogout').addEventListener('click',()=>{
   document.getElementById('menuOverlay').classList.remove('open');
 });
 
-// ── LOGIN: STEP 1 — verifica código ──
+// ── LOGIN FLOW ──
+function showStep(id){
+  ['stepCode','stepChoice','stepReturn','stepNew'].forEach(s=>{
+    document.getElementById(s).style.display = s===id ? 'block' : 'none';
+  });
+}
+
 document.getElementById('btnCheckCode').addEventListener('click', function(){
   const c = document.getElementById('iCode').value.trim();
   const e = document.getElementById('loginErr');
   if(c !== CODE){ e.textContent = 'Código incorreto.'; return; }
-  // Código correto — vai para step 2 ou retorno
-  document.getElementById('accessModal').classList.remove('show');
-  document.getElementById('returningModal').classList.add('show');
+  e.textContent = '';
+  showStep('stepChoice');
+  // Pré-carrega nomes para autocomplete
+  fbGet('cluster7/members').then(m=>{
+    if(!m) return;
+    const dl = document.getElementById('memberNames');
+    dl.innerHTML = Object.values(m).map(x=>`<option value="${x.name}">`).join('');
+  }).catch(()=>{});
 });
 document.getElementById('iCode').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnCheckCode').click(); });
 
-// ── STEP 2a — membro novo ──
-document.getElementById('btnJoin').addEventListener('click', async function(){
-  const name  = document.getElementById('pName').value.trim();
-  const email = document.getElementById('pEmail').value.trim();
-  const inst  = document.getElementById('pInst').value.trim();
-  const area  = document.getElementById('pArea').value.trim();
-  const orcid = document.getElementById('pOrcid').value.trim();
-  const lattes= document.getElementById('pLattes').value.trim();
-  const photo = document.getElementById('pPhoto').value.trim();
-  const agree = document.getElementById('pAgree').checked;
-  const e = document.getElementById('joinErr');
-  if(!name){ e.textContent='Informe seu nome completo.'; return; }
-  if(!email){ e.textContent='Informe seu e-mail.'; return; }
-  if(!inst){ e.textContent='Informe sua instituição.'; return; }
-  if(!agree){ e.textContent='Você precisa concordar para entrar na rede.'; return; }
-  e.textContent='';
+document.getElementById('btnGoReturn').addEventListener('click',()=>showStep('stepReturn'));
+document.getElementById('btnGoNew').addEventListener('click',()=>showStep('stepNew'));
+document.getElementById('backToChoice1').addEventListener('click',()=>showStep('stepChoice'));
+document.getElementById('backToChoice2').addEventListener('click',()=>showStep('stepChoice'));
 
-  const btn = document.getElementById('btnJoin');
-  btn.textContent='Entrando...'; btn.disabled=true;
-
-  try {
-    // Verificar duplicata (ignora erro de Firebase)
-    try {
-      const existing = await fbGet('cluster7/members');
-      if(existing){
-        const found = Object.values(existing).find(m=>m.name.toLowerCase()===name.toLowerCase());
-        if(found){ e.textContent='Este nome já está cadastrado. Use "Entrar com meu nome".'; btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false; return; }
-      }
-    } catch(_){}
-
-    // Tenta salvar no Firebase (não bloqueia se falhar)
-    try {
-      await fbPost('cluster7/members', {name,email,institution:inst,area,orcid,lattes,photo,addedBy:'Auto',ts:Date.now()});
-    } catch(fbErr){
-      // Firebase indisponível — entra mesmo assim, salvará depois
-      console.warn('Firebase offline, entrando localmente:', fbErr);
-    }
-
-    // Entra na plataforma
-    doLogin(name, inst);
-    document.getElementById('profileModal').classList.remove('show');
-    toast('Bem-vindo(a) ao Cluster 7, '+name.split(' ')[0]+'! 🌿');
-  } catch(err){
-    e.textContent='Erro inesperado. Tente novamente.';
-    console.error(err);
-  } finally {
-    btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false;
-  }
-});
-
-// ── STEP 2b — membro existente ──
+// ── Entrar (membro existente) ──
 document.getElementById('btnReturn').addEventListener('click', async function(){
   const name = document.getElementById('rName').value.trim();
   const e = document.getElementById('returnErr');
   if(!name){ e.textContent='Informe seu nome.'; return; }
-
-  const btn = document.getElementById('btnReturn');
-  btn.textContent='Buscando...'; btn.disabled=true;
-
+  const btn = this; btn.textContent='Entrando...'; btn.disabled=true;
+  let inst = '';
   try {
-    let foundInst = '';
-    try {
-      const existing = await fbGet('cluster7/members');
-      if(existing){
-        const match = Object.values(existing).find(m=>m.name.toLowerCase()===name.toLowerCase());
-        if(match) foundInst = match.institution||'';
-      }
-    } catch(_){}
-
-    // Entra mesmo que Firebase não responda — usa nome e instituição da sessão
-    doLogin(name, foundInst||CI||'');
-    document.getElementById('returningModal').classList.remove('show');
-    toast('Bem-vindo(a) de volta, '+name.split(' ')[0]+'! 🌿');
-  } catch(err){
-    e.textContent='Erro. Tente novamente.';
-  } finally {
-    btn.textContent='ENTRAR'; btn.disabled=false;
-  }
+    const m = await fbGet('cluster7/members');
+    if(m){
+      const found = Object.values(m).find(x=>x.name.toLowerCase()===name.toLowerCase());
+      if(found) inst = found.institution||'';
+      else { e.textContent='Nome não encontrado. Verifique ou cadastre-se.'; btn.textContent='ENTRAR'; btn.disabled=false; return; }
+    }
+  } catch(_){}
+  finishLogin(name, inst);
 });
 document.getElementById('rName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnReturn').click(); });
 
-// ── Navegação entre modais ──
-document.getElementById('btnAlreadyMember').addEventListener('click',()=>{
-  document.getElementById('profileModal').classList.remove('show');
-  document.getElementById('returningModal').classList.add('show');
-});
-document.getElementById('btnNewMember').addEventListener('click',()=>{
-  document.getElementById('returningModal').classList.remove('show');
-  document.getElementById('profileModal').classList.add('show');
+// ── Cadastrar (membro novo) ──
+document.getElementById('btnJoin').addEventListener('click', async function(){
+  const name  = document.getElementById('pName').value.trim();
+  const email = document.getElementById('pEmail').value.trim();
+  const inst  = document.getElementById('pInst').value.trim();
+  const e = document.getElementById('joinErr');
+  if(!name){ e.textContent='Informe seu nome.'; return; }
+  if(!email){ e.textContent='Informe seu e-mail.'; return; }
+  if(!inst){ e.textContent='Informe sua instituição.'; return; }
+  if(!document.getElementById('pAgree').checked){ e.textContent='Marque a concordância para entrar.'; return; }
+  e.textContent='';
+  const btn = this; btn.textContent='Entrando...'; btn.disabled=true;
+  try {
+    // checa duplicata
+    try {
+      const ex = await fbGet('cluster7/members');
+      if(ex && Object.values(ex).find(x=>x.name.toLowerCase()===name.toLowerCase())){
+        e.textContent='Nome já cadastrado. Volte e use "Já sou membro".';
+        btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false; return;
+      }
+    } catch(_){}
+    // salva
+    try {
+      await fbPost('cluster7/members', {
+        name, email, institution:inst,
+        area: document.getElementById('pArea').value.trim(),
+        orcid: document.getElementById('pOrcid').value.trim(),
+        lattes: document.getElementById('pLattes').value.trim(),
+        photo: document.getElementById('pPhoto').value.trim(),
+        addedBy:'Auto', ts:Date.now()
+      });
+    } catch(_){}
+    finishLogin(name, inst);
+  } finally {
+    btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false;
+  }
 });
 
 // ── Logout ──
@@ -645,21 +631,34 @@ document.getElementById('btnLogout').addEventListener('click',()=>{
   sessionStorage.clear(); CU=''; CI='';
   document.getElementById('iCode').value='';
   document.getElementById('loginErr').textContent='';
+  showStep('stepCode');
   document.getElementById('accessModal').classList.add('show');
 });
 
-// ── doLogin helper ──
-function doLogin(name, inst){
+// ── Finaliza login e entra na plataforma ──
+function finishLogin(name, inst){
   CU=name; CI=inst;
   sessionStorage.setItem('c7u',name); sessionStorage.setItem('c7i',inst);
   document.getElementById('uname').textContent=name.split(' ')[0];
   document.getElementById('mmUser').textContent=name;
+  document.getElementById('accessModal').classList.remove('show');
   startListeners();
+  toast('Bem-vindo(a) ao Cluster 7, '+name.split(' ')[0]+'! 🌿');
+  // Vai direto para a Rede para ver os membros
+  setTimeout(()=>{ document.querySelector('.nb[data-tab="network"]').click(); }, 400);
 }
+// alias
+function doLogin(n,i){ finishLogin(n,i); }
 
 // ── SESSION ──
 const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
-if(su&&si){ doLogin(su,si); }
+if(su&&si){
+  CU=su; CI=si;
+  document.getElementById('uname').textContent=su.split(' ')[0];
+  document.getElementById('mmUser').textContent=su;
+  document.getElementById('accessModal').classList.remove('show');
+  startListeners();
+}
 
 // ── COLOR PICKER ──
 document.querySelectorAll('.cdot').forEach(d=>d.addEventListener('click',()=>{
@@ -746,7 +745,7 @@ function renderFeed(data){
 }
 
 // ── MEMBERS ──
-document.getElementById('btnNewMember').addEventListener('click',()=>openM('mMember'));
+document.getElementById('btnAddMember').addEventListener('click',()=>openM('mMember'));
 document.getElementById('btnSaveMember').addEventListener('click', async function(){
   const n=document.getElementById('mName').value.trim();
   const i=document.getElementById('mInst2').value.trim();
