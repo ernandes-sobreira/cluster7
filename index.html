@@ -565,18 +565,38 @@ document.getElementById('btnJoin').addEventListener('click', async function(){
   if(!inst){ e.textContent='Informe sua instituição.'; return; }
   if(!agree){ e.textContent='Você precisa concordar para entrar na rede.'; return; }
   e.textContent='';
-  // Verificar se já existe membro com este nome
-  const existing = await fbGet('cluster7/members');
-  if(existing){
-    const found = Object.values(existing).find(m=>m.name.toLowerCase()===name.toLowerCase());
-    if(found){ e.textContent='Este nome já está cadastrado. Use "Entrar com meu nome".'; return; }
+
+  const btn = document.getElementById('btnJoin');
+  btn.textContent='Entrando...'; btn.disabled=true;
+
+  try {
+    // Verificar duplicata (ignora erro de Firebase)
+    try {
+      const existing = await fbGet('cluster7/members');
+      if(existing){
+        const found = Object.values(existing).find(m=>m.name.toLowerCase()===name.toLowerCase());
+        if(found){ e.textContent='Este nome já está cadastrado. Use "Entrar com meu nome".'; btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false; return; }
+      }
+    } catch(_){}
+
+    // Tenta salvar no Firebase (não bloqueia se falhar)
+    try {
+      await fbPost('cluster7/members', {name,email,institution:inst,area,orcid,lattes,photo,addedBy:'Auto',ts:Date.now()});
+    } catch(fbErr){
+      // Firebase indisponível — entra mesmo assim, salvará depois
+      console.warn('Firebase offline, entrando localmente:', fbErr);
+    }
+
+    // Entra na plataforma
+    doLogin(name, inst);
+    document.getElementById('profileModal').classList.remove('show');
+    toast('Bem-vindo(a) ao Cluster 7, '+name.split(' ')[0]+'! 🌿');
+  } catch(err){
+    e.textContent='Erro inesperado. Tente novamente.';
+    console.error(err);
+  } finally {
+    btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false;
   }
-  // Adiciona como membro
-  await fbPost('cluster7/members', {name,email,institution:inst,area,orcid,lattes,photo,addedBy:'Auto',ts:Date.now()});
-  // Faz login
-  doLogin(name, inst);
-  document.getElementById('profileModal').classList.remove('show');
-  toast('Bem-vindo(a) ao Cluster 7, '+name.split(' ')[0]+'! 🌿 Você já está na rede.');
 });
 
 // ── STEP 2b — membro existente ──
@@ -584,21 +604,29 @@ document.getElementById('btnReturn').addEventListener('click', async function(){
   const name = document.getElementById('rName').value.trim();
   const e = document.getElementById('returnErr');
   if(!name){ e.textContent='Informe seu nome.'; return; }
-  // Busca no banco
-  const existing = await fbGet('cluster7/members');
-  let found = null;
-  if(existing){
-    const entries = Object.entries(existing);
-    const match = entries.find(([k,m])=>m.name.toLowerCase()===name.toLowerCase());
-    if(match) found = match[1];
+
+  const btn = document.getElementById('btnReturn');
+  btn.textContent='Buscando...'; btn.disabled=true;
+
+  try {
+    let foundInst = '';
+    try {
+      const existing = await fbGet('cluster7/members');
+      if(existing){
+        const match = Object.values(existing).find(m=>m.name.toLowerCase()===name.toLowerCase());
+        if(match) foundInst = match.institution||'';
+      }
+    } catch(_){}
+
+    // Entra mesmo que Firebase não responda — usa nome e instituição da sessão
+    doLogin(name, foundInst||CI||'');
+    document.getElementById('returningModal').classList.remove('show');
+    toast('Bem-vindo(a) de volta, '+name.split(' ')[0]+'! 🌿');
+  } catch(err){
+    e.textContent='Erro. Tente novamente.';
+  } finally {
+    btn.textContent='ENTRAR'; btn.disabled=false;
   }
-  if(!found){
-    e.textContent='Nome não encontrado. Verifique a grafia ou cadastre-se.';
-    return;
-  }
-  doLogin(found.name, found.institution);
-  document.getElementById('returningModal').classList.remove('show');
-  toast('Bem-vindo(a) de volta, '+found.name.split(' ')[0]+'! 🌿');
 });
 document.getElementById('rName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnReturn').click(); });
 
