@@ -45,7 +45,7 @@ nav::-webkit-scrollbar{display:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 #uname{font-size:12px;color:#fff;font-weight:600;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .boutl{padding:5px 11px;background:rgba(255,255,255,.1);border:none;border-radius:6px;color:var(--gray3);font-size:11px;cursor:pointer;transition:all .2s}
-.boutl:hover{background:var(--accent2);color:#fff}
+.boutl:hover{background:rgba(255,255,255,.2);color:#fff}
 main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;margin-right:auto}
 .tab{display:none}.tab.on{display:block}
 .shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px}
@@ -200,6 +200,56 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .empty{grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--gray3)}
 .empty .ei{font-size:44px;margin-bottom:10px}
+
+/* ── MOBILE MENU (hidden on desktop) ── */
+.hamburger{display:none;background:rgba(255,255,255,.12);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;padding:6px 10px;margin-left:4px;line-height:1}
+.mobile-menu{position:fixed;top:0;right:-300px;width:270px;height:100vh;background:#0D1B2A;z-index:2000;transition:right .28s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 32px rgba(0,0,0,.5);overflow-y:auto}
+.mobile-menu.open{right:0}
+.menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1999;display:none}
+.menu-overlay.open{display:block}
+.mm-inner{padding:20px 16px}
+.mm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.mm-header button{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer}
+.mm-btn{display:block;width:100%;text-align:left;padding:13px 14px;background:none;border:none;color:rgba(255,255,255,.6);font-family:'Sora',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;margin-bottom:3px;transition:all .18s}
+.mm-btn:hover{background:rgba(255,255,255,.07);color:white}
+.mm-btn.on{background:rgba(0,200,150,.15);color:#00C896}
+@media(min-width:761px){ .hamburger{display:none!important} .mobile-menu{display:none} }
+@media(max-width:760px){
+  nav#mainNav{display:none!important}
+  .hamburger{display:block!important}
+  .htitles .ht2{display:none}
+  .hu #uname{display:none}
+  main{padding:14px 10px}
+  .feed-grid,.alist,.plist,.mcards{grid-template-columns:1fr}
+  .elist{grid-template-columns:1fr}
+  .padlet{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── FEED ACTIONS ── */
+.fcard-actions{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray1)}
+.flike,.fcomment-btn{display:flex;align-items:center;gap:5px;padding:6px 14px;border:2px solid var(--gray2);background:#fff;border-radius:20px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s}
+.flike:hover{border-color:var(--accent2);color:var(--accent2)}
+.flike.on{border-color:var(--accent2);background:rgba(255,107,107,.08)}
+.fcomment-btn:hover{border-color:var(--accent);color:var(--accent)}
+.fcomments{margin-top:12px;padding-top:12px;border-top:1px solid var(--gray1)}
+.fcomment{font-size:13px;color:#4A5568;padding:6px 0;line-height:1.5}
+.fcomment-a{font-weight:700;color:var(--accent4)}
+.fcomment-input{display:flex;gap:6px;margin-top:8px}
+.fcomment-input input{flex:1;padding:8px 12px;border:2px solid var(--gray2);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;outline:none}
+.fcomment-input input:focus{border-color:var(--accent)}
+.fcomment-input button{padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+/* ── PROFILE ── */
+.profile-card{background:#fff;border-radius:var(--r);padding:28px;box-shadow:var(--shadow);max-width:600px;margin:0 auto}
+.profile-hd{display:flex;gap:20px;align-items:center;margin-bottom:20px}
+.profile-av{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.profile-av img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-size:22px;font-weight:800;color:var(--c1)}
+.profile-inst{font-size:14px;color:var(--accent4);font-weight:600}
+.profile-row{display:flex;padding:12px 0;border-bottom:1px solid var(--gray1);font-size:14px}
+.profile-row:last-child{border-bottom:none}
+.profile-label{width:120px;color:var(--gray3);font-weight:600;flex-shrink:0}
+.profile-val{color:var(--text);flex:1}
+.profile-val a{color:var(--accent);text-decoration:none}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -278,7 +328,8 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   </nav>
   <div class="hu">
     <div class="udot"></div>
-    <span id="uname">–</span>
+    <span id="uname" style="cursor:pointer" onclick="showProfile()" title="Ver meu perfil">–</span>
+    <button class="boutl" id="btnProfile" onclick="showProfile()" style="margin-right:4px">Perfil</button>
     <button class="boutl" id="btnLogout">Sair</button>
     <button class="hamburger" id="btnMenu" aria-label="Menu">☰</button>
   </div>
@@ -360,7 +411,12 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="mhdr"><h3>Nova Publicação</h3><button data-close="mPost">✕</button></div>
   <div class="fg"><label>Título</label><input id="pTitle" type="text"></div>
   <div class="fg"><label>Mensagem</label><textarea id="pContent" rows="4"></textarea></div>
-  <div class="fg"><label>Imagem (URL opcional)</label><input id="pImg" type="url" placeholder="https://..."></div>
+  <div class="fg"><label>Foto (opcional)</label>
+    <input type="file" id="pImgFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="pImg">
+    <div id="pImgProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="pImgPrev" style="display:none;max-width:100%;max-height:150px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
   <button class="btn" id="btnSavePost">Publicar</button>
 </div></div>
 
@@ -371,7 +427,12 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="fg"><label>Área de pesquisa</label><input id="mArea" type="text"></div>
   <div class="fg"><label>E-mail</label><input id="mEmail" type="email"></div>
   <div class="fg"><label>Lattes (URL)</label><input id="mLattes" type="url"></div>
-  <div class="fg"><label>Foto (URL)</label><input id="mPhoto" type="url"></div>
+  <div class="fg"><label>Foto</label>
+    <input type="file" id="mPhotoFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="mPhoto">
+    <div id="mPhotoProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="mPhotoPrev" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
   <button class="btn" id="btnSaveMember">Adicionar ao Cluster</button>
 </div></div>
 
@@ -427,6 +488,12 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="fg"><label>Descrição</label><textarea id="prDesc" rows="4"></textarea></div>
   <div class="fg"><label>Prazo</label><input id="prDeadline" type="text" placeholder="Ex: Até dez/2025"></div>
   <button class="btn" id="btnSaveProposal">🚀 Lançar proposta</button>
+</div></div>
+
+<div id="mProfile" class="overlay"><div class="mbox" style="max-width:560px">
+  <div class="mhdr"><h3>Meu Perfil</h3><button data-close="mProfile">✕</button></div>
+  <div id="profileContent"></div>
+  <button class="btn" id="btnEditMyProfile" style="margin-top:16px">✏️ Editar meu perfil</button>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -650,6 +717,10 @@ function finishLogin(name, inst){
 // alias
 function doLogin(n,i){ finishLogin(n,i); }
 
+// Wire uploads
+wireUpload('pImgFile','pImg','pImgPrev','pImgProg');
+wireUpload('mPhotoFile','mPhoto','mPhotoPrev','mPhotoProg');
+
 // ── SESSION ──
 const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
 if(su&&si){
@@ -723,6 +794,55 @@ document.getElementById('pOrcid').addEventListener('blur', async function(){
   toast('✓ Dados importados do ORCID! Revise e complete.');
 });
 
+// ── FIREBASE STORAGE UPLOAD ──
+const STORAGE_BUCKET = "som-ambiental.firebasestorage.app";
+const STORAGE_KEY = "AIzaSyBzL_Pic_2JETKQqs4tD9EC2TRynEFaZG4";
+
+async function uploadPhoto(file, onProgress){
+  return new Promise((resolve, reject) => {
+    const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+    const fname = 'cluster7/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
+    const url = 'https://firebasestorage.googleapis.com/v0/b/'+STORAGE_BUCKET+'/o?uploadType=media&name='+encodeURIComponent(fname)+'&key='+STORAGE_KEY;
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-Type', file.type||'image/jpeg');
+    xhr.upload.onprogress = e=>{ if(e.lengthComputable && onProgress) onProgress(Math.round(e.loaded/e.total*100)); };
+    xhr.onload = ()=>{
+      try{
+        const r = JSON.parse(xhr.responseText);
+        if(r.name){
+          resolve('https://firebasestorage.googleapis.com/v0/b/'+STORAGE_BUCKET+'/o/'+encodeURIComponent(r.name)+'?alt=media');
+        } else reject(r.error?.message||'Erro');
+      }catch(e){ reject('Erro na resposta'); }
+    };
+    xhr.onerror = ()=>reject('Erro de rede');
+    xhr.send(file);
+  });
+}
+
+// Liga um input file + campo url oculto para upload automático
+function wireUpload(fileInputId, urlHiddenId, previewId, progressId){
+  const fi=document.getElementById(fileInputId);
+  if(!fi)return;
+  fi.addEventListener('change', async function(){
+    const file=this.files[0];
+    if(!file||!file.type.startsWith('image/'))return;
+    const prog=document.getElementById(progressId);
+    const prev=document.getElementById(previewId);
+    if(prog){prog.style.display='block';prog.textContent='Enviando... 0%';}
+    try{
+      const url=await uploadPhoto(file, p=>{ if(prog)prog.textContent='Enviando... '+p+'%'; });
+      document.getElementById(urlHiddenId).value=url;
+      if(prog){prog.style.display='none';}
+      if(prev){prev.src=url;prev.style.display='block';}
+      toast('Foto enviada! 📷');
+    }catch(err){
+      if(prog){prog.style.display='none';}
+      toast('Erro no upload: '+err);
+    }
+  });
+}
+
 // ── FEED ──
 document.getElementById('btnNewPost').addEventListener('click',()=>openM('mPost'));
 document.getElementById('btnSavePost').addEventListener('click', async function(){
@@ -736,13 +856,63 @@ document.getElementById('btnSavePost').addEventListener('click', async function(
 
 function renderFeed(data){
   const el=document.getElementById('feedList');
-  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📭</div><p>Nenhuma publicação ainda.</p></div>';return;}
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📭</div><p>Nenhuma publicação ainda. Seja o primeiro!</p></div>';return;}
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
   el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
     const d=new Date(p.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
     const del=p.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/feed\',\''+id+'\')">🗑</button>':'';
-    return '<div class="fcard">'+(p.image?'<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">':'')+'<div class="fcard-t">'+esc(p.title)+'</div><div class="fcard-c">'+esc(p.content).replace(/\n/g,'<br>')+'</div><div class="fcard-m"><span class="fcard-a">✍ '+esc(p.author)+'</span><span>🏛 '+esc(p.institution)+'</span><span>📅 '+d+'</span>'+del+'</div></div>';
+    const likes=p.likes||{};
+    const likeCount=Object.keys(likes).length;
+    const iLiked=likes[uk];
+    const comments=p.comments||{};
+    const cCount=Object.keys(comments).length;
+    const commentsHtml=Object.entries(comments).sort((a,b)=>a[1].ts-b[1].ts).map(([cid,c])=>
+      '<div class="fcomment"><span class="fcomment-a">'+esc(c.author)+'</span> '+esc(c.text)+'</div>'
+    ).join('');
+    return '<div class="fcard">'+
+      (p.image?'<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">':'')+
+      '<div class="fcard-t">'+esc(p.title)+'</div>'+
+      '<div class="fcard-c">'+esc(p.content).replace(/\n/g,'<br>')+'</div>'+
+      '<div class="fcard-m"><span class="fcard-a">✍ '+esc(p.author)+'</span><span>🏛 '+esc(p.institution)+'</span><span>📅 '+d+'</span>'+del+'</div>'+
+      '<div class="fcard-actions">'+
+        '<button class="flike'+(iLiked?' on':'')+'" onclick="toggleLike(\''+id+'\')">'+(iLiked?'❤️':'🤍')+' '+likeCount+'</button>'+
+        '<button class="fcomment-btn" onclick="toggleComments(\''+id+'\')">💬 '+cCount+'</button>'+
+      '</div>'+
+      '<div class="fcomments" id="fc_'+id+'" style="display:none">'+
+        commentsHtml+
+        '<div class="fcomment-input"><input type="text" id="ci_'+id+'" placeholder="Escreva um comentário..." onkeydown="if(event.key===\'Enter\')addComment(\''+id+'\')"><button onclick="addComment(\''+id+'\')">Enviar</button></div>'+
+      '</div>'+
+    '</div>';
   }).join('');
 }
+
+window.toggleLike = async function(id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const p=await fbGet('cluster7/feed/'+id);
+  if(!p)return;
+  const likes=p.likes||{};
+  if(likes[uk])delete likes[uk]; else likes[uk]={name:CU,ts:Date.now()};
+  await fbPut('cluster7/feed/'+id+'/likes',likes);
+};
+
+window.toggleComments = function(id){
+  const el=document.getElementById('fc_'+id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+};
+
+window.addComment = async function(id){
+  const inp=document.getElementById('ci_'+id);
+  const text=inp.value.trim();
+  if(!text)return;
+  const p=await fbGet('cluster7/feed/'+id);
+  if(!p)return;
+  const comments=p.comments||{};
+  const cid='c'+Date.now();
+  comments[cid]={author:CU,text,ts:Date.now()};
+  await fbPut('cluster7/feed/'+id+'/comments',comments);
+  inp.value='';
+  toast('Comentário enviado! 💬');
+};
 
 // ── MEMBERS ──
 document.getElementById('btnAddMember').addEventListener('click',()=>openM('mMember'));
@@ -1126,6 +1296,41 @@ document.getElementById('btnUpdatePhoto').addEventListener('click', async functi
     author:CU, institution:CI, ts:Date.now()
   });
   closeM('mEditPhoto'); toast('Foto atualizada! 📷');
+});
+
+// ── MEU PERFIL ──
+window.showProfile = async function(){
+  const el=document.getElementById('profileContent');
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray3)">Carregando...</div>';
+  openM('mProfile');
+  let me=null, myId=null;
+  try{
+    const m=await fbGet('cluster7/members');
+    if(m){
+      const entry=Object.entries(m).find(([k,x])=>x.name.toLowerCase()===CU.toLowerCase());
+      if(entry){ myId=entry[0]; me=entry[1]; }
+    }
+  }catch(_){}
+  if(!me){
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray3)">Perfil não encontrado no banco.<br>Nome de acesso: <strong>'+esc(CU)+'</strong></div>';
+    return;
+  }
+  window._myProfileId=myId;
+  const ini=me.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const av=me.photo?'<img src="'+esc(me.photo)+'" onerror="this.style.display=\'none\'">':ini;
+  el.innerHTML=
+    '<div class="profile-hd"><div class="profile-av">'+av+'</div><div><div class="profile-name">'+esc(me.name)+'</div><div class="profile-inst">'+esc(me.institution)+'</div></div></div>'+
+    (me.email?'<div class="profile-row"><div class="profile-label">E-mail</div><div class="profile-val">'+esc(me.email)+'</div></div>':'')+
+    (me.area?'<div class="profile-row"><div class="profile-label">Área</div><div class="profile-val">'+esc(me.area)+'</div></div>':'')+
+    (me.orcid?'<div class="profile-row"><div class="profile-label">ORCID</div><div class="profile-val"><a href="'+esc(me.orcid)+'" target="_blank">'+esc(me.orcid)+'</a></div></div>':'')+
+    (me.lattes?'<div class="profile-row"><div class="profile-label">Lattes</div><div class="profile-val"><a href="'+esc(me.lattes)+'" target="_blank">'+esc(me.lattes)+'</a></div></div>':'');
+};
+
+document.getElementById('btnEditMyProfile').addEventListener('click',function(){
+  if(window._myProfileId && window.editMember){
+    closeM('mProfile');
+    editMember(window._myProfileId);
+  }
 });
 
 // ── START ──
