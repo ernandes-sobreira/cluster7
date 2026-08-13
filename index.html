@@ -427,6 +427,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="fg"><label>Área de pesquisa</label><input id="mArea" type="text"></div>
   <div class="fg"><label>E-mail</label><input id="mEmail" type="email"></div>
   <div class="fg"><label>Lattes (URL)</label><input id="mLattes" type="url"></div>
+  <div class="fg"><label>ORCID (URL)</label><input id="mOrcid" type="url" placeholder="https://orcid.org/..."></div>
   <div class="fg"><label>Foto</label>
     <input type="file" id="mPhotoFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
     <input type="hidden" id="mPhoto">
@@ -920,8 +921,8 @@ document.getElementById('btnSaveMember').addEventListener('click', async functio
   const n=document.getElementById('mName').value.trim();
   const i=document.getElementById('mInst2').value.trim();
   if(!n||!i){toast('Nome e instituição obrigatórios.');return;}
-  await fbPost('cluster7/members',{name:n,institution:i,area:document.getElementById('mArea').value.trim(),email:document.getElementById('mEmail').value.trim(),lattes:document.getElementById('mLattes').value.trim(),photo:document.getElementById('mPhoto').value.trim(),addedBy:CU,ts:Date.now()});
-  ['mName','mInst2','mArea','mEmail','mLattes','mPhoto'].forEach(id=>document.getElementById(id).value='');
+  await fbPost('cluster7/members',{name:n,institution:i,area:document.getElementById('mArea').value.trim(),email:document.getElementById('mEmail').value.trim(),lattes:document.getElementById('mLattes').value.trim(),orcid:document.getElementById('mOrcid').value.trim(),photo:document.getElementById('mPhoto').value.trim(),addedBy:CU,ts:Date.now()});
+  ['mName','mInst2','mArea','mEmail','mLattes','mOrcid','mPhoto'].forEach(id=>document.getElementById(id).value='');
   closeM('mMember'); toast('Membro adicionado! 🤝');
 });
 
