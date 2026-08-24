@@ -589,7 +589,12 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="fg"><label>E-mail</label><input id="emEmail" type="email"></div>
   <div class="fg"><label>Lattes (URL)</label><input id="emLattes" type="url"></div>
   <div class="fg"><label>ORCID (URL)</label><input id="emOrcid" type="url" placeholder="https://orcid.org/..."></div>
-  <div class="fg"><label>Foto (URL)</label><input id="emPhoto" type="url"></div>
+  <div class="fg"><label>Foto (PNG/JPG)</label>
+    <input type="file" id="emPhotoFile" accept="image/png,image/jpeg,image/jpg,image/webp" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="emPhoto">
+    <div id="emPhotoProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="emPhotoPrev" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
   <button class="btn" id="btnUpdateMember">💾 Salvar alterações</button>
 </div></div>
 
@@ -792,6 +797,7 @@ function doLogin(n,i){ finishLogin(n,i); }
 wireUpload('pImgFile','pImg','pImgPrev','pImgProg');
 wireUpload('pPhotoFile','pPhoto','pPhotoPrev','pPhotoProg');
 wireUpload('mPhotoFile','mPhoto','mPhotoPrev','mPhotoProg');
+wireUpload('emPhotoFile','emPhoto','emPhotoPrev','emPhotoProg');
 
 // ── SESSION ──
 const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
@@ -1304,6 +1310,8 @@ window.editMember = function(id, ev){
   document.getElementById('emLattes').value = m.lattes||'';
   document.getElementById('emOrcid').value = m.orcid||'';
   document.getElementById('emPhoto').value = m.photo||'';
+  const emPrev=document.getElementById('emPhotoPrev');
+  if(m.photo){ emPrev.src=m.photo; emPrev.style.display='block'; } else { emPrev.style.display='none'; }
   openM('mEditMember');
 };
 
