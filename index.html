@@ -493,9 +493,14 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <button class="btn" id="btnSaveNote">Colocar no mural</button>
 </div></div>
 
-<div id="mPhoto" class="overlay"><div class="mbox">
-  <div class="mhdr"><h3>Foto no Mural</h3><button data-close="mPhoto">✕</button></div>
-  <div class="fg"><label>URL da imagem</label><input id="phUrl" type="url"></div>
+<div id="mMuralPhoto" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Foto no Mural</h3><button data-close="mMuralPhoto">✕</button></div>
+  <div class="fg"><label>Foto (PNG/JPG)</label>
+    <input type="file" id="phFile" accept="image/png,image/jpeg,image/jpg,image/webp" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="phUrl">
+    <div id="phProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="phPrev" style="display:none;max-width:100%;max-height:160px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
   <div class="fg"><label>Legenda</label><input id="phCap" type="text"></div>
   <button class="btn b2" id="btnSavePhoto">Colocar no mural</button>
 </div></div>
@@ -798,6 +803,7 @@ wireUpload('pImgFile','pImg','pImgPrev','pImgProg');
 wireUpload('pPhotoFile','pPhoto','pPhotoPrev','pPhotoProg');
 wireUpload('mPhotoFile','mPhoto','mPhotoPrev','mPhotoProg');
 wireUpload('emPhotoFile','emPhoto','emPhotoPrev','emPhotoProg');
+wireUpload('phFile','phUrl','phPrev','phProg');
 
 // ── SESSION ──
 const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
@@ -1462,7 +1468,7 @@ function renderEvents(data){
 // MURAL (Notas + Fotos)
 // ═══════════════════════════════════════════
 document.getElementById('btnNewNote').addEventListener('click',()=>openM('mNote'));
-document.getElementById('btnNewPhoto').addEventListener('click',()=>openM('mPhoto'));
+document.getElementById('btnNewPhoto').addEventListener('click',()=>{['phUrl','phCap'].forEach(id=>document.getElementById(id).value='');document.getElementById('phPrev').style.display='none';openM('mMuralPhoto');});
 document.querySelectorAll('.cdot').forEach(d=>d.addEventListener('click',function(){
   document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('on'));
   this.classList.add('on'); noteColor=this.dataset.c;
@@ -1481,7 +1487,7 @@ document.getElementById('btnSavePhoto').addEventListener('click', async function
   if(!u){toast('Informe a URL da imagem.');return;}
   await fbPost('cluster7/padlet',{kind:'photo',url:u,caption:cap,author:CU,institution:CI,ts:Date.now()});
   document.getElementById('phUrl').value=''; document.getElementById('phCap').value='';
-  closeM('mPhoto'); toast('Foto adicionada! 📷');
+  closeM('mMuralPhoto'); toast('Foto adicionada! 📷');
 });
 function renderPadlet(data){
   _padletCache=data||{};
