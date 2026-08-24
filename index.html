@@ -374,7 +374,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <div id="feedList" class="feed-grid"></div>
   </section>
   <section id="tab-network" class="tab">
-    <div class="shdr"><h1>Mapa de Conexões</h1><button class="badd" id="btnAddMember">+ Adicionar membro</button></div>
+    <div class="shdr"><h1>Mapa de Conexões</h1><div style="display:flex;gap:8px"><button class="badd b2" id="btnDedup" style="display:none">🧹 Limpar duplicatas</button><button class="badd" id="btnAddMember">+ Adicionar membro</button></div></div>
     <div class="stats" id="netStats"></div>
     <div class="net-canvas" id="netCanvas"><svg id="netSVG" style="width:100%;height:100%;display:block;"></svg><div class="net-tip" id="netTip"></div></div>
     <div class="mcards" id="memberCards"></div>
@@ -515,6 +515,32 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <div class="mhdr"><h3>Meu Perfil</h3><button data-close="mProfile">✕</button></div>
   <div id="profileContent"></div>
   <button class="btn" id="btnEditMyProfile" style="margin-top:16px">✏️ Editar meu perfil</button>
+</div></div>
+
+<div id="mEditNote" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Nota</h3><button data-close="mEditNote">✕</button></div>
+  <input type="hidden" id="enId">
+  <div class="fg"><label>Título</label><input id="enTitle" type="text"></div>
+  <div class="fg"><label>Conteúdo</label><textarea id="enContent" rows="5"></textarea></div>
+  <div class="fg"><label>Cor</label>
+    <div class="cpick" id="enColors">
+      <span class="cdot on" style="background:#FFE566" data-c="#FFE566"></span>
+      <span class="cdot" style="background:#B5EAD7" data-c="#B5EAD7"></span>
+      <span class="cdot" style="background:#C7CEEA" data-c="#C7CEEA"></span>
+      <span class="cdot" style="background:#FF9AA2" data-c="#FF9AA2"></span>
+      <span class="cdot" style="background:#FFD6A5" data-c="#FFD6A5"></span>
+      <span class="cdot" style="background:#9EE7E2" data-c="#9EE7E2"></span>
+    </div>
+  </div>
+  <button class="btn" id="btnUpdateNote">💾 Salvar nota</button>
+</div></div>
+
+<div id="mEditPhoto" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Foto</h3><button data-close="mEditPhoto">✕</button></div>
+  <input type="hidden" id="epId">
+  <div class="fg"><label>URL da imagem</label><input id="epUrl" type="url"></div>
+  <div class="fg"><label>Legenda</label><input id="epCap" type="text"></div>
+  <button class="btn b2" id="btnUpdatePhoto">💾 Salvar foto</button>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -693,8 +719,13 @@ document.getElementById('btnJoin').addEventListener('click', async function(){
     // checa duplicata
     try {
       const ex = await fbGet('cluster7/members');
-      if(ex && Object.values(ex).find(x=>x.name.toLowerCase()===name.toLowerCase())){
-        e.textContent='Nome já cadastrado. Volte e use "Já sou membro".';
+      const nk=(name.toLowerCase().trim().split(/\s+/));
+      const nkey=nk[0]+'_'+(nk[nk.length-1]||'');
+      if(ex && Object.values(ex).find(x=>{
+        const xp=(x.name||'').toLowerCase().trim().split(/\s+/);
+        return (xp[0]+'_'+(xp[xp.length-1]||''))===nkey;
+      })){
+        e.textContent='Você já tem cadastro. Volte e use "Já sou membro".';
         btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false; return;
       }
     } catch(_){}
@@ -726,6 +757,15 @@ document.getElementById('btnLogout').addEventListener('click',()=>{
 
 // ── Finaliza login e entra na plataforma ──
 function finishLogin(name, inst){
+  // mostra botão de limpeza só para coordenadores
+  const admins=['ernandes','aurea','áurea'];
+  const first=(name||'').toLowerCase().split(' ')[0];
+  if(admins.includes(first)){
+    setTimeout(()=>{
+      const b=document.getElementById('btnDedup');
+      if(b){b.style.display='inline-block'; b.onclick=dedupMembers;}
+    },500);
+  }
   CU=name; CI=inst;
   sessionStorage.setItem('c7u',name); sessionStorage.setItem('c7i',inst);
   document.getElementById('uname').textContent=name.split(' ')[0];
@@ -1408,16 +1448,48 @@ document.getElementById('btnSavePhoto').addEventListener('click', async function
   closeM('mPhoto'); toast('Foto adicionada! 📷');
 });
 function renderPadlet(data){
+  _padletCache=data||{};
   const el=document.getElementById('padletBoard');
   if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">🎨</div><p>Mural vazio. Adicione uma nota ou foto!</p></div>';return;}
   el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
-    const del=p.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/padlet\',\''+id+'\')">🗑</button>':'';
+    const mine=p.author===CU;
+    const actions=mine?'<button class="dbtn" style="color:var(--accent4)" onclick="editPadlet(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/padlet\',\''+id+'\')">🗑</button>':'';
     if(p.kind==='photo'){
-      return '<div class="pphoto"><img src="'+esc(p.url)+'" onerror="this.style.display=\'none\'" alt=""><div class="pcap">'+esc(p.caption||'')+'<br><span style="color:var(--accent4)">'+esc(p.author)+'</span> '+del+'</div></div>';
+      return '<div class="pphoto"><img src="'+esc(p.url)+'" onerror="this.style.display=\'none\'" alt=""><div class="pcap">'+esc(p.caption||'')+'<br><span style="color:var(--accent4)">'+esc(p.author)+'</span> '+actions+'</div></div>';
     }
-    return '<div class="pnote" style="background:'+(p.color||'#FFE566')+'">'+(p.title?'<div class="pnt">'+esc(p.title)+'</div>':'')+'<div class="pnc">'+esc(p.content).replace(/\n/g,'<br>')+'</div><div class="pnm">✍ '+esc(p.author)+' '+del+'</div></div>';
+    return '<div class="pnote" style="background:'+(p.color||'#FFE566')+'">'+(p.title?'<div class="pnt">'+esc(p.title)+'</div>':'')+'<div class="pnc">'+esc(p.content).replace(/\n/g,'<br>')+'</div><div class="pnm">✍ '+esc(p.author)+' '+actions+'</div></div>';
   }).join('');
 }
+
+// Editar item do mural
+window.editPadlet = function(id){
+  const p=_padletCache[id];
+  if(!p)return;
+  if(p.kind==='photo'){
+    document.getElementById('epId').value=id;
+    document.getElementById('epUrl').value=p.url||'';
+    document.getElementById('epCap').value=p.caption||'';
+    openM('mEditPhoto');
+  } else {
+    document.getElementById('enId').value=id;
+    document.getElementById('enTitle').value=p.title||'';
+    document.getElementById('enContent').value=p.content||'';
+    _editNoteColor=p.color||'#FFE566';
+    document.querySelectorAll('#enColors .cdot').forEach(d=>{
+      d.classList.toggle('on', d.dataset.c===_editNoteColor);
+    });
+    openM('mEditNote');
+  }
+};
+
+let _editNoteColor='#FFE566';
+document.addEventListener('click',function(e){
+  const dot=e.target.closest('#enColors .cdot');
+  if(dot){
+    document.querySelectorAll('#enColors .cdot').forEach(x=>x.classList.remove('on'));
+    dot.classList.add('on'); _editNoteColor=dot.dataset.c;
+  }
+});
 
 // ═══════════════════════════════════════════
 // ATIVIDADES
@@ -1675,6 +1747,65 @@ window.setMapMode = function(mode){
   drawMapMode();
 };
 
+
+// Salvar edição de nota/foto
+document.getElementById('btnUpdateNote').addEventListener('click', async function(){
+  const id=document.getElementById('enId').value;
+  const c=document.getElementById('enContent').value.trim();
+  if(!c){toast('Escreva algo.');return;}
+  const orig=_padletCache[id]||{};
+  await fbPut('cluster7/padlet/'+id,{
+    kind:'note',
+    title:document.getElementById('enTitle').value.trim(),
+    content:c, color:_editNoteColor,
+    author:orig.author||CU, institution:orig.institution||CI, ts:orig.ts||Date.now()
+  });
+  closeM('mEditNote'); toast('Nota atualizada! ✏️');
+});
+document.getElementById('btnUpdatePhoto').addEventListener('click', async function(){
+  const id=document.getElementById('epId').value;
+  const u=document.getElementById('epUrl').value.trim();
+  if(!u){toast('Informe a URL.');return;}
+  const orig=_padletCache[id]||{};
+  await fbPut('cluster7/padlet/'+id,{
+    kind:'photo', url:u,
+    caption:document.getElementById('epCap').value.trim(),
+    author:orig.author||CU, institution:orig.institution||CI, ts:orig.ts||Date.now()
+  });
+  closeM('mEditPhoto'); toast('Foto atualizada! ✏️');
+});
+
+// ── LIMPAR DUPLICATAS (admin) ──
+window.dedupMembers = async function(){
+  if(!confirm('Isto vai remover cadastros duplicados, mantendo o mais completo de cada pessoa. Continuar?'))return;
+  const m=await fbGet('cluster7/members');
+  if(!m){toast('Sem membros.');return;}
+  // agrupa por primeiro+ultimo nome normalizado
+  const groups={};
+  Object.entries(m).forEach(([id,x])=>{
+    const parts=(x.name||'').toLowerCase().trim().split(/\s+/);
+    const key=parts[0]+'_'+(parts[parts.length-1]||'');
+    if(!groups[key])groups[key]=[];
+    groups[key].push({id,x});
+  });
+  let removed=0;
+  for(const key in groups){
+    const list=groups[key];
+    if(list.length<2)continue;
+    // mantém o com mais campos preenchidos (nome mais longo, com orcid/lattes)
+    list.sort((a,b)=>{
+      const sa=(a.x.name||'').length+(a.x.orcid?10:0)+(a.x.lattes?10:0)+(a.x.email?5:0)+(a.x.area?3:0);
+      const sb=(b.x.name||'').length+(b.x.orcid?10:0)+(b.x.lattes?10:0)+(b.x.email?5:0)+(b.x.area?3:0);
+      return sb-sa;
+    });
+    // remove todos menos o primeiro (melhor)
+    for(let i=1;i<list.length;i++){
+      await fbDel('cluster7/members/'+list[i].id);
+      removed++;
+    }
+  }
+  toast(removed+' duplicata(s) removida(s)! 🧹');
+};
 
 function startListeners(){
   fbListen('cluster7/feed',renderFeed);
