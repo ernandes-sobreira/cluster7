@@ -250,9 +250,17 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 .profile-label{width:120px;color:var(--gray3);font-weight:600;flex-shrink:0}
 .profile-val{color:var(--text);flex:1}
 .profile-val a{color:var(--accent);text-decoration:none}
+
+.map-label{background:rgba(13,27,42,.85)!important;color:#fff!important;border:none!important;border-radius:6px!important;font-family:'Space Mono',monospace!important;font-size:10px!important;font-weight:700!important;padding:2px 6px!important;box-shadow:none!important}
+.map-label::before{display:none!important}
+.leaflet-popup-content-wrapper{border-radius:12px!important}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
 </head>
 <body>
 
@@ -320,6 +328,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
   <nav id="mainNav">
     <button class="nb on" data-tab="feed">🏠 Feed</button>
     <button class="nb" data-tab="network">🕸 Rede</button>
+    <button class="nb" data-tab="mapa">🗺 Mapa</button>
     <button class="nb" data-tab="agenda">📅 Agenda</button>
     <button class="nb" data-tab="padlet">🎨 Mural</button>
     <button class="nb" data-tab="activities">📌 Atividades</button>
@@ -344,6 +353,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     </div>
     <button class="mm-btn on" data-tab="feed">🏠 Feed</button>
     <button class="mm-btn" data-tab="network">🕸 Rede</button>
+    <button class="mm-btn" data-tab="mapa">🗺 Mapa</button>
     <button class="mm-btn" data-tab="agenda">📅 Agenda</button>
     <button class="mm-btn" data-tab="padlet">🎨 Mural</button>
     <button class="mm-btn" data-tab="activities">📌 Atividades</button>
@@ -368,6 +378,16 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <div class="stats" id="netStats"></div>
     <div class="net-canvas" id="netCanvas"><svg id="netSVG" style="width:100%;height:100%;display:block;"></svg><div class="net-tip" id="netTip"></div></div>
     <div class="mcards" id="memberCards"></div>
+  </section>
+  <section id="tab-mapa" class="tab">
+    <div class="shdr"><h1>Mapa da Rede Cluster 7</h1></div>
+    <div class="stats" id="mapStats"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="afbtn on" id="mapModeInst" onclick="setMapMode('inst')">📍 Instituições</button>
+      <button class="afbtn" id="mapModeHeat" onclick="setMapMode('heat')">🔥 Mapa de calor</button>
+    </div>
+    <div id="mapCanvas" style="height:520px;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;background:#eef3f8"></div>
+    <p style="font-size:12px;color:var(--gray3);margin-top:10px;text-align:center">O mapa de calor mostra a intensidade de atividades por instituição. Quanto mais quente, mais ações registradas.</p>
   </section>
   <section id="tab-agenda" class="tab">
     <div class="shdr"><h1>Agenda Colaborativa</h1><button class="badd" id="btnNewEvent">+ Novo evento</button></div>
@@ -584,6 +604,7 @@ function switchTab(tab){
   document.getElementById('tab-'+tab).classList.add('on');
   if(tab==='network'){ const c=document.getElementById('netCanvas'); if(c)c._sig=null; setTimeout(drawNet,80); }
   if(tab==='scoreboard') renderScore();
+  if(tab==='mapa') setTimeout(initMap, 60);
   // close mobile menu
   document.getElementById('mobileMenu').classList.remove('open');
   document.getElementById('menuOverlay').classList.remove('open');
@@ -1335,6 +1356,326 @@ document.getElementById('btnEditMyProfile').addEventListener('click',function(){
 });
 
 // ── START ──
+
+// ═══════════════════════════════════════════
+// EVENTOS / AGENDA
+// ═══════════════════════════════════════════
+document.getElementById('btnNewEvent').addEventListener('click',()=>openM('mEvent'));
+document.getElementById('btnSaveEvent').addEventListener('click', async function(){
+  const t=document.getElementById('eTitle').value.trim();
+  const d=document.getElementById('eDate').value;
+  if(!t){toast('Informe o título.');return;}
+  await fbPost('cluster7/events',{title:t,date:d,type:document.getElementById('eType').value,parts:document.getElementById('eParts').value.trim(),desc:document.getElementById('eDesc').value.trim(),author:CU,ts:Date.now()});
+  ['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value='');
+  closeM('mEvent'); toast('Evento agendado! 📅');
+});
+function renderEvents(data){
+  const el=document.getElementById('eventList');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>Nenhum evento agendado.</p></div>';return;}
+  el.innerHTML=Object.entries(data).sort((a,b)=>(a[1].date||'').localeCompare(b[1].date||'')).map(([id,e])=>{
+    const dt=e.date?new Date(e.date):null;
+    const day=dt?dt.getDate():'?';
+    const mon=dt?dt.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''):'';
+    const hora=dt?dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    const del=e.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/events\',\''+id+'\')">🗑</button>':'';
+    return '<div class="ecard"><div class="eDateBox"><div class="eday">'+day+'</div><div class="emon">'+mon+'</div></div><div style="flex:1"><span class="ebadge t-'+(e.type||'outro')+'">'+(e.type||'')+'</span><div class="etitle">'+esc(e.title)+'</div>'+(hora?'<div style="font-size:11px;color:var(--gray3)">🕐 '+hora+'</div>':'')+(e.parts?'<div style="font-size:11px;color:var(--gray3);margin-top:3px">👥 '+esc(e.parts)+'</div>':'')+(e.desc?'<div style="font-size:12px;color:#4A5568;margin-top:5px">'+esc(e.desc)+'</div>':'')+'<div style="margin-top:6px">'+del+'</div></div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// MURAL (Notas + Fotos)
+// ═══════════════════════════════════════════
+document.getElementById('btnNewNote').addEventListener('click',()=>openM('mNote'));
+document.getElementById('btnNewPhoto').addEventListener('click',()=>openM('mPhoto'));
+document.querySelectorAll('.cdot').forEach(d=>d.addEventListener('click',function(){
+  document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); noteColor=this.dataset.c;
+}));
+document.getElementById('btnSaveNote').addEventListener('click', async function(){
+  const t=document.getElementById('nTitle').value.trim();
+  const c=document.getElementById('nContent').value.trim();
+  if(!c){toast('Escreva algo na nota.');return;}
+  await fbPost('cluster7/padlet',{kind:'note',title:t,content:c,color:noteColor,author:CU,institution:CI,ts:Date.now()});
+  document.getElementById('nTitle').value=''; document.getElementById('nContent').value='';
+  closeM('mNote'); toast('Nota adicionada! 📝');
+});
+document.getElementById('btnSavePhoto').addEventListener('click', async function(){
+  const u=document.getElementById('phUrl').value.trim();
+  const cap=document.getElementById('phCap').value.trim();
+  if(!u){toast('Informe a URL da imagem.');return;}
+  await fbPost('cluster7/padlet',{kind:'photo',url:u,caption:cap,author:CU,institution:CI,ts:Date.now()});
+  document.getElementById('phUrl').value=''; document.getElementById('phCap').value='';
+  closeM('mPhoto'); toast('Foto adicionada! 📷');
+});
+function renderPadlet(data){
+  const el=document.getElementById('padletBoard');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">🎨</div><p>Mural vazio. Adicione uma nota ou foto!</p></div>';return;}
+  el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
+    const del=p.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/padlet\',\''+id+'\')">🗑</button>':'';
+    if(p.kind==='photo'){
+      return '<div class="pphoto"><img src="'+esc(p.url)+'" onerror="this.style.display=\'none\'" alt=""><div class="pcap">'+esc(p.caption||'')+'<br><span style="color:var(--accent4)">'+esc(p.author)+'</span> '+del+'</div></div>';
+    }
+    return '<div class="pnote" style="background:'+(p.color||'#FFE566')+'">'+(p.title?'<div class="pnt">'+esc(p.title)+'</div>':'')+'<div class="pnc">'+esc(p.content).replace(/\n/g,'<br>')+'</div><div class="pnm">✍ '+esc(p.author)+' '+del+'</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// ATIVIDADES
+// ═══════════════════════════════════════════
+document.getElementById('btnNewActivity').addEventListener('click',()=>openM('mActivity'));
+document.getElementById('btnSaveActivity').addEventListener('click', async function(){
+  const t=document.getElementById('aTitle').value.trim();
+  if(!t){toast('Informe o título.');return;}
+  await fbPost('cluster7/activities',{title:t,type:document.getElementById('aType').value,parts:document.getElementById('aParts').value.trim(),participants:document.getElementById('aParts').value.trim(),year:document.getElementById('aYear').value.trim(),desc:document.getElementById('aDesc').value.trim(),image:document.getElementById('aImg').value.trim(),author:CU,ts:Date.now()});
+  ['aTitle','aParts','aYear','aDesc','aImg'].forEach(id=>document.getElementById(id).value='');
+  closeM('mActivity'); toast('Atividade registrada! 📌');
+});
+document.querySelectorAll('#actFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#actFilts .afbtn').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); actFilter=this.dataset.f; renderActs(allActs);
+}));
+const tLbl={artigo:'Artigo',resumo:'Resumo',banca:'Banca',palestra:'Palestra',orientacao:'Orientação',projeto:'Projeto',acao:'Ação',reuniao:'Reunião',outro:'Outro'};
+function renderActs(data){
+  allActs=data;
+  const el=document.getElementById('actList');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📌</div><p>Nenhuma atividade registrada.</p></div>';return;}
+  let items=Object.entries(data).reverse();
+  if(actFilter!=='all')items=items.filter(([id,a])=>a.type===actFilter);
+  if(items.length===0){el.innerHTML='<div class="empty"><div class="ei">🔍</div><p>Nenhuma atividade neste filtro.</p></div>';return;}
+  el.innerHTML=items.map(([id,a])=>{
+    const del=a.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/activities\',\''+id+'\')">🗑</button>':'';
+    const parts=(a.participants||a.parts||'').split(',').map(x=>x.trim()).filter(Boolean);
+    const ptags=parts.map(p=>'<span class="ptag">'+esc(p)+'</span>').join('');
+    return '<div class="acard" data-type="'+(a.type||'outro')+'">'+(a.image?'<img class="aimg" src="'+esc(a.image)+'" onerror="this.style.display=\'none\'" alt="">':'')+'<span class="atbadge t-'+(a.type||'outro')+'">'+(tLbl[a.type]||'Outro')+'</span><div class="atitle">'+esc(a.title)+'</div>'+(a.year?'<div style="font-size:11px;color:var(--gray3);margin-bottom:6px">📅 '+esc(a.year)+'</div>':'')+(ptags?'<div class="apart">'+ptags+'</div>':'')+(a.desc?'<div style="font-size:13px;color:#4A5568;margin-top:6px">'+esc(a.desc)+'</div>':'')+'<div class="ameta">✍ '+esc(a.author||'')+' '+del+'</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS
+// ═══════════════════════════════════════════
+document.getElementById('btnNewProposal').addEventListener('click',()=>openM('mProposal'));
+document.getElementById('btnSaveProposal').addEventListener('click', async function(){
+  const t=document.getElementById('prTitle').value.trim();
+  if(!t){toast('Informe o título.');return;}
+  await fbPost('cluster7/proposals',{title:t,type:document.getElementById('prType').value,desc:document.getElementById('prDesc').value.trim(),deadline:document.getElementById('prDeadline').value.trim(),status:'aberta',author:CU,institution:CI,votes:{},ts:Date.now()});
+  ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');
+  closeM('mProposal'); toast('Proposta lançada! 🚀');
+});
+document.querySelectorAll('#propFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#propFilts .afbtn').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); propFilter=this.dataset.f; renderProps(allProps);
+}));
+const pLbl={artigo:'Artigo conjunto',edital:'Edital/Projeto',evento:'Evento/Webinar',visita:'Visita técnica',curso:'Curso',outro:'Outro'};
+const sLbl={aberta:'Aberta',em_andamento:'Em andamento',concluida:'Concluída'};
+window.voteProp = async function(id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const p=await fbGet('cluster7/proposals/'+id);
+  if(!p)return;
+  const votes=p.votes||{};
+  if(votes[uk])delete votes[uk]; else votes[uk]={name:CU,ts:Date.now()};
+  await fbPut('cluster7/proposals/'+id+'/votes',votes);
+};
+window.advanceProp = async function(id,cur){
+  const next=cur==='aberta'?'em_andamento':(cur==='em_andamento'?'concluida':'aberta');
+  await fbPut('cluster7/proposals/'+id+'/status',next);
+  toast('Status: '+sLbl[next]);
+};
+function renderProps(data){
+  allProps=data;
+  const el=document.getElementById('propList');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">🚀</div><p>Nenhuma proposta. Lance a primeira!</p></div>';return;}
+  let items=Object.entries(data).reverse();
+  if(propFilter!=='all')items=items.filter(([id,p])=>(p.status||'aberta')===propFilter);
+  if(items.length===0){el.innerHTML='<div class="empty"><div class="ei">🔍</div><p>Nenhuma proposta neste filtro.</p></div>';return;}
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  el.innerHTML=items.map(([id,p])=>{
+    const votes=p.votes||{};
+    const vCount=Object.keys(votes).length;
+    const iVoted=votes[uk];
+    const st=p.status||'aberta';
+    const del=p.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/proposals\',\''+id+'\')">🗑</button>':'';
+    const adv=p.author===CU?'<button class="advbtn" onclick="advanceProp(\''+id+'\',\''+st+'\')">▶ Avançar</button>':'';
+    return '<div class="pcard" data-s="'+st+'"><div class="phdr"><div class="ptitle">'+esc(p.title)+'</div><span class="sbadge s-'+st+'">'+sLbl[st]+'</span></div><span class="atbadge t-'+(p.type||'outro')+'">'+(pLbl[p.type]||'Outro')+'</span>'+(p.desc?'<div class="pdesc">'+esc(p.desc)+'</div>':'')+(p.deadline?'<div style="font-size:11px;color:var(--gray3);margin-bottom:8px">⏰ '+esc(p.deadline)+'</div>':'')+'<div class="pmeta">✍ '+esc(p.author)+' · 🏛 '+esc(p.institution||'')+'</div><div class="vsec"><button class="vbtn'+(iVoted?' voted':'')+'" onclick="voteProp(\''+id+'\')">'+(iVoted?'✓ Apoiado':'👍 Apoiar')+' ('+vCount+')</button>'+adv+del+'</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// PLACAR
+// ═══════════════════════════════════════════
+function renderScore(){
+  const el=document.getElementById('scoreContent');
+  if(!el)return;
+  const members=netMembers||{};
+  const acts=allActs||{};
+  // pontos por pessoa: 1 por atividade que participa
+  const pts={};
+  Object.values(members).forEach(m=>{pts[m.name]={name:m.name,inst:m.institution,acts:0,conns:0};});
+  Object.values(acts).forEach(a=>{
+    const parts=(a.participants||a.parts||'').split(',').map(x=>x.trim()).filter(Boolean);
+    parts.forEach(p=>{ if(pts[p])pts[p].acts++; });
+  });
+  const cm=buildConnMap(acts);
+  Object.keys(cm).forEach(n=>{ if(pts[n])pts[n].conns=cm[n]; });
+  // por instituição
+  const inst={};
+  Object.values(pts).forEach(p=>{
+    const k=p.inst||'—';
+    if(!inst[k])inst[k]={inst:k,acts:0,people:0};
+    inst[k].acts+=p.acts; inst[k].people++;
+  });
+  const topP=Object.values(pts).sort((a,b)=>b.acts-a.acts||b.conns-a.conns).slice(0,10);
+  const topI=Object.values(inst).sort((a,b)=>b.acts-a.acts);
+  const maxP=Math.max(1,...topP.map(p=>p.acts));
+  const maxI=Math.max(1,...topI.map(i=>i.acts));
+  let html='<div class="ssec"><h2>🏆 Ranking de Pesquisadores</h2>';
+  if(topP.every(p=>p.acts===0)){
+    html+='<div style="color:var(--gray3);font-size:14px;padding:10px 0">Registre atividades para gerar o ranking.</div>';
+  } else {
+    topP.forEach((p,i)=>{
+      const rk=i===0?'g':i===1?'s':i===2?'b':'';
+      html+='<div class="srow"><div class="srank '+rk+'">'+(i+1)+'</div><div class="sbar-w"><div class="sname">'+esc(p.name)+'</div><div class="sinst">'+esc(p.inst||'')+'</div><div class="sbg"><div class="sfill" style="width:'+Math.round(p.acts/maxP*100)+'%;background:var(--accent)"></div></div></div><div class="snum2">'+p.acts+'</div></div>';
+    });
+  }
+  html+='</div><div class="ssec"><h2>🏛 Ranking de Instituições</h2>';
+  topI.forEach((it,i)=>{
+    const rk=i===0?'g':i===1?'s':i===2?'b':'';
+    html+='<div class="srow"><div class="srank '+rk+'">'+(i+1)+'</div><div class="sbar-w"><div class="sname">'+esc(it.inst)+'</div><div class="sinst">'+it.people+' pesquisador(es)</div><div class="sbg"><div class="sfill" style="width:'+Math.round(it.acts/maxI*100)+'%;background:var(--accent4)"></div></div></div><div class="snum2">'+it.acts+'</div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+
+// ═══════════════════════════════════════════
+// MAPA LEAFLET — IES do Cluster 7
+// ═══════════════════════════════════════════
+// Coordenadas reais das cidades-sede dos PPGs (não nomes de pessoas)
+const IES_CLUSTER7 = [
+  {sigla:'UNEMAT', prog:'Ciências Ambientais', cidade:'Cáceres, MT', uf:'MT', lat:-16.0706, lng:-57.6789, bioma:'Pantanal', nota:4},
+  {sigla:'UNIOESTE', prog:'Conservação e Manejo de Recursos Naturais', cidade:'Cascavel, PR', uf:'PR', lat:-24.9555, lng:-53.4552, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFF', prog:'Engenharia de Biossistemas', cidade:'Niterói, RJ', uf:'RJ', lat:-22.9035, lng:-43.1041, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFAM', prog:'Ciências do Ambiente e Sustentabilidade na Amazônia', cidade:'Manaus, AM', uf:'AM', lat:-3.1019, lng:-60.0250, bioma:'Amazônia', nota:4},
+  {sigla:'UFCG', prog:'Gestão e Sistemas Agroindustriais', cidade:'Campina Grande, PB', uf:'PB', lat:-7.2306, lng:-35.8811, bioma:'Caatinga', nota:3},
+  {sigla:'UFSCar', prog:'Planejamento e Uso de Recursos Renováveis', cidade:'Sorocaba, SP', uf:'SP', lat:-23.5015, lng:-47.4526, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UNIRIO', prog:'Ecoturismo e Conservação', cidade:'Rio de Janeiro, RJ', uf:'RJ', lat:-22.9068, lng:-43.1729, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UTFPR', prog:'Sustentabilidade Ambiental Urbana', cidade:'Curitiba, PR', uf:'PR', lat:-25.4372, lng:-49.2699, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFPE', prog:'Desenvolvimento e Meio Ambiente', cidade:'Recife, PE', uf:'PE', lat:-8.0476, lng:-34.8770, bioma:'Mata Atlântica', nota:5},
+  {sigla:'UFS', prog:'Desenvolvimento e Meio Ambiente', cidade:'São Cristóvão, SE', uf:'SE', lat:-10.9186, lng:-37.1002, bioma:'Mata Atlântica', nota:5}
+];
+const BIOMA_COR = {'Amazônia':'#1B7A3D','Caatinga':'#E8C468','Cerrado':'#C9B458','Mata Atlântica':'#3B9B6E','Pampa':'#A3D9A5','Pantanal':'#5BA3C7','Marinho':'#7FC5E8'};
+
+let _map=null, _mapMarkers=[], _mapHeat=null, _mapMode='inst';
+
+function initMap(){
+  if(_map) { setTimeout(()=>_map.invalidateSize(), 100); return; }
+  _map = L.map('mapCanvas', {scrollWheelZoom:true, zoomControl:true}).setView([-14.5, -52], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'© OpenStreetMap', maxZoom:18
+  }).addTo(_map);
+  drawMapMode();
+  setTimeout(()=>_map.invalidateSize(), 200);
+}
+
+function actsByInst(){
+  // conta atividades por sigla de instituição
+  const counts={};
+  IES_CLUSTER7.forEach(i=>counts[i.sigla]=0);
+  const acts=allActs||{};
+  Object.values(acts).forEach(a=>{
+    const parts=(a.participants||a.parts||'').toLowerCase();
+    IES_CLUSTER7.forEach(i=>{
+      // conta se algum membro dessa IES participou, ou menção à sigla
+      if(parts.includes(i.sigla.toLowerCase())) counts[i.sigla]++;
+    });
+  });
+  // também conta membros por instituição do banco
+  const mem=netMembers||{};
+  Object.values(mem).forEach(m=>{
+    IES_CLUSTER7.forEach(i=>{
+      if((m.institution||'').toUpperCase().includes(i.sigla.toUpperCase())){
+        // cada membro conta atividades dele
+        const acs=allActs||{};
+        Object.values(acs).forEach(a=>{
+          const p=(a.participants||a.parts||'');
+          if(p.includes(m.name)) counts[i.sigla]++;
+        });
+      }
+    });
+  });
+  return counts;
+}
+
+function drawMapMode(){
+  if(!_map)return;
+  // limpa
+  _mapMarkers.forEach(m=>_map.removeLayer(m)); _mapMarkers=[];
+  if(_mapHeat){_map.removeLayer(_mapHeat);_mapHeat=null;}
+
+  const counts=actsByInst();
+  const maxC=Math.max(1,...Object.values(counts));
+
+  if(_mapMode==='inst'){
+    IES_CLUSTER7.forEach(ies=>{
+      const c=counts[ies.sigla]||0;
+      const cor=BIOMA_COR[ies.bioma]||'#00C896';
+      const r=12+Math.min(c*3,20);
+      const marker=L.circleMarker([ies.lat,ies.lng],{
+        radius:r, fillColor:cor, color:'#fff', weight:2, opacity:1, fillOpacity:0.8
+      }).addTo(_map);
+      marker.bindPopup(
+        '<div style="font-family:Sora,sans-serif;min-width:180px">'+
+        '<div style="font-weight:800;color:#0D1B2A;font-size:15px">'+ies.sigla+'</div>'+
+        '<div style="font-size:12px;color:#7B5EA7;font-weight:600;margin:3px 0">'+ies.prog+'</div>'+
+        '<div style="font-size:11px;color:#64748B">📍 '+ies.cidade+'</div>'+
+        '<div style="font-size:11px;color:#64748B">🌱 '+ies.bioma+' · CAPES '+ies.nota+'</div>'+
+        '<div style="font-size:12px;color:#00A87A;font-weight:700;margin-top:5px">'+c+' atividades</div>'+
+        '</div>'
+      );
+      marker.bindTooltip(ies.sigla, {permanent:true, direction:'top', className:'map-label', offset:[0,-r-2]});
+      _mapMarkers.push(marker);
+    });
+  } else {
+    // heatmap por intensidade de atividades
+    const heatData=IES_CLUSTER7.map(ies=>{
+      const c=counts[ies.sigla]||0;
+      const intensity=0.3+(c/maxC)*0.7; // mínimo visível
+      return [ies.lat, ies.lng, intensity];
+    });
+    if(typeof L.heatLayer==='function'){
+      _mapHeat=L.heatLayer(heatData,{radius:45,blur:30,maxZoom:6,max:1.0,
+        gradient:{0.2:'#3B9B6E',0.4:'#FFD166',0.6:'#F59E0B',0.8:'#FF6B6B',1.0:'#D94F4F'}
+      }).addTo(_map);
+    }
+    // marcadores pequenos por cima
+    IES_CLUSTER7.forEach(ies=>{
+      const c=counts[ies.sigla]||0;
+      const marker=L.circleMarker([ies.lat,ies.lng],{
+        radius:5, fillColor:'#0D1B2A', color:'#fff', weight:2, fillOpacity:1
+      }).addTo(_map);
+      marker.bindPopup('<b>'+ies.sigla+'</b><br>'+c+' atividades');
+      _mapMarkers.push(marker);
+    });
+  }
+
+  // stats
+  const totalActs=Object.values(counts).reduce((a,b)=>a+b,0);
+  const estados=[...new Set(IES_CLUSTER7.map(i=>i.uf))].length;
+  const biomas=[...new Set(IES_CLUSTER7.map(i=>i.bioma))].length;
+  document.getElementById('mapStats').innerHTML=
+    '<div class="sbox"><div class="snum">'+IES_CLUSTER7.length+'</div><div class="slbl">Instituições</div></div>'+
+    '<div class="sbox"><div class="snum">'+estados+'</div><div class="slbl">Estados</div></div>'+
+    '<div class="sbox"><div class="snum">'+biomas+'</div><div class="slbl">Biomas</div></div>'+
+    '<div class="sbox"><div class="snum">'+totalActs+'</div><div class="slbl">Atividades</div></div>';
+}
+
+window.setMapMode = function(mode){
+  _mapMode=mode;
+  document.getElementById('mapModeInst').classList.toggle('on', mode==='inst');
+  document.getElementById('mapModeHeat').classList.toggle('on', mode==='heat');
+  drawMapMode();
+};
+
+
 function startListeners(){
   fbListen('cluster7/feed',renderFeed);
   fbListen('cluster7/events',renderEvents);
