@@ -300,14 +300,23 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     </div>
 
     <!-- Etapa cadastro -->
-    <div id="stepNew" style="display:none;max-height:70vh;overflow-y:auto">
-      <div class="fg"><label>Nome completo *</label><input id="pName" type="text" placeholder="Ex: Ernandes Sobreira" autocomplete="name"></div>
-      <div class="fg"><label>E-mail *</label><input id="pEmail" type="email" placeholder="seu@email.br" autocomplete="email"></div>
+    <div id="stepNew" style="display:none;max-height:72vh;overflow-y:auto">
+      <div style="background:linear-gradient(135deg,rgba(0,200,150,.08),rgba(123,94,167,.08));border:1px solid rgba(0,200,150,.25);border-radius:12px;padding:16px;margin-bottom:16px">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--accent4);margin-bottom:6px">🆔 COLE SEU ORCID PRIMEIRO</label>
+        <input id="pOrcid" type="url" placeholder="https://orcid.org/0000-0000-0000-0000" style="width:100%;padding:11px 13px;border:2px solid var(--accent);border-radius:10px;font-family:Sora,sans-serif;font-size:14px;outline:none">
+        <p style="font-size:11px;color:var(--gray3);margin-top:6px;line-height:1.4">Preenche nome, instituição e área automaticamente. Não tem ORCID? Preencha manualmente abaixo.</p>
+      </div>
+      <div class="fg"><label>Nome completo *</label><input id="pName" type="text" placeholder="Seu nome" autocomplete="name"></div>
       <div class="fg"><label>Instituição *</label><input id="pInst" type="text" placeholder="Ex: UNEMAT – Cáceres" autocomplete="organization"></div>
-      <div class="fg"><label>ORCID <span style="color:var(--accent);font-weight:400;text-transform:none;letter-spacing:0">(preenche o resto automaticamente)</span></label><input id="pOrcid" type="url" placeholder="https://orcid.org/0000-..."></div>
+      <div class="fg"><label>E-mail *</label><input id="pEmail" type="email" placeholder="seu@email.br" autocomplete="email"></div>
       <div class="fg"><label>Área de pesquisa</label><input id="pArea" type="text" placeholder="Limnologia, Hidrologia..."></div>
-      <div class="fg"><label>Lattes</label><input id="pLattes" type="url" placeholder="http://lattes.cnpq.br/..."></div>
-      <div class="fg"><label>Foto (URL)</label><input id="pPhoto" type="url" placeholder="https://..."></div>
+      <div class="fg"><label>Lattes (link)</label><input id="pLattes" type="url" placeholder="http://lattes.cnpq.br/..."></div>
+      <div class="fg"><label>Foto</label>
+        <input type="file" id="pPhotoFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+        <input type="hidden" id="pPhoto">
+        <div id="pPhotoProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+        <img id="pPhotoPrev" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover">
+      </div>
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:12px;background:rgba(0,200,150,.06);border-radius:10px;border:1px solid rgba(0,200,150,.2)">
         <input type="checkbox" id="pAgree" style="margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0">
         <label for="pAgree" style="font-size:13px;color:#4A5568;cursor:pointer;line-height:1.5">Concordo em participar do <strong>Cluster Temático 7</strong> e que meu perfil seja visível na rede.</label>
@@ -781,6 +790,7 @@ function doLogin(n,i){ finishLogin(n,i); }
 
 // Wire uploads
 wireUpload('pImgFile','pImg','pImgPrev','pImgProg');
+wireUpload('pPhotoFile','pPhoto','pPhotoPrev','pPhotoProg');
 wireUpload('mPhotoFile','mPhoto','mPhotoPrev','mPhotoProg');
 
 // ── SESSION ──
