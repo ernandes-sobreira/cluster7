@@ -916,23 +916,32 @@ function wireUpload(fileInputId, urlHiddenId, previewId, progressId){
 }
 
 // ── FEED ──
-document.getElementById('btnNewPost').addEventListener('click',()=>openM('mPost'));
+document.getElementById('btnNewPost').addEventListener('click',()=>{resetModalToNew('feed');['pTitle','pContent','pImg'].forEach(id=>document.getElementById(id).value='');openM('mPost');});
 document.getElementById('btnSavePost').addEventListener('click', async function(){
   const t=document.getElementById('pTitle').value.trim();
   const c=document.getElementById('pContent').value.trim();
   if(!t||!c){toast('Preencha título e mensagem.');return;}
-  await fbPost('cluster7/feed',{title:t,content:c,image:document.getElementById('pImg').value.trim(),author:CU,institution:CI,ts:Date.now()});
+  const img=document.getElementById('pImg').value.trim();
+  if(_editCtx&&_editCtx.type==='feed'){
+    const o=(window._feedCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/feed/'+_editCtx.id,{title:t,content:c,image:img,author:o.author||CU,institution:o.institution||CI,ts:o.ts||Date.now(),likes:o.likes||{},comments:o.comments||{}});
+    toast('Publicação atualizada! ✏️');
+  } else {
+    await fbPost('cluster7/feed',{title:t,content:c,image:img,author:CU,institution:CI,ts:Date.now()});
+    toast('Publicação enviada! 📢');
+  }
   ['pTitle','pContent','pImg'].forEach(id=>document.getElementById(id).value='');
-  closeM('mPost'); toast('Publicação enviada! 📢');
+  resetModalToNew('feed'); closeM('mPost');
 });
 
 function renderFeed(data){
+  window._feedCache=data||{};
   const el=document.getElementById('feedList');
   if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📭</div><p>Nenhuma publicação ainda. Seja o primeiro!</p></div>';return;}
   const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
   el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
     const d=new Date(p.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
-    const del=p.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/feed\',\''+id+'\')">🗑</button>':'';
+    const del=p.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editFeed(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/feed\',\''+id+'\')">🗑</button>':'';
     const likes=p.likes||{};
     const likeCount=Object.keys(likes).length;
     const iLiked=likes[uk];
@@ -1410,16 +1419,25 @@ document.getElementById('btnEditMyProfile').addEventListener('click',function(){
 // ═══════════════════════════════════════════
 // EVENTOS / AGENDA
 // ═══════════════════════════════════════════
-document.getElementById('btnNewEvent').addEventListener('click',()=>openM('mEvent'));
+document.getElementById('btnNewEvent').addEventListener('click',()=>{resetModalToNew('events');['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value='');openM('mEvent');});
 document.getElementById('btnSaveEvent').addEventListener('click', async function(){
   const t=document.getElementById('eTitle').value.trim();
   const d=document.getElementById('eDate').value;
   if(!t){toast('Informe o título.');return;}
-  await fbPost('cluster7/events',{title:t,date:d,type:document.getElementById('eType').value,parts:document.getElementById('eParts').value.trim(),desc:document.getElementById('eDesc').value.trim(),author:CU,ts:Date.now()});
+  const payload={title:t,date:d,type:document.getElementById('eType').value,parts:document.getElementById('eParts').value.trim(),desc:document.getElementById('eDesc').value.trim()};
+  if(_editCtx&&_editCtx.type==='events'){
+    const o=(window._eventsCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/events/'+_editCtx.id,{...payload,author:o.author||CU,ts:o.ts||Date.now()});
+    toast('Evento atualizado! ✏️');
+  } else {
+    await fbPost('cluster7/events',{...payload,author:CU,ts:Date.now()});
+    toast('Evento agendado! 📅');
+  }
   ['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value='');
-  closeM('mEvent'); toast('Evento agendado! 📅');
+  resetModalToNew('events'); closeM('mEvent');
 });
 function renderEvents(data){
+  window._eventsCache=data||{};
   const el=document.getElementById('eventList');
   if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>Nenhum evento agendado.</p></div>';return;}
   el.innerHTML=Object.entries(data).sort((a,b)=>(a[1].date||'').localeCompare(b[1].date||'')).map(([id,e])=>{
@@ -1427,7 +1445,7 @@ function renderEvents(data){
     const day=dt?dt.getDate():'?';
     const mon=dt?dt.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''):'';
     const hora=dt?dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
-    const del=e.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/events\',\''+id+'\')">🗑</button>':'';
+    const del=e.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editEvent(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/events\',\''+id+'\')">🗑</button>':'';
     return '<div class="ecard"><div class="eDateBox"><div class="eday">'+day+'</div><div class="emon">'+mon+'</div></div><div style="flex:1"><span class="ebadge t-'+(e.type||'outro')+'">'+(e.type||'')+'</span><div class="etitle">'+esc(e.title)+'</div>'+(hora?'<div style="font-size:11px;color:var(--gray3)">🕐 '+hora+'</div>':'')+(e.parts?'<div style="font-size:11px;color:var(--gray3);margin-top:3px">👥 '+esc(e.parts)+'</div>':'')+(e.desc?'<div style="font-size:12px;color:#4A5568;margin-top:5px">'+esc(e.desc)+'</div>':'')+'<div style="margin-top:6px">'+del+'</div></div></div>';
   }).join('');
 }
@@ -1504,13 +1522,22 @@ document.addEventListener('click',function(e){
 // ═══════════════════════════════════════════
 // ATIVIDADES
 // ═══════════════════════════════════════════
-document.getElementById('btnNewActivity').addEventListener('click',()=>openM('mActivity'));
+document.getElementById('btnNewActivity').addEventListener('click',()=>{resetModalToNew('activities');['aTitle','aParts','aYear','aDesc','aImg'].forEach(id=>document.getElementById(id).value='');openM('mActivity');});
 document.getElementById('btnSaveActivity').addEventListener('click', async function(){
   const t=document.getElementById('aTitle').value.trim();
   if(!t){toast('Informe o título.');return;}
-  await fbPost('cluster7/activities',{title:t,type:document.getElementById('aType').value,parts:document.getElementById('aParts').value.trim(),participants:document.getElementById('aParts').value.trim(),year:document.getElementById('aYear').value.trim(),desc:document.getElementById('aDesc').value.trim(),image:document.getElementById('aImg').value.trim(),author:CU,ts:Date.now()});
+  const parts=document.getElementById('aParts').value.trim();
+  const payload={title:t,type:document.getElementById('aType').value,parts:parts,participants:parts,year:document.getElementById('aYear').value.trim(),desc:document.getElementById('aDesc').value.trim(),image:document.getElementById('aImg').value.trim()};
+  if(_editCtx&&_editCtx.type==='activities'){
+    const o=(window._actsCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/activities/'+_editCtx.id,{...payload,author:o.author||CU,ts:o.ts||Date.now()});
+    toast('Atividade atualizada! ✏️');
+  } else {
+    await fbPost('cluster7/activities',{...payload,author:CU,ts:Date.now()});
+    toast('Atividade registrada! 📌');
+  }
   ['aTitle','aParts','aYear','aDesc','aImg'].forEach(id=>document.getElementById(id).value='');
-  closeM('mActivity'); toast('Atividade registrada! 📌');
+  resetModalToNew('activities'); closeM('mActivity');
 });
 document.querySelectorAll('#actFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
   document.querySelectorAll('#actFilts .afbtn').forEach(x=>x.classList.remove('on'));
@@ -1518,14 +1545,14 @@ document.querySelectorAll('#actFilts .afbtn').forEach(b=>b.addEventListener('cli
 }));
 const tLbl={artigo:'Artigo',resumo:'Resumo',banca:'Banca',palestra:'Palestra',orientacao:'Orientação',projeto:'Projeto',acao:'Ação',reuniao:'Reunião',outro:'Outro'};
 function renderActs(data){
-  allActs=data;
+  allActs=data; window._actsCache=data||{};
   const el=document.getElementById('actList');
   if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📌</div><p>Nenhuma atividade registrada.</p></div>';return;}
   let items=Object.entries(data).reverse();
   if(actFilter!=='all')items=items.filter(([id,a])=>a.type===actFilter);
   if(items.length===0){el.innerHTML='<div class="empty"><div class="ei">🔍</div><p>Nenhuma atividade neste filtro.</p></div>';return;}
   el.innerHTML=items.map(([id,a])=>{
-    const del=a.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/activities\',\''+id+'\')">🗑</button>':'';
+    const del=a.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editActivity(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/activities\',\''+id+'\')">🗑</button>':'';
     const parts=(a.participants||a.parts||'').split(',').map(x=>x.trim()).filter(Boolean);
     const ptags=parts.map(p=>'<span class="ptag">'+esc(p)+'</span>').join('');
     return '<div class="acard" data-type="'+(a.type||'outro')+'">'+(a.image?'<img class="aimg" src="'+esc(a.image)+'" onerror="this.style.display=\'none\'" alt="">':'')+'<span class="atbadge t-'+(a.type||'outro')+'">'+(tLbl[a.type]||'Outro')+'</span><div class="atitle">'+esc(a.title)+'</div>'+(a.year?'<div style="font-size:11px;color:var(--gray3);margin-bottom:6px">📅 '+esc(a.year)+'</div>':'')+(ptags?'<div class="apart">'+ptags+'</div>':'')+(a.desc?'<div style="font-size:13px;color:#4A5568;margin-top:6px">'+esc(a.desc)+'</div>':'')+'<div class="ameta">✍ '+esc(a.author||'')+' '+del+'</div></div>';
@@ -1535,10 +1562,16 @@ function renderActs(data){
 // ═══════════════════════════════════════════
 // PROPOSTAS
 // ═══════════════════════════════════════════
-document.getElementById('btnNewProposal').addEventListener('click',()=>openM('mProposal'));
+document.getElementById('btnNewProposal').addEventListener('click',()=>{resetModalToNew('proposals');['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');openM('mProposal');});
 document.getElementById('btnSaveProposal').addEventListener('click', async function(){
   const t=document.getElementById('prTitle').value.trim();
   if(!t){toast('Informe o título.');return;}
+  if(_editCtx&&_editCtx.type==='proposals'){
+    const o=(window._propsCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/proposals/'+_editCtx.id,{title:t,type:document.getElementById('prType').value,desc:document.getElementById('prDesc').value.trim(),deadline:document.getElementById('prDeadline').value.trim(),status:o.status||'aberta',author:o.author||CU,institution:o.institution||CI,votes:o.votes||{},ts:o.ts||Date.now()});
+    ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');
+    resetModalToNew('proposals'); closeM('mProposal'); toast('Proposta atualizada! ✏️'); return;
+  }
   await fbPost('cluster7/proposals',{title:t,type:document.getElementById('prType').value,desc:document.getElementById('prDesc').value.trim(),deadline:document.getElementById('prDeadline').value.trim(),status:'aberta',author:CU,institution:CI,votes:{},ts:Date.now()});
   ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');
   closeM('mProposal'); toast('Proposta lançada! 🚀');
@@ -1563,7 +1596,7 @@ window.advanceProp = async function(id,cur){
   toast('Status: '+sLbl[next]);
 };
 function renderProps(data){
-  allProps=data;
+  allProps=data; window._propsCache=data||{};
   const el=document.getElementById('propList');
   if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">🚀</div><p>Nenhuma proposta. Lance a primeira!</p></div>';return;}
   let items=Object.entries(data).reverse();
@@ -1575,7 +1608,7 @@ function renderProps(data){
     const vCount=Object.keys(votes).length;
     const iVoted=votes[uk];
     const st=p.status||'aberta';
-    const del=p.author===CU?'<button class="dbtn" onclick="delItem(\'cluster7/proposals\',\''+id+'\')">🗑</button>':'';
+    const del=p.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editProposal(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/proposals\',\''+id+'\')">🗑</button>':'';
     const adv=p.author===CU?'<button class="advbtn" onclick="advanceProp(\''+id+'\',\''+st+'\')">▶ Avançar</button>':'';
     return '<div class="pcard" data-s="'+st+'"><div class="phdr"><div class="ptitle">'+esc(p.title)+'</div><span class="sbadge s-'+st+'">'+sLbl[st]+'</span></div><span class="atbadge t-'+(p.type||'outro')+'">'+(pLbl[p.type]||'Outro')+'</span>'+(p.desc?'<div class="pdesc">'+esc(p.desc)+'</div>':'')+(p.deadline?'<div style="font-size:11px;color:var(--gray3);margin-bottom:8px">⏰ '+esc(p.deadline)+'</div>':'')+'<div class="pmeta">✍ '+esc(p.author)+' · 🏛 '+esc(p.institution||'')+'</div><div class="vsec"><button class="vbtn'+(iVoted?' voted':'')+'" onclick="voteProp(\''+id+'\')">'+(iVoted?'✓ Apoiado':'👍 Apoiar')+' ('+vCount+')</button>'+adv+del+'</div></div>';
   }).join('');
@@ -1816,6 +1849,72 @@ window.dedupMembers = async function(){
   }
   toast(removed+' duplicata(s) removida(s)! 🧹');
 };
+
+// ── EXCLUIR (autor) ──
+window.delItem = async function(path, id){
+  if(!confirm('Excluir este item? Esta ação não pode ser desfeita.'))return;
+  try{ await fbDel(path+'/'+id); toast('Excluído.'); }
+  catch(e){ toast('Erro ao excluir.'); }
+};
+
+// ── EDITAR universal — reusa os modais de criação ──
+let _editCtx = null; // {type, id, orig}
+
+window.editFeed = function(id){
+  const p=(window._feedCache||{})[id]; if(!p)return;
+  _editCtx={type:'feed',id};
+  document.getElementById('pTitle').value=p.title||'';
+  document.getElementById('pContent').value=p.content||'';
+  document.getElementById('pImg').value=p.image||'';
+  document.querySelector('#mPost h3').textContent='Editar Publicação';
+  document.getElementById('btnSavePost').textContent='Salvar alterações';
+  openM('mPost');
+};
+window.editEvent = function(id){
+  const e=(window._eventsCache||{})[id]; if(!e)return;
+  _editCtx={type:'events',id};
+  document.getElementById('eTitle').value=e.title||'';
+  document.getElementById('eDate').value=e.date||'';
+  document.getElementById('eType').value=e.type||'reuniao';
+  document.getElementById('eParts').value=e.parts||'';
+  document.getElementById('eDesc').value=e.desc||'';
+  document.querySelector('#mEvent h3').textContent='Editar Evento';
+  document.getElementById('btnSaveEvent').textContent='Salvar';
+  openM('mEvent');
+};
+window.editActivity = function(id){
+  const a=(window._actsCache||allActs||{})[id]; if(!a)return;
+  _editCtx={type:'activities',id};
+  document.getElementById('aTitle').value=a.title||'';
+  document.getElementById('aType').value=a.type||'artigo';
+  document.getElementById('aParts').value=a.participants||a.parts||'';
+  document.getElementById('aYear').value=a.year||'';
+  document.getElementById('aDesc').value=a.desc||'';
+  document.getElementById('aImg').value=a.image||'';
+  document.querySelector('#mActivity h3').textContent='Editar Atividade';
+  document.getElementById('btnSaveActivity').textContent='Salvar';
+  openM('mActivity');
+};
+window.editProposal = function(id){
+  const p=(window._propsCache||allProps||{})[id]; if(!p)return;
+  _editCtx={type:'proposals',id};
+  document.getElementById('prTitle').value=p.title||'';
+  document.getElementById('prType').value=p.type||'artigo';
+  document.getElementById('prDesc').value=p.desc||'';
+  document.getElementById('prDeadline').value=p.deadline||'';
+  document.querySelector('#mProposal h3').textContent='Editar Proposta';
+  document.getElementById('btnSaveProposal').textContent='Salvar';
+  openM('mProposal');
+};
+
+// Reset modal titles/buttons when opening for NEW
+function resetModalToNew(type){
+  _editCtx=null;
+  if(type==='feed'){document.querySelector('#mPost h3').textContent='Nova Publicação';document.getElementById('btnSavePost').textContent='Publicar';}
+  if(type==='events'){document.querySelector('#mEvent h3').textContent='Novo Evento';document.getElementById('btnSaveEvent').textContent='Agendar';}
+  if(type==='activities'){document.querySelector('#mActivity h3').textContent='Registrar Atividade';document.getElementById('btnSaveActivity').textContent='📌 Registrar';}
+  if(type==='proposals'){document.querySelector('#mProposal h3').textContent='Nova Proposta';document.getElementById('btnSaveProposal').textContent='🚀 Lançar proposta';}
+}
 
 function startListeners(){
   fbListen('cluster7/feed',renderFeed);
