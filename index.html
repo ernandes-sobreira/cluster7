@@ -299,6 +299,9 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 .mcmt-in{display:flex;gap:5px;margin-top:6px}
 .mcmt-in input{flex:1;padding:6px 10px;border:1px solid var(--gray2);border-radius:7px;font-family:'Sora',sans-serif;font-size:12px;outline:none;background:#fff}
 .mcmt-in button{padding:6px 10px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif}
+
+.fsrc{display:inline-block;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:10px;letter-spacing:.3px}
+.feed-grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -432,6 +435,14 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 <main>
   <section id="tab-feed" class="tab on">
     <div class="shdr"><h1>Feed do Cluster</h1><button class="badd" id="btnNewPost">+ Nova publicação</button></div>
+    <div class="afilts" id="feedFilts">
+      <button class="afbtn on" data-f="all">🌐 Tudo</button>
+      <button class="afbtn" data-f="post">📢 Publicações</button>
+      <button class="afbtn" data-f="activity">📌 Atividades</button>
+      <button class="afbtn" data-f="proposal">🚀 Propostas</button>
+      <button class="afbtn" data-f="mural">🎨 Mural</button>
+      <button class="afbtn" data-f="event">📅 Agenda</button>
+    </div>
     <div id="feedList" class="feed-grid"></div>
   </section>
   <section id="tab-network" class="tab">
@@ -1069,38 +1080,147 @@ document.getElementById('btnSavePost').addEventListener('click', async function(
   resetModalToNew('feed'); closeM('mPost');
 });
 
+let feedFilter='all';
+let _feedPosts={};
+
 function renderFeed(data){
   window._feedCache=data||{};
-  const el=document.getElementById('feedList');
-  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📭</div><p>Nenhuma publicação ainda. Seja o primeiro!</p></div>';return;}
-  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
-  el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
-    const d=new Date(p.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
-    const del=p.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editFeed(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/feed\',\''+id+'\')">🗑</button>':'';
-    const likes=p.likes||{};
-    const likeCount=Object.keys(likes).length;
-    const iLiked=likes[uk];
-    const comments=p.comments||{};
-    const cCount=Object.keys(comments).length;
-    const commentsHtml=Object.entries(comments).sort((a,b)=>a[1].ts-b[1].ts).map(([cid,c])=>
-      '<div class="fcomment"><span class="fcomment-a">'+esc(c.author)+'</span> '+esc(c.text)+'</div>'
-    ).join('');
-    return '<div class="fcard">'+
-      (p.image?'<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">':'')+
-      '<div class="fcard-t">'+esc(p.title)+'</div>'+
-      '<div class="fcard-c">'+esc(p.content).replace(/\n/g,'<br>')+'</div>'+
-      '<div class="fcard-m"><span class="fcard-a">✍ '+esc(p.author)+'</span><span>🏛 '+esc(p.institution)+'</span><span>📅 '+d+'</span>'+del+'</div>'+
-      '<div class="fcard-actions">'+
-        '<button class="flike'+(iLiked?' on':'')+'" onclick="toggleLike(\''+id+'\')">'+(iLiked?'❤️':'🤍')+' '+likeCount+'</button>'+
-        '<button class="fcomment-btn" onclick="toggleComments(\''+id+'\')">💬 '+cCount+'</button>'+
-      '</div>'+
-      '<div class="fcomments" id="fc_'+id+'" style="display:none">'+
-        commentsHtml+
-        '<div class="fcomment-input"><input type="text" id="ci_'+id+'" placeholder="Escreva um comentário..." onkeydown="if(event.key===\'Enter\')addComment(\''+id+'\')"><button onclick="addComment(\''+id+'\')">Enviar</button></div>'+
-      '</div>'+
-    '</div>';
-  }).join('');
+  _feedPosts=data||{};
+  renderUnifiedFeed();
 }
+
+// Agrega todas as fontes num só feed cronológico
+function renderUnifiedFeed(){
+  const el=document.getElementById('feedList');
+  if(!el)return;
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  let items=[];
+
+  // 1. Publicações do feed
+  Object.entries(_feedPosts||{}).forEach(([id,p])=>{
+    items.push({src:'post', path:'cluster7/feed', id, ts:p.ts||0, author:p.author, data:p});
+  });
+  // 2. Atividades
+  Object.entries(allActs||{}).forEach(([id,a])=>{
+    items.push({src:'activity', path:'cluster7/activities', id, ts:a.ts||0, author:a.author, data:a});
+  });
+  // 3. Propostas
+  Object.entries(allProps||{}).forEach(([id,p])=>{
+    items.push({src:'proposal', path:'cluster7/proposals', id, ts:p.ts||0, author:p.author, data:p});
+  });
+  // 4. Mural (notas, fotos, links)
+  Object.entries(_padletCache||{}).forEach(([id,p])=>{
+    items.push({src:'mural', path:'cluster7/padlet', id, ts:p.ts||0, author:p.author, data:p});
+  });
+  // 5. Eventos/Agenda
+  Object.entries(window._eventsCache||{}).forEach(([id,e])=>{
+    items.push({src:'event', path:'cluster7/events', id, ts:e.ts||0, author:e.author, data:e});
+  });
+
+  // filtro
+  if(feedFilter!=='all') items=items.filter(x=>x.src===feedFilter);
+  // ordena por data desc
+  items.sort((a,b)=>b.ts-a.ts);
+
+  if(items.length===0){
+    el.innerHTML='<div class="empty"><div class="ei">📭</div><p>Nada por aqui ainda. Comece criando algo!</p></div>';
+    return;
+  }
+
+  el.innerHTML=items.map(it=>feedCard(it, uk)).join('');
+}
+
+const SRC_META={
+  post:{ic:'📢',lbl:'Publicação',cor:'#00C896'},
+  activity:{ic:'📌',lbl:'Atividade',cor:'#7B5EA7'},
+  proposal:{ic:'🚀',lbl:'Proposta',cor:'#F59E0B'},
+  mural:{ic:'🎨',lbl:'Mural',cor:'#EC4899'},
+  event:{ic:'📅',lbl:'Agenda',cor:'#06B6D4'}
+};
+
+function feedCard(it, uk){
+  const p=it.data;
+  const m=SRC_META[it.src];
+  const d=new Date(it.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+  const mine=it.author===CU;
+  // ações de editar/excluir por tipo
+  let edit='';
+  if(mine){
+    const efn={post:'editFeed',activity:'editActivity',proposal:'editProposal',event:'editEvent'}[it.src];
+    if(efn) edit='<button class="dbtn" style="color:var(--accent4)" onclick="'+efn+'(\''+it.id+'\')">✏️</button>';
+    else if(it.src==='mural') edit='<button class="dbtn" style="color:var(--accent4)" onclick="editPadlet(\''+it.id+'\')">✏️</button>';
+    edit+='<button class="dbtn" onclick="delItem(\''+it.path+'\',\''+it.id+'\')">🗑</button>';
+  }
+
+  // conteúdo específico por tipo
+  let title='', body='', img='', extra='';
+  if(it.src==='post'){
+    title=p.title||''; body=(p.content||'').replace(/\n/g,'<br>');
+    if(p.image)img='<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">';
+  } else if(it.src==='activity'){
+    const tl={artigo:'Artigo',resumo:'Resumo',livro:'Livro/Capítulo',software:'App/Software',banca:'Banca',palestra:'Palestra',orientacao:'Orientação',projeto:'Projeto',acao:'Ação',reuniao:'Reunião',outro:'Outro'}[p.type]||'Atividade';
+    title=(p.title||''); body='<span style="color:var(--accent4);font-weight:600">'+tl+'</span>'+(p.year?' · '+esc(p.year):'')+(p.desc?'<br>'+esc(p.desc):'');
+    if(p.participants)body+='<br><span style="font-size:12px;color:var(--gray3)">👥 '+esc(p.participants)+'</span>';
+    if(p.image)img='<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">';
+    if(p.link)extra='<a href="'+esc(p.link)+'" target="_blank" style="display:inline-block;margin-top:6px;font-size:12px;color:#0891B2;font-weight:600;text-decoration:none">🔗 Acessar material</a>';
+  } else if(it.src==='proposal'){
+    const st={aberta:'Aberta',em_andamento:'Em andamento',concluida:'Concluída'}[p.status||'aberta'];
+    title=(p.title||''); body=(p.desc||'')+'<br><span style="font-size:12px;color:var(--gray3)">Status: '+st+(p.deadline?' · ⏰ '+esc(p.deadline):'')+'</span>';
+  } else if(it.src==='mural'){
+    if(p.kind==='photo'){title='Foto no mural'; if(p.url)img='<img src="'+esc(p.url)+'" onerror="this.style.display=\'none\'" alt="">'; body=esc(p.caption||'');}
+    else if(p.kind==='link'){title=p.title||'Link'; if(p.prevImg)img='<img src="'+esc(p.prevImg)+'" onerror="this.style.display=\'none\'" alt="">'; body=(p.prevDesc?esc(p.prevDesc):'')+'<br><a href="'+esc(p.url)+'" target="_blank" style="color:#0891B2;font-size:12px">🔗 '+esc((p.url||'').replace(/^https?:\/\//,'').slice(0,40))+'</a>';}
+    else {title=p.title||'Nota'; body=(p.content||'').replace(/\n/g,'<br>');}
+  } else if(it.src==='event'){
+    const dt=p.date?new Date(p.date):null;
+    title=p.title||'Evento';
+    body=(dt?'📅 '+dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'')+(p.parts?'<br>👥 '+esc(p.parts):'')+(p.desc?'<br>'+esc(p.desc):'');
+  }
+
+  // like/comentário (todos os tipos suportam via caminho próprio)
+  const likes=p.likes||{}; const lc=Object.keys(likes).length; const iLiked=likes[uk];
+  const comments=p.comments||{}; const cc=Object.keys(comments).length;
+  const cHtml=Object.entries(comments).sort((a,b)=>a[1].ts-b[1].ts).map(([cid,c])=>
+    '<div class="fcomment"><span class="fcomment-a">'+esc(c.author)+'</span> '+esc(c.text)+'</div>').join('');
+
+  return '<div class="fcard" style="border-left-color:'+m.cor+'">'+
+    '<div class="fsrc" style="background:'+m.cor+'22;color:'+m.cor+'">'+m.ic+' '+m.lbl+'</div>'+
+    img+
+    (title?'<div class="fcard-t">'+esc(title)+'</div>':'')+
+    '<div class="fcard-c">'+body+'</div>'+extra+
+    '<div class="fcard-m"><span class="fcard-a">✍ '+esc(it.author||'')+'</span><span>📅 '+d+'</span>'+edit+'</div>'+
+    '<div class="fcard-actions">'+
+      '<button class="flike'+(iLiked?' on':'')+'" onclick="feedLike(\''+it.path+'\',\''+it.id+'\')">'+(iLiked?'❤️':'🤍')+' '+lc+'</button>'+
+      '<button class="fcomment-btn" onclick="toggleComments(\''+it.id+'\')">💬 '+cc+'</button>'+
+    '</div>'+
+    '<div class="fcomments" id="fc_'+it.id+'" style="display:none">'+cHtml+
+      '<div class="fcomment-input"><input type="text" id="ci_'+it.id+'" placeholder="Comentar..." onkeydown="if(event.key===\'Enter\')feedComment(\''+it.path+'\',\''+it.id+'\')"><button onclick="feedComment(\''+it.path+'\',\''+it.id+'\')">Enviar</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+// like/comment universais por caminho
+window.feedLike = async function(path, id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const it=await fbGet(path+'/'+id); if(!it)return;
+  const likes=it.likes||{};
+  if(likes[uk])delete likes[uk]; else likes[uk]={name:CU,ts:Date.now()};
+  await fbPut(path+'/'+id+'/likes',likes);
+};
+window.feedComment = async function(path, id){
+  const inp=document.getElementById('ci_'+id);
+  const t=inp.value.trim(); if(!t)return;
+  const it=await fbGet(path+'/'+id); if(!it)return;
+  const comments=it.comments||{};
+  comments['c'+Date.now()]={author:CU,text:t,ts:Date.now()};
+  await fbPut(path+'/'+id+'/comments',comments);
+  inp.value=''; toast('Comentário enviado! 💬');
+};
+
+// filtro do feed
+document.querySelectorAll('#feedFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#feedFilts .afbtn').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); feedFilter=this.dataset.f; renderUnifiedFeed();
+}));
 
 window.toggleLike = async function(id){
   const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
@@ -2171,11 +2291,11 @@ document.getElementById('btnSaveConnect').addEventListener('click', async functi
 
 function startListeners(){
   fbListen('cluster7/feed',renderFeed);
-  fbListen('cluster7/events',renderEvents);
-  fbListen('cluster7/padlet',renderPadlet);
-  fbListen('cluster7/activities',d=>{allActs=d;renderActs(d);fbGet('cluster7/members').then(m=>{netMembers=m;renderNetwork(m,d);});});
+  fbListen('cluster7/events',d=>{renderEvents(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();});
+  fbListen('cluster7/padlet',d=>{renderPadlet(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();});
+  fbListen('cluster7/activities',d=>{allActs=d;renderActs(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();fbGet('cluster7/members').then(m=>{netMembers=m;renderNetwork(m,d);});});
   fbListen('cluster7/members',d=>{netMembers=d;renderNetwork(d,allActs);});
-  fbListen('cluster7/proposals',d=>{allProps=d;renderProps(d);});
+  fbListen('cluster7/proposals',d=>{allProps=d;renderProps(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();});
   fbListen('cluster7/links',d=>{window._manualLinks=d;const c=document.getElementById('netCanvas');if(c)c._sig=null;if(netMembers)renderNetwork(netMembers,allActs);});
 }
 window.addEventListener('resize',()=>{if(document.getElementById('tab-network').classList.contains('on')){const c=document.getElementById('netCanvas');if(c)c._sig=null;drawNet();}});
