@@ -302,6 +302,13 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 
 .fsrc{display:inline-block;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:10px;letter-spacing:.3px}
 .feed-grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+
+.create-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:8px;min-width:220px;z-index:100;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s}
+.create-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+.create-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;background:none;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:background .15s}
+.create-menu button:hover{background:var(--gray1)}
+.create-menu button span{font-size:16px}
+.cm-sep{height:1px;background:var(--gray2);margin:6px 4px}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -434,7 +441,22 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 
 <main>
   <section id="tab-feed" class="tab on">
-    <div class="shdr"><h1>Feed do Cluster</h1><button class="badd" id="btnNewPost">+ Nova publicação</button></div>
+    <div class="shdr"><h1>Feed do Cluster</h1>
+      <div style="position:relative">
+        <button class="badd" id="btnCreateMenu">+ Criar ▾</button>
+        <div id="createMenu" class="create-menu">
+          <button onclick="createFrom('post')"><span>📢</span> Publicação</button>
+          <button onclick="createFrom('activity')"><span>📌</span> Atividade / Ação</button>
+          <button onclick="createFrom('proposal')"><span>🚀</span> Proposta</button>
+          <div class="cm-sep"></div>
+          <button onclick="createFrom('note')"><span>📝</span> Nota no mural</button>
+          <button onclick="createFrom('photo')"><span>📷</span> Foto / Print</button>
+          <button onclick="createFrom('link')"><span>🔗</span> Link</button>
+          <div class="cm-sep"></div>
+          <button onclick="createFrom('event')"><span>📅</span> Evento na agenda</button>
+        </div>
+      </div>
+    </div>
     <div class="afilts" id="feedFilts">
       <button class="afbtn on" data-f="all">🌐 Tudo</button>
       <button class="afbtn" data-f="post">📢 Publicações</button>
@@ -1062,7 +1084,26 @@ function wireUpload(fileInputId, urlHiddenId, previewId, progressId){
 }
 
 // ── FEED ──
-document.getElementById('btnNewPost').addEventListener('click',()=>{resetModalToNew('feed');['pTitle','pContent','pImg'].forEach(id=>document.getElementById(id).value='');openM('mPost');});
+// ── MENU CRIAR (feed) ──
+document.getElementById('btnCreateMenu').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('createMenu').classList.toggle('open');
+});
+document.addEventListener('click', function(){
+  const m=document.getElementById('createMenu');
+  if(m)m.classList.remove('open');
+});
+window.createFrom = function(type){
+  document.getElementById('createMenu').classList.remove('open');
+  if(type==='post'){ resetModalToNew('feed'); ['pTitle','pContent','pImg'].forEach(id=>document.getElementById(id).value=''); openM('mPost'); }
+  else if(type==='activity'){ resetModalToNew('activities'); ['aTitle','aParts','aYear','aDesc','aImg','aLink'].forEach(id=>document.getElementById(id).value=''); openM('mActivity'); }
+  else if(type==='proposal'){ resetModalToNew('proposals'); ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value=''); openM('mProposal'); }
+  else if(type==='note'){ openM('mNote'); }
+  else if(type==='photo'){ ['phUrl','phCap'].forEach(id=>document.getElementById(id).value=''); const pv=document.getElementById('phPrev'); if(pv)pv.style.display='none'; openM('mMuralPhoto'); }
+  else if(type==='link'){ ['lkTitle','lkUrl'].forEach(id=>document.getElementById(id).value=''); openM('mLink'); }
+  else if(type==='event'){ resetModalToNew('events'); ['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value=''); openM('mEvent'); }
+};
+
 document.getElementById('btnSavePost').addEventListener('click', async function(){
   const t=document.getElementById('pTitle').value.trim();
   const c=document.getElementById('pContent').value.trim();
