@@ -541,11 +541,16 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 
 <div id="mMuralPhoto" class="overlay"><div class="mbox">
   <div class="mhdr"><h3>Foto no Mural</h3><button data-close="mMuralPhoto">✕</button></div>
-  <div class="fg"><label>Foto (PNG/JPG)</label>
-    <input type="file" id="phFile" accept="image/png,image/jpeg,image/jpg,image/webp" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+  <div class="fg"><label>Foto ou Print</label>
+    <div id="phPasteZone" tabindex="0" style="border:2px dashed var(--accent);border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:rgba(0,200,150,.04);transition:all .2s;outline:none">
+      <div style="font-size:28px;margin-bottom:6px">📋</div>
+      <div style="font-size:13px;color:var(--c1);font-weight:600">Cole um print aqui (Ctrl+V)</div>
+      <div style="font-size:11px;color:var(--gray3);margin-top:4px">ou clique para escolher arquivo</div>
+    </div>
+    <input type="file" id="phFile" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none">
     <input type="hidden" id="phUrl">
     <div id="phProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
-    <img id="phPrev" style="display:none;max-width:100%;max-height:160px;border-radius:8px;margin-top:8px;object-fit:cover">
+    <img id="phPrev" style="display:none;max-width:100%;max-height:200px;border-radius:8px;margin-top:8px;object-fit:contain">
   </div>
   <div class="fg"><label>Legenda</label><input id="phCap" type="text"></div>
   <button class="btn b2" id="btnSavePhoto">Colocar no mural</button>
@@ -866,6 +871,48 @@ wireUpload('mPhotoFile','mPhoto','mPhotoPrev','mPhotoProg');
 wireUpload('emPhotoFile','emPhoto','emPhotoPrev','emPhotoProg');
 wireUpload('phFile','phUrl','phPrev','phProg');
 
+// ── COLAR PRINT no mural ──
+(function(){
+  const zone=document.getElementById('phPasteZone');
+  const file=document.getElementById('phFile');
+  if(!zone)return;
+  zone.addEventListener('click',()=>file.click());
+  // colar imagem
+  async function handlePaste(items){
+    for(const it of items){
+      if(it.type&&it.type.startsWith('image/')){
+        const blob=it.getAsFile?it.getAsFile():it;
+        if(!blob)continue;
+        const prog=document.getElementById('phProg');
+        prog.style.display='block'; prog.textContent='Enviando print... 0%';
+        try{
+          const url=await uploadPhoto(blob, p=>{prog.textContent='Enviando print... '+p+'%';});
+          document.getElementById('phUrl').value=url;
+          prog.style.display='none';
+          const prev=document.getElementById('phPrev');
+          prev.src=url; prev.style.display='block';
+          zone.style.borderColor='var(--accent)';
+          zone.querySelector('div:nth-child(2)').textContent='✓ Print colado!';
+          toast('Print carregado! 📋');
+        }catch(err){ prog.style.display='none'; toast('Erro ao enviar print.'); }
+        return true;
+      }
+    }
+    return false;
+  }
+  // paste no zone e no documento quando o modal está aberto
+  document.addEventListener('paste', e=>{
+    const modal=document.getElementById('mMuralPhoto');
+    if(!modal||!modal.classList.contains('show'))return;
+    if(e.clipboardData&&e.clipboardData.items){
+      handlePaste(e.clipboardData.items);
+    }
+  });
+  zone.addEventListener('focus',()=>{zone.style.background='rgba(0,200,150,.1)';});
+  zone.addEventListener('blur',()=>{zone.style.background='rgba(0,200,150,.04)';});
+})();
+
+
 // ── SESSION ──
 const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
 if(su&&si){
@@ -1147,7 +1194,7 @@ function renderNetwork(members,acts){
 
 function drawNet(){
   const container = document.getElementById('netCanvas');
-  const sig = JSON.stringify({m:netMembers, a:netActs});
+  const sig = JSON.stringify({m:netMembers, a:netActs, l:window._manualLinks});
   if(container._sig === sig) return;
   container._sig = sig;
 
@@ -2051,7 +2098,7 @@ function startListeners(){
   fbListen('cluster7/activities',d=>{allActs=d;renderActs(d);fbGet('cluster7/members').then(m=>{netMembers=m;renderNetwork(m,d);});});
   fbListen('cluster7/members',d=>{netMembers=d;renderNetwork(d,allActs);});
   fbListen('cluster7/proposals',d=>{allProps=d;renderProps(d);});
-  fbListen('cluster7/links',d=>{window._manualLinks=d;if(netMembers)renderNetwork(netMembers,allActs);});
+  fbListen('cluster7/links',d=>{window._manualLinks=d;const c=document.getElementById('netCanvas');if(c)c._sig=null;if(netMembers)renderNetwork(netMembers,allActs);});
 }
 window.addEventListener('resize',()=>{if(document.getElementById('tab-network').classList.contains('on')){const c=document.getElementById('netCanvas');if(c)c._sig=null;drawNet();}});
 </script>
