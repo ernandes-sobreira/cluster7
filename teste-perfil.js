@@ -1,1 +1,0 @@
-console.log('perfil cluster 7');
