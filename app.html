@@ -1,0 +1,2345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLUSTER 7</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--c1:#0D1B2A;--accent:#00C896;--accent2:#FF6B6B;--accent3:#FFD166;--accent4:#7B5EA7;--gray1:#F4F6F9;--gray2:#E2E8F0;--gray3:#94A3B8;--text:#1E293B;--shadow:0 4px 24px rgba(0,0,0,.08);--r:14px;--hh:64px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',sans-serif;background:var(--gray1);color:var(--text);min-height:100vh}
+.overlay{display:none;position:fixed;inset:0;background:rgba(13,27,42,.9);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.mbox{background:#fff;border-radius:20px;padding:36px;max-width:420px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.25);animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+.mbox.wide{max-width:560px}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.mlogo{width:72px;height:72px;background:linear-gradient(135deg,var(--accent),var(--accent4));border-radius:20px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:#fff;margin:0 auto 20px;box-shadow:0 8px 24px rgba(0,200,150,.4)}
+.mbox h2{font-size:28px;font-weight:800;text-align:center;color:var(--c1);margin-bottom:6px}
+.msub{text-align:center;color:var(--gray3);font-size:13px;margin-bottom:28px}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.mhdr h3{font-size:18px;font-weight:700}
+.mhdr button{background:none;border:none;font-size:18px;cursor:pointer;color:var(--gray3)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gray3);margin-bottom:5px}
+.fg input,.fg textarea,.fg select{width:100%;padding:11px 13px;border:2px solid var(--gray2);border-radius:10px;font-family:'Sora',sans-serif;font-size:14px;color:var(--text);outline:none;resize:vertical;background:#fff;transition:border-color .2s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
+.btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#00A87A);color:#fff;border:none;border-radius:11px;font-family:'Sora',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;margin-top:6px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,200,150,.4)}
+.btn.b2{background:linear-gradient(135deg,var(--accent4),#5C4090)}
+.btn.b2:hover{box-shadow:0 6px 20px rgba(123,94,167,.4)}
+.err{color:var(--accent2);font-size:13px;text-align:center;margin-top:8px;min-height:18px}
+header{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--c1);display:flex;align-items:center;padding:0 20px;gap:16px;z-index:900;box-shadow:0 2px 20px rgba(0,0,0,.3)}
+.hlogo{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),var(--accent4));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.htitles{flex-shrink:0}
+.ht1{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:#fff;letter-spacing:2px;display:block}
+.ht2{font-size:10px;color:var(--accent);letter-spacing:1px;display:block}
+nav{display:flex;gap:2px;flex:1;justify-content:center;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nb{display:flex;align-items:center;gap:5px;padding:7px 13px;background:none;border:none;color:rgba(255,255,255,.5);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border-radius:8px;transition:all .2s;white-space:nowrap}
+.nb svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nb:hover{background:rgba(255,255,255,.08);color:#fff}
+.nb.on{background:rgba(0,200,150,.15);color:var(--accent)}
+.hu{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.udot{width:8px;height:8px;background:var(--accent);border-radius:50%;box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+#uname{font-size:12px;color:#fff;font-weight:600;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.boutl{padding:5px 11px;background:rgba(255,255,255,.1);border:none;border-radius:6px;color:var(--gray3);font-size:11px;cursor:pointer;transition:all .2s}
+.boutl:hover{background:rgba(255,255,255,.2);color:#fff}
+main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;margin-right:auto}
+.tab{display:none}.tab.on{display:block}
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px}
+.shdr h1{font-size:24px;font-weight:800;color:var(--c1)}
+.badd{padding:9px 18px;background:linear-gradient(135deg,var(--accent),#00A87A);color:#fff;border:none;border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.badd:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,200,150,.4)}
+.badd.b2{background:linear-gradient(135deg,var(--accent4),#5C4090)}
+.padd{display:flex;gap:8px}
+/* FEED */
+.feed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+.fcard{background:#fff;border-radius:var(--r);padding:22px;box-shadow:var(--shadow);border-left:4px solid var(--accent);animation:up .4s ease;transition:transform .2s}
+.fcard:hover{transform:translateY(-3px)}
+.fcard img{width:100%;max-height:180px;object-fit:cover;border-radius:9px;margin-bottom:12px}
+.fcard-t{font-size:15px;font-weight:700;color:var(--c1);margin-bottom:7px}
+.fcard-c{font-size:13px;color:#4A5568;line-height:1.7;margin-bottom:12px}
+.fcard-m{font-size:11px;color:var(--gray3);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.fcard-a{font-weight:700;color:var(--accent4)}
+/* REDE */
+.stats{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.sbox{background:#fff;border-radius:12px;padding:14px 20px;box-shadow:var(--shadow);text-align:center;flex:1;min-width:90px}
+.snum{font-size:30px;font-weight:800;color:var(--accent);font-family:'Space Mono',monospace}
+.slbl{font-size:10px;color:var(--gray3);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.net-canvas{background:#0a1628;border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:22px;position:relative;overflow:hidden;min-height:480px}
+.net-tip{position:absolute;background:rgba(10,22,40,.95);color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s;border:1px solid rgba(0,200,150,.3);z-index:20;max-width:200px;line-height:1.6}
+.net-tip.show{opacity:1}
+.mcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.mcard{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--shadow);display:flex;gap:12px;animation:up .4s ease;transition:transform .2s;position:relative}
+.mcard:hover{transform:translateY(-3px)}
+.mav{width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.mav img{width:100%;height:100%;object-fit:cover}
+.mn{font-size:13px;font-weight:700;color:var(--c1);margin-bottom:2px}
+.mi{font-size:11px;color:var(--accent4);font-weight:600;margin-bottom:3px}
+.ma{font-size:10px;color:var(--gray3)}
+.cbadge{position:absolute;top:10px;right:12px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:'Space Mono',monospace}
+/* AGENDA */
+.elist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ecard{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--shadow);display:flex;gap:14px;animation:up .4s ease;transition:transform .2s}
+.ecard:hover{transform:translateY(-3px)}
+.eDateBox{width:52px;flex-shrink:0;background:var(--c1);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 5px}
+.eday{font-family:'Space Mono',monospace;font-size:19px;font-weight:700;color:var(--accent);line-height:1}
+.emon{font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.etitle{font-size:14px;font-weight:700;color:var(--c1);margin-bottom:3px}
+.ebadge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+/* MURAL */
+.padlet{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.pnote{border-radius:13px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,.1);animation:up .4s ease;transition:transform .2s;min-height:130px;display:flex;flex-direction:column}
+.pnote:hover{transform:translateY(-4px) rotate(.4deg)}
+.pnt{font-size:13px;font-weight:700;color:var(--c1);margin-bottom:7px}
+.pnc{font-size:12px;color:#4A5568;line-height:1.6;flex:1}
+.pnm{font-size:10px;color:rgba(0,0,0,.4);margin-top:10px}
+.pphoto{border-radius:13px;overflow:hidden;box-shadow:var(--shadow);animation:up .4s ease;transition:transform .2s}
+.pphoto:hover{transform:translateY(-4px) rotate(-.4deg)}
+.pphoto img{width:100%;height:190px;object-fit:cover;display:block}
+.pcap{background:#fff;padding:10px 14px;font-size:11px;color:var(--gray3)}
+/* ATIVIDADES */
+.afilts{display:flex;gap:7px;margin-bottom:22px;flex-wrap:wrap}
+.afbtn{padding:7px 14px;background:#fff;border:2px solid var(--gray2);border-radius:20px;font-family:'Sora',sans-serif;font-size:11px;font-weight:600;cursor:pointer;color:var(--gray3);transition:all .2s}
+.afbtn:hover,.afbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.alist{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+.acard{background:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--shadow);animation:up .4s ease;transition:transform .2s;position:relative;overflow:hidden}
+.acard:hover{transform:translateY(-3px)}
+.acard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.acard[data-type=artigo]::before{background:var(--accent)}
+.acard[data-type=banca]::before{background:var(--accent2)}
+.acard[data-type=palestra]::before{background:var(--accent3)}
+.acard[data-type=orientacao]::before{background:var(--accent4)}
+.acard[data-type=projeto]::before{background:#06B6D4}
+.acard[data-type=resumo]::before{background:#10B981}
+.acard[data-type=acao]::before{background:#F59E0B}
+.acard[data-type=reuniao]::before{background:var(--accent4)}
+.atbadge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.atitle{font-size:14px;font-weight:700;color:var(--c1);margin-bottom:7px;line-height:1.4}
+.aimg{width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:10px}
+.apart{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.ptag{background:var(--gray1);color:var(--accent4);font-size:10px;font-weight:600;padding:2px 9px;border-radius:20px}
+.ameta{font-size:10px;color:var(--gray3);display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+/* PROPOSTAS */
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px}
+.pcard{background:#fff;border-radius:var(--r);padding:22px;box-shadow:var(--shadow);animation:up .4s ease;transition:transform .2s;position:relative;overflow:hidden}
+.pcard:hover{transform:translateY(-3px)}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.pcard[data-s=aberta]::before{background:linear-gradient(90deg,var(--accent),#00A87A)}
+.pcard[data-s=em_andamento]::before{background:linear-gradient(90deg,var(--accent3),#F59E0B)}
+.pcard[data-s=concluida]::before{background:linear-gradient(90deg,var(--gray3),var(--gray2))}
+.phdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px;gap:8px}
+.ptitle{font-size:15px;font-weight:700;color:var(--c1);flex:1;line-height:1.4}
+.sbadge{padding:2px 10px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;flex-shrink:0}
+.s-aberta{background:rgba(0,200,150,.15);color:#00A87A}
+.s-em_andamento{background:rgba(255,209,102,.2);color:#B8860B}
+.s-concluida{background:var(--gray2);color:var(--gray3)}
+.pdesc{font-size:13px;color:#4A5568;line-height:1.7;margin-bottom:12px}
+.pmeta{font-size:11px;color:var(--gray3);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.vsec{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid var(--gray2);flex-wrap:wrap}
+.vbtn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;border:2px solid var(--gray2);background:#fff;cursor:pointer;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;transition:all .2s;color:var(--text)}
+.vbtn:hover{border-color:var(--accent);color:var(--accent)}
+.vbtn.voted{background:var(--accent);border-color:var(--accent);color:#fff}
+.vbtn.ag:hover{border-color:var(--accent2);color:var(--accent2)}
+.vbtn.ag.voted{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.advbtn{margin-left:auto;padding:6px 12px;background:var(--gray1);border:2px solid var(--gray2);border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;color:var(--gray3);transition:all .2s}
+.advbtn:hover{background:var(--accent3);border-color:var(--accent3);color:var(--c1)}
+/* PLACAR */
+.medals{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.medal{background:#fff;border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);flex:1;min-width:90px;text-align:center}
+.medi{font-size:26px;margin-bottom:3px}
+.medn{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--accent)}
+.medl{font-size:10px;color:var(--gray3);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.ssec{background:#fff;border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+.ssec h2{font-size:17px;font-weight:800;color:var(--c1);margin-bottom:18px}
+.srow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray1)}
+.srow:last-child{border-bottom:none}
+.srank{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;width:32px;text-align:center;flex-shrink:0;color:var(--gray3)}
+.srank.g{color:#F59E0B}.srank.s{color:#94A3B8}.srank.b{color:#B45309}
+.sbar-w{flex:1}
+.sname{font-size:13px;font-weight:700;color:var(--c1);margin-bottom:1px}
+.sinst{font-size:10px;color:var(--gray3);margin-bottom:5px}
+.sbg{height:7px;background:var(--gray2);border-radius:4px;overflow:hidden}
+.sfill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.snum2{font-family:'Space Mono',monospace;font-size:19px;font-weight:700;flex-shrink:0;color:var(--accent)}
+/* TYPE COLORS */
+.t-artigo{background:rgba(0,200,150,.15);color:#00A87A}
+.t-banca{background:rgba(255,107,107,.15);color:#D94F4F}
+.t-palestra{background:rgba(255,209,102,.2);color:#B8860B}
+.t-orientacao{background:rgba(123,94,167,.15);color:#5C4090}
+.t-projeto{background:rgba(6,182,212,.15);color:#0891B2}
+.t-resumo{background:rgba(16,185,129,.15);color:#059669}
+.t-acao{background:rgba(245,158,11,.15);color:#D97706}
+.t-reuniao{background:rgba(123,94,167,.15);color:#5C4090}
+.t-outro{background:var(--gray2);color:var(--gray3)}
+.t-evento{background:rgba(6,182,212,.15);color:#0891B2}
+.t-edital{background:rgba(245,158,11,.15);color:#D97706}
+.t-visita{background:rgba(16,185,129,.15);color:#059669}
+.t-curso{background:rgba(239,68,68,.15);color:#DC2626}
+/* DELETE BTN */
+.dbtn{background:none;border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:2px 8px;font-size:10px;color:var(--accent2);cursor:pointer;font-family:'Sora',sans-serif;transition:all .2s;margin-left:6px}
+.dbtn:hover{background:var(--accent2);color:#fff;border-color:var(--accent2)}
+/* COLOR PICKER */
+.cpick{display:flex;gap:9px;padding:4px 0}
+.cdot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
+.cdot:hover{transform:scale(1.2)}
+.cdot.on{border-color:var(--c1)}
+/* UPLOAD */
+.upa{border:2px dashed var(--gray2);border-radius:11px;padding:18px;cursor:pointer;transition:all .2s;background:var(--gray1);text-align:center}
+.upa:hover,.upa.drag{border-color:var(--accent);background:rgba(0,200,150,.04)}
+.upph{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:80px;justify-content:center}
+.upbar{height:6px;background:var(--gray2);border-radius:3px;overflow:hidden;margin-top:8px}
+.upfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent4));border-radius:3px;transition:width .2s;width:0%}
+.upprev img{max-width:100%;max-height:140px;border-radius:8px;object-fit:cover;margin-top:8px}
+.uprm{background:var(--accent2);color:#fff;border:none;border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;margin-top:6px;font-family:'Sora',sans-serif}
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--c1);color:#fff;padding:13px 20px;border-radius:11px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;border-left:4px solid var(--accent)}
+.toast.show{opacity:1;transform:translateY(0)}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.empty{grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--gray3)}
+.empty .ei{font-size:44px;margin-bottom:10px}
+
+/* ── MOBILE MENU (hidden on desktop) ── */
+.hamburger{display:none;background:rgba(255,255,255,.12);border:none;border-radius:8px;color:white;font-size:20px;cursor:pointer;padding:6px 10px;margin-left:4px;line-height:1}
+.mobile-menu{position:fixed;top:0;right:-300px;width:270px;height:100vh;background:#0D1B2A;z-index:2000;transition:right .28s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 32px rgba(0,0,0,.5);overflow-y:auto}
+.mobile-menu.open{right:0}
+.menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1999;display:none}
+.menu-overlay.open{display:block}
+.mm-inner{padding:20px 16px}
+.mm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.mm-header button{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer}
+.mm-btn{display:block;width:100%;text-align:left;padding:13px 14px;background:none;border:none;color:rgba(255,255,255,.6);font-family:'Sora',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;margin-bottom:3px;transition:all .18s}
+.mm-btn:hover{background:rgba(255,255,255,.07);color:white}
+.mm-btn.on{background:rgba(0,200,150,.15);color:#00C896}
+@media(min-width:761px){ .hamburger{display:none!important} .mobile-menu{display:none} }
+@media(max-width:760px){
+  nav#mainNav{display:none!important}
+  .hamburger{display:block!important}
+  .htitles .ht2{display:none}
+  .hu #uname{display:none}
+  main{padding:14px 10px}
+  .feed-grid,.alist,.plist,.mcards{grid-template-columns:1fr}
+  .elist{grid-template-columns:1fr}
+  .padlet{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── FEED ACTIONS ── */
+.fcard-actions{display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray1)}
+.flike,.fcomment-btn{display:flex;align-items:center;gap:5px;padding:6px 14px;border:2px solid var(--gray2);background:#fff;border-radius:20px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s}
+.flike:hover{border-color:var(--accent2);color:var(--accent2)}
+.flike.on{border-color:var(--accent2);background:rgba(255,107,107,.08)}
+.fcomment-btn:hover{border-color:var(--accent);color:var(--accent)}
+.fcomments{margin-top:12px;padding-top:12px;border-top:1px solid var(--gray1)}
+.fcomment{font-size:13px;color:#4A5568;padding:6px 0;line-height:1.5}
+.fcomment-a{font-weight:700;color:var(--accent4)}
+.fcomment-input{display:flex;gap:6px;margin-top:8px}
+.fcomment-input input{flex:1;padding:8px 12px;border:2px solid var(--gray2);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;outline:none}
+.fcomment-input input:focus{border-color:var(--accent)}
+.fcomment-input button{padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+/* ── PROFILE ── */
+.profile-card{background:#fff;border-radius:var(--r);padding:28px;box-shadow:var(--shadow);max-width:600px;margin:0 auto}
+.profile-hd{display:flex;gap:20px;align-items:center;margin-bottom:20px}
+.profile-av{width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.profile-av img{width:100%;height:100%;object-fit:cover}
+.profile-name{font-size:22px;font-weight:800;color:var(--c1)}
+.profile-inst{font-size:14px;color:var(--accent4);font-weight:600}
+.profile-row{display:flex;padding:12px 0;border-bottom:1px solid var(--gray1);font-size:14px}
+.profile-row:last-child{border-bottom:none}
+.profile-label{width:120px;color:var(--gray3);font-weight:600;flex-shrink:0}
+.profile-val{color:var(--text);flex:1}
+.profile-val a{color:var(--accent);text-decoration:none}
+
+.map-label{background:rgba(13,27,42,.85)!important;color:#fff!important;border:none!important;border-radius:6px!important;font-family:'Space Mono',monospace!important;font-size:10px!important;font-weight:700!important;padding:2px 6px!important;box-shadow:none!important}
+.map-label::before{display:none!important}
+.leaflet-popup-content-wrapper{border-radius:12px!important}
+
+.plink{background:#fff;border-radius:13px;box-shadow:var(--shadow);overflow:hidden;animation:up .4s ease;transition:transform .2s}
+.plink:hover{transform:translateY(-4px)}
+.plink-a{display:flex;align-items:center;gap:12px;padding:16px;text-decoration:none}
+.plink-ic{width:44px;height:44px;background:linear-gradient(135deg,#06B6D4,#0891B2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.plink-body{min-width:0}
+.plink-t{font-size:14px;font-weight:700;color:var(--c1);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plink-u{font-size:11px;color:#0891B2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plink-img{width:100%;height:130px;object-fit:cover;display:block}
+.plink-d{font-size:11px;color:#64748B;margin:3px 0;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pmural-foot{padding:10px 14px;border-top:1px solid var(--gray1);font-size:11px;color:var(--gray3);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+
+.acard[data-type=livro]::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:#8B5CF6}
+.acard[data-type=software]::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:#06B6D4}
+.t-livro{background:rgba(139,92,246,.12);color:#7C3AED}
+.t-software{background:rgba(6,182,212,.12);color:#0891B2}
+
+/* ── TELA DE ENTRADA ── */
+.access-box{max-width:440px;text-align:center;position:relative;overflow:hidden}
+.access-hero{position:relative;height:100px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.access-orbit{position:absolute;width:100px;height:100px}
+.access-orbit span{position:absolute;border-radius:50%;border:2px solid transparent}
+.access-orbit span:nth-child(1){inset:0;border-top-color:var(--accent);border-right-color:var(--accent);animation:spin 3s linear infinite}
+.access-orbit span:nth-child(2){inset:12px;border-bottom-color:var(--accent4);border-left-color:var(--accent4);animation:spin 2.2s linear infinite reverse}
+.access-orbit span:nth-child(3){inset:24px;border-top-color:#06B6D4;animation:spin 1.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.access-logo{width:64px;height:64px;font-size:20px;position:relative;z-index:2;box-shadow:0 8px 32px rgba(0,200,150,.5)}
+.access-title{font-size:32px;font-weight:800;letter-spacing:2px;background:linear-gradient(135deg,var(--accent),var(--accent4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
+.access-welcome{display:flex;gap:14px;align-items:center;text-align:left;background:linear-gradient(135deg,rgba(0,200,150,.07),rgba(123,94,167,.07));border:1px solid rgba(0,200,150,.2);border-radius:14px;padding:16px;margin:20px 0}
+.aw-icon{font-size:32px;flex-shrink:0;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.aw-text{font-size:13px;color:#4A5568;line-height:1.6}
+.aw-text strong{color:var(--accent4)}
+
+.pnote-foot{display:flex;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(0,0,0,.08)}
+.msoc-btn{background:rgba(255,255,255,.5);border:1px solid rgba(0,0,0,.08);border-radius:16px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;color:var(--text);transition:all .15s}
+.msoc-btn:hover{background:#fff}
+.msoc-btn.on{background:rgba(255,107,107,.15);border-color:var(--accent2)}
+.mcmts{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.08)}
+.mcmt{font-size:12px;color:#4A5568;padding:3px 0;line-height:1.4}
+.mcmt-a{font-weight:700;color:var(--accent4)}
+.mcmt-in{display:flex;gap:5px;margin-top:6px}
+.mcmt-in input{flex:1;padding:6px 10px;border:1px solid var(--gray2);border-radius:7px;font-family:'Sora',sans-serif;font-size:12px;outline:none;background:#fff}
+.mcmt-in button{padding:6px 10px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif}
+
+.fsrc{display:inline-block;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:10px;letter-spacing:.3px}
+.feed-grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+
+.create-menu{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18);padding:8px;min-width:220px;z-index:100;opacity:0;visibility:hidden;transform:translateY(-8px);transition:all .2s}
+.create-menu.open{opacity:1;visibility:visible;transform:translateY(0)}
+.create-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;background:none;border:none;border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;transition:background .15s}
+.create-menu button:hover{background:var(--gray1)}
+.create-menu button span{font-size:16px}
+.cm-sep{height:1px;background:var(--gray2);margin:6px 4px}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+
+</head>
+<body>
+
+<!-- ACESSO: tela única -->
+<div id="accessModal" class="overlay show">
+  <div class="mbox access-box">
+    <div class="access-hero">
+      <div class="access-orbit"><span></span><span></span><span></span></div>
+      <div class="mlogo access-logo">C7</div>
+    </div>
+    <h2 class="access-title">CLUSTER 7</h2>
+    <p class="msub">Rede de formação de mestres e doutores em<br>Ciências Ambientais nos biomas brasileiros</p>
+
+    <!-- Etapa código -->
+    <div id="stepCode">
+      <div class="access-welcome">
+        <div class="aw-icon">🌎</div>
+        <div class="aw-text">Bem-vindo à rede colaborativa de <strong>10 universidades</strong> em <strong>5 regiões</strong> do Brasil. Conecte-se, compartilhe e construa ciência em conjunto.</div>
+      </div>
+      <div class="fg">
+        <label>Código de acesso</label>
+        <input id="iCode" type="password" placeholder="Digite o código recebido" autocomplete="off">
+      </div>
+      <button class="btn" id="btnCheckCode">✨ ENTRAR NA REDE</button>
+      <p class="err" id="loginErr"></p>
+    </div>
+
+    <!-- Etapa escolha -->
+    <div id="stepChoice" style="display:none">
+      <p style="text-align:center;color:var(--gray3);font-size:14px;margin-bottom:20px">Bem-vindo! Você já tem cadastro?</p>
+      <button class="btn" id="btnGoReturn" style="margin-bottom:10px">✓ Já sou membro — Entrar</button>
+      <button class="btn b2" id="btnGoNew">🌿 Primeira vez — Cadastrar</button>
+    </div>
+
+    <!-- Etapa retorno -->
+    <div id="stepReturn" style="display:none">
+      <div class="fg"><label>Seu nome</label>
+        <input id="rName" type="text" placeholder="Como está cadastrado" autocomplete="name" list="memberNames">
+        <datalist id="memberNames"></datalist>
+      </div>
+      <button class="btn" id="btnReturn">ENTRAR</button>
+      <p class="err" id="returnErr"></p>
+      <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px"><button id="backToChoice1" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">← voltar</button></p>
+    </div>
+
+    <!-- Etapa cadastro -->
+    <div id="stepNew" style="display:none;max-height:72vh;overflow-y:auto">
+      <div style="background:linear-gradient(135deg,rgba(0,200,150,.08),rgba(123,94,167,.08));border:1px solid rgba(0,200,150,.25);border-radius:12px;padding:16px;margin-bottom:16px">
+        <label style="display:block;font-size:12px;font-weight:700;color:var(--accent4);margin-bottom:6px">🆔 COLE SEU ORCID PRIMEIRO</label>
+        <input id="pOrcid" type="url" placeholder="https://orcid.org/0000-0000-0000-0000" style="width:100%;padding:11px 13px;border:2px solid var(--accent);border-radius:10px;font-family:Sora,sans-serif;font-size:14px;outline:none">
+        <p style="font-size:11px;color:var(--gray3);margin-top:6px;line-height:1.4">Preenche nome, instituição e área automaticamente. Não tem ORCID? Preencha manualmente abaixo.</p>
+      </div>
+      <div class="fg"><label>Nome completo *</label><input id="pName" type="text" placeholder="Seu nome" autocomplete="name"></div>
+      <div class="fg"><label>Instituição *</label><input id="pInst" type="text" placeholder="Ex: UNEMAT – Cáceres" autocomplete="organization"></div>
+      <div class="fg"><label>E-mail *</label><input id="pEmail" type="email" placeholder="seu@email.br" autocomplete="email"></div>
+      <div class="fg"><label>Área de pesquisa</label><input id="pArea" type="text" placeholder="Limnologia, Hidrologia..."></div>
+      <div class="fg"><label>Lattes (link)</label><input id="pLattes" type="url" placeholder="http://lattes.cnpq.br/..."></div>
+      <div class="fg"><label>Foto</label>
+        <input type="file" id="pPhotoFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+        <input type="hidden" id="pPhoto">
+        <div id="pPhotoProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+        <img id="pPhotoPrev" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover">
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:12px;background:rgba(0,200,150,.06);border-radius:10px;border:1px solid rgba(0,200,150,.2)">
+        <input type="checkbox" id="pAgree" style="margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex-shrink:0">
+        <label for="pAgree" style="font-size:13px;color:#4A5568;cursor:pointer;line-height:1.5">Concordo em participar do <strong>Cluster Temático 7</strong> e que meu perfil seja visível na rede.</label>
+      </div>
+      <button class="btn" id="btnJoin">🌿 ENTRAR NA REDE</button>
+      <p class="err" id="joinErr"></p>
+      <p style="text-align:center;font-size:11px;color:var(--gray3);margin-top:10px"><button id="backToChoice2" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-family:Sora,sans-serif;font-weight:600">← voltar</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+    <div class="hlogo">C7</div>
+    <div class="htitles"><span class="ht1">CLUSTER 7</span><span class="ht2">Rede Colaborativa</span></div>
+  </div>
+  <nav id="mainNav">
+    <button class="nb on" data-tab="feed">🏠 Feed</button>
+    <button class="nb" data-tab="network">🕸 Rede</button>
+    <button class="nb" data-tab="mapa">🗺 Mapa</button>
+    <button class="nb" data-tab="agenda">📅 Agenda</button>
+    <button class="nb" data-tab="padlet">🎨 Mural</button>
+    <button class="nb" data-tab="activities">📌 Atividades</button>
+    <button class="nb" data-tab="proposals">🚀 Propostas</button>
+    <button class="nb" data-tab="scoreboard">🏆 Placar</button>
+  </nav>
+  <div class="hu">
+    <div class="udot"></div>
+    <span id="uname" style="cursor:pointer" onclick="showProfile()" title="Ver meu perfil">–</span>
+    <button class="boutl" id="btnProfile" onclick="showProfile()" style="margin-right:4px">Perfil</button>
+    <button class="boutl" id="btnLogout">Sair</button>
+    <button class="hamburger" id="btnMenu" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<!-- Mobile menu drawer -->
+<div id="mobileMenu" class="mobile-menu">
+  <div class="mm-inner">
+    <div class="mm-header">
+      <span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--accent);letter-spacing:2px">CLUSTER 7</span>
+      <button id="btnMenuClose">✕</button>
+    </div>
+    <button class="mm-btn on" data-tab="feed">🏠 Feed</button>
+    <button class="mm-btn" data-tab="network">🕸 Rede</button>
+    <button class="mm-btn" data-tab="mapa">🗺 Mapa</button>
+    <button class="mm-btn" data-tab="agenda">📅 Agenda</button>
+    <button class="mm-btn" data-tab="padlet">🎨 Mural</button>
+    <button class="mm-btn" data-tab="activities">📌 Atividades</button>
+    <button class="mm-btn" data-tab="proposals">🚀 Propostas</button>
+    <button class="mm-btn" data-tab="scoreboard">🏆 Placar</button>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)">
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px">Conectado como</div>
+      <div id="mmUser" style="font-size:14px;font-weight:700;color:white"></div>
+      <button id="mmLogout" class="boutl" style="margin-top:12px;width:100%;text-align:center">Sair</button>
+    </div>
+  </div>
+</div>
+<div id="menuOverlay" class="menu-overlay"></div>
+
+<main>
+  <section id="tab-feed" class="tab on">
+    <div class="shdr"><h1>Feed do Cluster</h1>
+      <div style="position:relative">
+        <button class="badd" id="btnCreateMenu">+ Criar ▾</button>
+        <div id="createMenu" class="create-menu">
+          <button onclick="createFrom('post')"><span>📢</span> Publicação</button>
+          <button onclick="createFrom('activity')"><span>📌</span> Atividade / Ação</button>
+          <button onclick="createFrom('proposal')"><span>🚀</span> Proposta</button>
+          <div class="cm-sep"></div>
+          <button onclick="createFrom('note')"><span>📝</span> Nota no mural</button>
+          <button onclick="createFrom('photo')"><span>📷</span> Foto / Print</button>
+          <button onclick="createFrom('link')"><span>🔗</span> Link</button>
+          <div class="cm-sep"></div>
+          <button onclick="createFrom('event')"><span>📅</span> Evento na agenda</button>
+        </div>
+      </div>
+    </div>
+    <div class="afilts" id="feedFilts">
+      <button class="afbtn on" data-f="all">🌐 Tudo</button>
+      <button class="afbtn" data-f="post">📢 Publicações</button>
+      <button class="afbtn" data-f="activity">📌 Atividades</button>
+      <button class="afbtn" data-f="proposal">🚀 Propostas</button>
+      <button class="afbtn" data-f="mural">🎨 Mural</button>
+      <button class="afbtn" data-f="event">📅 Agenda</button>
+    </div>
+    <div id="feedList" class="feed-grid"></div>
+  </section>
+  <section id="tab-network" class="tab">
+    <div class="shdr"><h1>Mapa de Conexões</h1><div style="display:flex;gap:8px"><button class="badd b2" id="btnDedup" style="display:none">🧹 Limpar duplicatas</button><button class="badd" id="btnConnect" style="background:linear-gradient(135deg,#F59E0B,#D97706)">🔗 Conectar pessoas</button><button class="badd" id="btnAddMember">+ Adicionar membro</button></div></div>
+    <div class="stats" id="netStats"></div>
+    <div class="net-canvas" id="netCanvas"><svg id="netSVG" style="width:100%;height:100%;display:block;"></svg><div class="net-tip" id="netTip"></div></div>
+    <div class="mcards" id="memberCards"></div>
+  </section>
+  <section id="tab-mapa" class="tab">
+    <div class="shdr"><h1>Mapa da Rede Cluster 7</h1></div>
+    <div class="stats" id="mapStats"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button class="afbtn on" id="mapModeInst" onclick="setMapMode('inst')">📍 Instituições</button>
+      <button class="afbtn" id="mapModeHeat" onclick="setMapMode('heat')">🔥 Mapa de calor</button>
+    </div>
+    <div id="mapCanvas" style="height:520px;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;background:#eef3f8"></div>
+    <p style="font-size:12px;color:var(--gray3);margin-top:10px;text-align:center">O mapa de calor mostra a intensidade de atividades por instituição. Quanto mais quente, mais ações registradas.</p>
+  </section>
+  <section id="tab-agenda" class="tab">
+    <div class="shdr"><h1>Agenda Colaborativa</h1><button class="badd" id="btnNewEvent">+ Novo evento</button></div>
+    <div id="eventList" class="elist"></div>
+  </section>
+  <section id="tab-padlet" class="tab">
+    <div class="shdr"><h1>Mural Colaborativo</h1><div class="padd"><button class="badd" id="btnNewNote">+ Nota</button><button class="badd b2" id="btnNewPhoto">📷 Foto</button><button class="badd" id="btnNewLink" style="background:linear-gradient(135deg,#06B6D4,#0891B2)">🔗 Link</button></div></div>
+    <div id="padletBoard" class="padlet"></div>
+  </section>
+  <section id="tab-activities" class="tab">
+    <div class="shdr"><h1>Atividades e Conexões</h1><button class="badd" id="btnNewActivity">+ Registrar atividade</button></div>
+    <div class="afilts" id="actFilts">
+      <button class="afbtn on" data-f="all">Todas</button>
+      <button class="afbtn" data-f="artigo">Artigos</button>
+      <button class="afbtn" data-f="banca">Bancas</button>
+      <button class="afbtn" data-f="palestra">Palestras</button>
+      <button class="afbtn" data-f="orientacao">Orientações</button>
+      <button class="afbtn" data-f="projeto">Projetos</button>
+      <button class="afbtn" data-f="resumo">Resumos</button>
+    </div>
+    <div id="actList" class="alist"></div>
+  </section>
+  <section id="tab-proposals" class="tab">
+    <div class="shdr"><h1>Propostas do Cluster</h1><button class="badd" id="btnNewProposal">+ Nova proposta</button></div>
+    <div class="afilts" id="propFilts">
+      <button class="afbtn on" data-f="all">Todas</button>
+      <button class="afbtn" data-f="aberta">Abertas</button>
+      <button class="afbtn" data-f="em_andamento">Em andamento</button>
+      <button class="afbtn" data-f="concluida">Concluídas</button>
+    </div>
+    <div id="propList" class="plist"></div>
+  </section>
+  <section id="tab-scoreboard" class="tab">
+    <div class="shdr"><h1>Placar de Engajamento</h1></div>
+    <div id="scoreContent"></div>
+  </section>
+</main>
+
+<!-- MODAIS -->
+<div id="mPost" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Nova Publicação</h3><button data-close="mPost">✕</button></div>
+  <div class="fg"><label>Título</label><input id="pTitle" type="text"></div>
+  <div class="fg"><label>Mensagem</label><textarea id="pContent" rows="4"></textarea></div>
+  <div class="fg"><label>Foto (opcional)</label>
+    <input type="file" id="pImgFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="pImg">
+    <div id="pImgProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="pImgPrev" style="display:none;max-width:100%;max-height:150px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
+  <button class="btn" id="btnSavePost">Publicar</button>
+</div></div>
+
+<div id="mConnect" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Conectar Pessoas</h3><button data-close="mConnect">✕</button></div>
+  <p style="font-size:13px;color:var(--gray3);margin-bottom:16px">Ligue dois membros na rede. A conexão aparece como uma linha no grafo.</p>
+  <div class="fg"><label>Pessoa A</label><select id="connA"></select></div>
+  <div class="fg"><label>Pessoa B</label><select id="connB"></select></div>
+  <div class="fg"><label>Motivo da conexão (opcional)</label><input id="connWhy" type="text" placeholder="Ex: co-autoria, projeto conjunto, orientação..."></div>
+  <button class="btn" id="btnSaveConnect" style="background:linear-gradient(135deg,#F59E0B,#D97706)">🔗 Conectar</button>
+</div></div>
+
+<div id="mMember" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Adicionar Membro</h3><button data-close="mMember">✕</button></div>
+  <div class="fg"><label>Nome completo</label><input id="mName" type="text"></div>
+  <div class="fg"><label>Instituição</label><input id="mInst2" type="text"></div>
+  <div class="fg"><label>Área de pesquisa</label><input id="mArea" type="text"></div>
+  <div class="fg"><label>E-mail</label><input id="mEmail" type="email"></div>
+  <div class="fg"><label>Lattes (URL)</label><input id="mLattes" type="url"></div>
+  <div class="fg"><label>ORCID (URL)</label><input id="mOrcid" type="url" placeholder="https://orcid.org/..."></div>
+  <div class="fg"><label>Foto</label>
+    <input type="file" id="mPhotoFile" accept="image/*" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="mPhoto">
+    <div id="mPhotoProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="mPhotoPrev" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
+  <button class="btn" id="btnSaveMember">Adicionar ao Cluster</button>
+</div></div>
+
+<div id="mEvent" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Novo Evento</h3><button data-close="mEvent">✕</button></div>
+  <div class="fg"><label>Título</label><input id="eTitle" type="text"></div>
+  <div class="fg"><label>Data e hora</label><input id="eDate" type="datetime-local"></div>
+  <div class="fg"><label>Tipo</label><select id="eType"><option value="banca">Banca</option><option value="palestra">Palestra</option><option value="reuniao">Reunião</option><option value="defesa">Defesa</option><option value="campo">Campo</option><option value="outro">Outro</option></select></div>
+  <div class="fg"><label>Participantes (vírgula)</label><input id="eParts" type="text"></div>
+  <div class="fg"><label>Descrição / Link</label><textarea id="eDesc" rows="3"></textarea></div>
+  <button class="btn" id="btnSaveEvent">Agendar</button>
+</div></div>
+
+<div id="mNote" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Nova Nota no Mural</h3><button data-close="mNote">✕</button></div>
+  <div class="fg"><label>Título</label><input id="nTitle" type="text"></div>
+  <div class="fg"><label>Conteúdo</label><textarea id="nContent" rows="5"></textarea></div>
+  <div class="fg"><label>Cor</label>
+    <div class="cpick">
+      <span class="cdot on" style="background:#FFE566" data-c="#FFE566"></span>
+      <span class="cdot" style="background:#B5EAD7" data-c="#B5EAD7"></span>
+      <span class="cdot" style="background:#C7CEEA" data-c="#C7CEEA"></span>
+      <span class="cdot" style="background:#FF9AA2" data-c="#FF9AA2"></span>
+      <span class="cdot" style="background:#FFD6A5" data-c="#FFD6A5"></span>
+      <span class="cdot" style="background:#9EE7E2" data-c="#9EE7E2"></span>
+    </div>
+  </div>
+  <button class="btn" id="btnSaveNote">Colocar no mural</button>
+</div></div>
+
+<div id="mMuralPhoto" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Foto no Mural</h3><button data-close="mMuralPhoto">✕</button></div>
+  <div class="fg"><label>Foto ou Print</label>
+    <div id="phPasteZone" tabindex="0" style="border:2px dashed var(--accent);border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:rgba(0,200,150,.04);transition:all .2s;outline:none">
+      <div style="font-size:28px;margin-bottom:6px">📋</div>
+      <div style="font-size:13px;color:var(--c1);font-weight:600">Cole um print aqui (Ctrl+V)</div>
+      <div style="font-size:11px;color:var(--gray3);margin-top:4px">ou clique para escolher arquivo</div>
+    </div>
+    <input type="file" id="phFile" accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none">
+    <input type="hidden" id="phUrl">
+    <div id="phProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="phPrev" style="display:none;max-width:100%;max-height:200px;border-radius:8px;margin-top:8px;object-fit:contain">
+  </div>
+  <div class="fg"><label>Legenda</label><input id="phCap" type="text"></div>
+  <button class="btn b2" id="btnSavePhoto">Colocar no mural</button>
+</div></div>
+
+<div id="mLink" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Link no Mural</h3><button data-close="mLink">✕</button></div>
+  <div class="fg"><label>Título / Descrição</label><input id="lkTitle" type="text" placeholder="Ex: Artigo sobre Pantanal, Reunião no Meet..."></div>
+  <div class="fg"><label>URL</label><input id="lkUrl" type="url" placeholder="https://..."></div>
+  <div class="fg"><label>Tipo</label><select id="lkType">
+    <option value="material">📄 Material / Artigo</option>
+    <option value="reuniao">📹 Reunião / Meet</option>
+    <option value="evento">📅 Evento</option>
+    <option value="drive">📁 Drive / Pasta</option>
+    <option value="site">🌐 Site / Outro</option>
+  </select></div>
+  <button class="btn" id="btnSaveLink" style="background:linear-gradient(135deg,#06B6D4,#0891B2)">🔗 Colocar no mural</button>
+</div></div>
+
+<div id="mActivity" class="overlay"><div class="mbox wide">
+  <div class="mhdr"><h3>Registrar Atividade</h3><button data-close="mActivity">✕</button></div>
+  <div class="fg"><label>Título</label><input id="aTitle" type="text"></div>
+  <div class="fg"><label>Tipo</label><select id="aType"><option value="artigo">📄 Artigo científico</option><option value="resumo">📝 Resumo/Congresso</option><option value="livro">📚 Livro/Capítulo</option><option value="software">💻 App/Software</option><option value="banca">🎓 Banca</option><option value="palestra">🎤 Palestra</option><option value="orientacao">👥 Co-orientação</option><option value="projeto">🔬 Projeto conjunto</option><option value="acao">🌱 Ação de extensão</option><option value="reuniao">📹 Reunião</option><option value="outro">📌 Outro</option></select></div>
+  <div class="fg"><label>Participantes (vírgula)</label><input id="aParts" type="text"></div>
+  <div class="fg"><label>Ano / Data</label><input id="aYear" type="text"></div>
+  <div class="fg"><label>Descrição</label><textarea id="aDesc" rows="3"></textarea></div>
+  <div class="fg"><label>Imagem/capa (URL)</label><input id="aImg" type="url"></div>
+  <div class="fg"><label>🔗 Link (DOI, artigo, repositório, material...)</label><input id="aLink" type="url" placeholder="https://..."></div>
+  <button class="btn" id="btnSaveActivity">📌 Registrar e fixar</button>
+</div></div>
+
+<div id="mProposal" class="overlay"><div class="mbox wide">
+  <div class="mhdr"><h3>Nova Proposta</h3><button data-close="mProposal">✕</button></div>
+  <div class="fg"><label>Título</label><input id="prTitle" type="text"></div>
+  <div class="fg"><label>Tipo</label><select id="prType"><option value="artigo">Artigo conjunto</option><option value="edital">Edital / Projeto</option><option value="evento">Evento / Webinar</option><option value="visita">Visita técnica</option><option value="curso">Curso / Capacitação</option><option value="outro">Outro</option></select></div>
+  <div class="fg"><label>Descrição</label><textarea id="prDesc" rows="4"></textarea></div>
+  <div class="fg"><label>Prazo</label><input id="prDeadline" type="text" placeholder="Ex: Até dez/2025"></div>
+  <button class="btn" id="btnSaveProposal">🚀 Lançar proposta</button>
+</div></div>
+
+<div id="mProfile" class="overlay"><div class="mbox" style="max-width:560px">
+  <div class="mhdr"><h3>Meu Perfil</h3><button data-close="mProfile">✕</button></div>
+  <div id="profileContent"></div>
+  <button class="btn" id="btnEditMyProfile" style="margin-top:16px">✏️ Editar meu perfil</button>
+</div></div>
+
+<div id="mEditNote" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Nota</h3><button data-close="mEditNote">✕</button></div>
+  <input type="hidden" id="enId">
+  <div class="fg"><label>Título</label><input id="enTitle" type="text"></div>
+  <div class="fg"><label>Conteúdo</label><textarea id="enContent" rows="5"></textarea></div>
+  <div class="fg"><label>Cor</label>
+    <div class="cpick" id="enColors">
+      <span class="cdot on" style="background:#FFE566" data-c="#FFE566"></span>
+      <span class="cdot" style="background:#B5EAD7" data-c="#B5EAD7"></span>
+      <span class="cdot" style="background:#C7CEEA" data-c="#C7CEEA"></span>
+      <span class="cdot" style="background:#FF9AA2" data-c="#FF9AA2"></span>
+      <span class="cdot" style="background:#FFD6A5" data-c="#FFD6A5"></span>
+      <span class="cdot" style="background:#9EE7E2" data-c="#9EE7E2"></span>
+    </div>
+  </div>
+  <button class="btn" id="btnUpdateNote">💾 Salvar nota</button>
+</div></div>
+
+<div id="mEditPhoto" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Foto</h3><button data-close="mEditPhoto">✕</button></div>
+  <input type="hidden" id="epId">
+  <div class="fg"><label>URL da imagem</label><input id="epUrl" type="url"></div>
+  <div class="fg"><label>Legenda</label><input id="epCap" type="text"></div>
+  <button class="btn b2" id="btnUpdatePhoto">💾 Salvar foto</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<div id="mEditNote" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Nota</h3><button data-close="mEditNote">✕</button></div>
+  <input type="hidden" id="enId">
+  <div class="fg"><label>Título</label><input id="enTitle" type="text"></div>
+  <div class="fg"><label>Conteúdo</label><textarea id="enContent" rows="5"></textarea></div>
+  <div class="fg"><label>Cor</label>
+    <div class="cpick" id="enColors">
+      <span class="cdot on" style="background:#FFE566" data-c="#FFE566"></span>
+      <span class="cdot" style="background:#B5EAD7" data-c="#B5EAD7"></span>
+      <span class="cdot" style="background:#C7CEEA" data-c="#C7CEEA"></span>
+      <span class="cdot" style="background:#FF9AA2" data-c="#FF9AA2"></span>
+      <span class="cdot" style="background:#FFD6A5" data-c="#FFD6A5"></span>
+      <span class="cdot" style="background:#9EE7E2" data-c="#9EE7E2"></span>
+    </div>
+  </div>
+  <button class="btn" id="btnUpdateNote">💾 Salvar nota</button>
+</div></div>
+
+<div id="mEditPhoto" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Foto</h3><button data-close="mEditPhoto">✕</button></div>
+  <input type="hidden" id="epId">
+  <div class="fg"><label>URL da imagem</label><input id="epUrl" type="url"></div>
+  <div class="fg"><label>Legenda</label><input id="epCap" type="text"></div>
+  <button class="btn b2" id="btnUpdatePhoto">💾 Salvar foto</button>
+</div></div>
+
+<div id="mEditMember" class="overlay"><div class="mbox">
+  <div class="mhdr"><h3>Editar Membro</h3><button data-close="mEditMember">✕</button></div>
+  <input type="hidden" id="editMemberId">
+  <div class="fg"><label>Nome completo</label><input id="emName" type="text"></div>
+  <div class="fg"><label>Instituição</label><input id="emInst" type="text"></div>
+  <div class="fg"><label>Área de pesquisa</label><input id="emArea" type="text"></div>
+  <div class="fg"><label>E-mail</label><input id="emEmail" type="email"></div>
+  <div class="fg"><label>Lattes (URL)</label><input id="emLattes" type="url"></div>
+  <div class="fg"><label>ORCID (URL)</label><input id="emOrcid" type="url" placeholder="https://orcid.org/..."></div>
+  <div class="fg"><label>Foto (PNG/JPG)</label>
+    <input type="file" id="emPhotoFile" accept="image/png,image/jpeg,image/jpg,image/webp" style="width:100%;padding:8px;border:2px dashed var(--gray2);border-radius:10px;cursor:pointer">
+    <input type="hidden" id="emPhoto">
+    <div id="emPhotoProg" style="display:none;font-size:12px;color:var(--accent);margin-top:6px"></div>
+    <img id="emPhotoPrev" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover">
+  </div>
+  <button class="btn" id="btnUpdateMember">💾 Salvar alterações</button>
+</div></div>
+
+<script>
+// ── CONFIG ──
+const DB = 'https://som-ambiental-default-rtdb.firebaseio.com';
+const CODE = 'cluster7';
+const PAL = ['#00C896','#7B5EA7','#FF6B6B','#FFD166','#06B6D4','#F59E0B','#10B981','#EF4444','#8B5CF6','#EC4899','#14B8A6','#F97316'];
+
+// ── STATE ──
+let CU = '', CI = '', noteColor = '#FFE566', actFilter = 'all', propFilter = 'all';
+let allActs = null, allProps = null;
+let _poll = {};
+
+// ── FIREBASE REST ──
+function fbUrl(p){ return DB+'/'+p+'.json'; }
+async function fbGet(p){ const r=await fetch(fbUrl(p)); return r.json(); }
+async function fbPost(p,d){ await fetch(fbUrl(p),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); }
+async function fbPut(p,d){ await fetch(fbUrl(p),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}); }
+async function fbDel(p){ await fetch(fbUrl(p),{method:'DELETE'}); }
+
+function fbListen(path, cb){
+  let last = '';
+  async function poll(){
+    try{ const d=await fbGet(path); const s=JSON.stringify(d); if(s!==last){last=s;cb(d);} }catch(e){}
+  }
+  poll();
+  return setInterval(poll, 4000);
+}
+
+// ── TOAST ──
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+
+// ── ESC ──
+function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── MODAIS ──
+function openM(id){ document.getElementById(id).classList.add('show'); }
+function closeM(id){ document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeM(b.dataset.close)));
+document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m&&m.id!=='accessModal')closeM(m.id); }));
+
+// ── TABS ──
+function switchTab(tab){
+  document.querySelectorAll('.nb,.mm-btn').forEach(x=>x.classList.toggle('on', x.dataset.tab===tab));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  if(tab==='network'){ const c=document.getElementById('netCanvas'); if(c)c._sig=null; setTimeout(drawNet,80); }
+  if(tab==='scoreboard') renderScore();
+  if(tab==='mapa') setTimeout(initMap, 60);
+  // close mobile menu
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('open');
+}
+document.querySelectorAll('.nb,.mm-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+// Hamburger
+document.getElementById('btnMenu').addEventListener('click',()=>{
+  document.getElementById('mobileMenu').classList.add('open');
+  document.getElementById('menuOverlay').classList.add('open');
+});
+document.getElementById('btnMenuClose').addEventListener('click',()=>{
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('open');
+});
+document.getElementById('menuOverlay').addEventListener('click',()=>{
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('open');
+});
+document.getElementById('mmLogout').addEventListener('click',()=>{
+  sessionStorage.clear(); CU=''; CI='';
+  document.getElementById('accessModal').classList.add('show');
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('menuOverlay').classList.remove('open');
+});
+
+// ── LOGIN FLOW ──
+function showStep(id){
+  ['stepCode','stepChoice','stepReturn','stepNew'].forEach(s=>{
+    document.getElementById(s).style.display = s===id ? 'block' : 'none';
+  });
+}
+
+document.getElementById('btnCheckCode').addEventListener('click', function(){
+  const c = document.getElementById('iCode').value.trim();
+  const e = document.getElementById('loginErr');
+  if(c !== CODE){ e.textContent = 'Código incorreto.'; return; }
+  e.textContent = '';
+  showStep('stepChoice');
+  // Pré-carrega nomes para autocomplete
+  fbGet('cluster7/members').then(m=>{
+    if(!m) return;
+    const dl = document.getElementById('memberNames');
+    dl.innerHTML = Object.values(m).map(x=>`<option value="${x.name}">`).join('');
+  }).catch(()=>{});
+});
+document.getElementById('iCode').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnCheckCode').click(); });
+
+document.getElementById('btnGoReturn').addEventListener('click',()=>showStep('stepReturn'));
+document.getElementById('btnGoNew').addEventListener('click',()=>showStep('stepNew'));
+document.getElementById('backToChoice1').addEventListener('click',()=>showStep('stepChoice'));
+document.getElementById('backToChoice2').addEventListener('click',()=>showStep('stepChoice'));
+
+// ── Entrar (membro existente) ──
+document.getElementById('btnReturn').addEventListener('click', async function(){
+  const name = document.getElementById('rName').value.trim();
+  const e = document.getElementById('returnErr');
+  if(!name){ e.textContent='Informe seu nome.'; return; }
+  const btn = this; btn.textContent='Entrando...'; btn.disabled=true;
+  let inst = '';
+  try {
+    const m = await fbGet('cluster7/members');
+    if(m){
+      const found = Object.values(m).find(x=>x.name.toLowerCase()===name.toLowerCase());
+      if(found) inst = found.institution||'';
+      else { e.textContent='Nome não encontrado. Verifique ou cadastre-se.'; btn.textContent='ENTRAR'; btn.disabled=false; return; }
+    }
+  } catch(_){}
+  finishLogin(name, inst);
+});
+document.getElementById('rName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('btnReturn').click(); });
+
+// ── Cadastrar (membro novo) ──
+document.getElementById('btnJoin').addEventListener('click', async function(){
+  const name  = document.getElementById('pName').value.trim();
+  const email = document.getElementById('pEmail').value.trim();
+  const inst  = document.getElementById('pInst').value.trim();
+  const e = document.getElementById('joinErr');
+  if(!name){ e.textContent='Informe seu nome.'; return; }
+  if(!email){ e.textContent='Informe seu e-mail.'; return; }
+  if(!inst){ e.textContent='Informe sua instituição.'; return; }
+  if(!document.getElementById('pAgree').checked){ e.textContent='Marque a concordância para entrar.'; return; }
+  e.textContent='';
+  const btn = this; btn.textContent='Entrando...'; btn.disabled=true;
+  try {
+    // checa duplicata
+    try {
+      const ex = await fbGet('cluster7/members');
+      const nk=(name.toLowerCase().trim().split(/\s+/));
+      const nkey=nk[0]+'_'+(nk[nk.length-1]||'');
+      if(ex && Object.values(ex).find(x=>{
+        const xp=(x.name||'').toLowerCase().trim().split(/\s+/);
+        return (xp[0]+'_'+(xp[xp.length-1]||''))===nkey;
+      })){
+        e.textContent='Você já tem cadastro. Volte e use "Já sou membro".';
+        btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false; return;
+      }
+    } catch(_){}
+    // salva
+    try {
+      await fbPost('cluster7/members', {
+        name, email, institution:inst,
+        area: document.getElementById('pArea').value.trim(),
+        orcid: document.getElementById('pOrcid').value.trim(),
+        lattes: document.getElementById('pLattes').value.trim(),
+        photo: document.getElementById('pPhoto').value.trim(),
+        addedBy:'Auto', ts:Date.now()
+      });
+    } catch(_){}
+    finishLogin(name, inst);
+  } finally {
+    btn.textContent='🌿 ENTRAR NA REDE'; btn.disabled=false;
+  }
+});
+
+// ── Logout ──
+document.getElementById('btnLogout').addEventListener('click',()=>{
+  sessionStorage.clear(); CU=''; CI='';
+  document.getElementById('iCode').value='';
+  document.getElementById('loginErr').textContent='';
+  showStep('stepCode');
+  document.getElementById('accessModal').classList.add('show');
+});
+
+// ── Finaliza login e entra na plataforma ──
+function finishLogin(name, inst){
+  // mostra botão de limpeza só para coordenadores
+  const admins=['ernandes','aurea','áurea'];
+  const first=(name||'').toLowerCase().split(' ')[0];
+  if(admins.includes(first)){
+    setTimeout(()=>{
+      const b=document.getElementById('btnDedup');
+      if(b){b.style.display='inline-block'; b.onclick=dedupMembers;}
+    },500);
+  }
+  CU=name; CI=inst;
+  sessionStorage.setItem('c7u',name); sessionStorage.setItem('c7i',inst);
+  document.getElementById('uname').textContent=name.split(' ')[0];
+  document.getElementById('mmUser').textContent=name;
+  document.getElementById('accessModal').classList.remove('show');
+  startListeners();
+  toast('Bem-vindo(a) ao Cluster 7, '+name.split(' ')[0]+'! 🌿');
+  // Vai direto para a Rede para ver os membros
+  setTimeout(()=>{ document.querySelector('.nb[data-tab="network"]').click(); }, 400);
+}
+// alias
+function doLogin(n,i){ finishLogin(n,i); }
+
+// Wire uploads
+wireUpload('pImgFile','pImg','pImgPrev','pImgProg');
+wireUpload('pPhotoFile','pPhoto','pPhotoPrev','pPhotoProg');
+wireUpload('mPhotoFile','mPhoto','mPhotoPrev','mPhotoProg');
+wireUpload('emPhotoFile','emPhoto','emPhotoPrev','emPhotoProg');
+wireUpload('phFile','phUrl','phPrev','phProg');
+
+// ── COLAR PRINT no mural ──
+(function(){
+  const zone=document.getElementById('phPasteZone');
+  const file=document.getElementById('phFile');
+  if(!zone)return;
+  zone.addEventListener('click',()=>file.click());
+  // colar imagem
+  async function handlePaste(items){
+    for(const it of items){
+      if(it.type&&it.type.startsWith('image/')){
+        const blob=it.getAsFile?it.getAsFile():it;
+        if(!blob)continue;
+        const prog=document.getElementById('phProg');
+        prog.style.display='block'; prog.textContent='Enviando print... 0%';
+        try{
+          const url=await uploadPhoto(blob, p=>{prog.textContent='Enviando print... '+p+'%';});
+          document.getElementById('phUrl').value=url;
+          prog.style.display='none';
+          const prev=document.getElementById('phPrev');
+          prev.src=url; prev.style.display='block';
+          zone.style.borderColor='var(--accent)';
+          zone.querySelector('div:nth-child(2)').textContent='✓ Print colado!';
+          toast('Print carregado! 📋');
+        }catch(err){ prog.style.display='none'; toast('Erro ao enviar print.'); }
+        return true;
+      }
+    }
+    return false;
+  }
+  // paste no zone e no documento quando o modal está aberto
+  document.addEventListener('paste', e=>{
+    const modal=document.getElementById('mMuralPhoto');
+    if(!modal||!modal.classList.contains('show'))return;
+    if(e.clipboardData&&e.clipboardData.items){
+      handlePaste(e.clipboardData.items);
+    }
+  });
+  zone.addEventListener('focus',()=>{zone.style.background='rgba(0,200,150,.1)';});
+  zone.addEventListener('blur',()=>{zone.style.background='rgba(0,200,150,.04)';});
+})();
+
+
+// ── SESSION ──
+const su=sessionStorage.getItem('c7u'), si=sessionStorage.getItem('c7i');
+if(su&&si){
+  CU=su; CI=si;
+  document.getElementById('uname').textContent=su.split(' ')[0];
+  document.getElementById('mmUser').textContent=su;
+  document.getElementById('accessModal').classList.remove('show');
+  startListeners();
+}
+
+// ── COLOR PICKER ──
+document.querySelectorAll('.cdot').forEach(d=>d.addEventListener('click',()=>{
+  document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('on'));
+  d.classList.add('on'); noteColor=d.dataset.c;
+}));
+
+// ── ORCID AUTO-FILL ──
+async function fetchOrcid(orcidInput){
+  // Extract ORCID ID from URL or raw input
+  const raw = orcidInput.trim();
+  const match = raw.match(/\d{4}-\d{4}-\d{4}-\d{3}[\dX]/);
+  if(!match) return null;
+  const id = match[0];
+  try {
+    // ORCID public API — works from browser
+    const r = await fetch(`https://pub.orcid.org/v3.0/${id}/record`, {
+      headers: { 'Accept': 'application/vnd.orcid+json' }
+    });
+    if(!r.ok) return null;
+    const data = await r.json();
+    // Name
+    const nameObj = data?.person?.name || {};
+    const given  = nameObj['given-names']?.value || '';
+    const family = nameObj['family-name']?.value || '';
+    const name   = (given + ' ' + family).trim();
+    // Institution (last employment)
+    const emps = data?.['activities-summary']?.employments?.['affiliation-group'] || [];
+    let inst = '';
+    if(emps.length > 0){
+      const last = emps[0]?.summaries?.[0]?.['employment-summary'];
+      inst = last?.organization?.name || '';
+    }
+    // Keywords / area
+    const kws = data?.person?.keywords?.keyword || [];
+    const area = kws.slice(0,4).map(k=>k.content).join(', ');
+    return { name, inst, area, orcid: `https://orcid.org/${id}` };
+  } catch(e){
+    return null;
+  }
+}
+
+// Wire ORCID field in profile form
+document.getElementById('pOrcid').addEventListener('blur', async function(){
+  const val = this.value.trim();
+  if(!val) return;
+  this.style.borderColor = 'var(--accent3)';
+  this.placeholder = 'Buscando dados no ORCID...';
+  const data = await fetchOrcid(val);
+  this.style.borderColor = '';
+  this.placeholder = 'https://orcid.org/0000-0000-0000-0000';
+  if(!data){ toast('ORCID não encontrado. Preencha manualmente.'); return; }
+  // Auto-fill fields if empty
+  if(data.name && !document.getElementById('pName').value)
+    document.getElementById('pName').value = data.name;
+  if(data.inst && !document.getElementById('pInst').value)
+    document.getElementById('pInst').value = data.inst;
+  if(data.area && !document.getElementById('pArea').value)
+    document.getElementById('pArea').value = data.area;
+  // Normalize ORCID URL
+  this.value = data.orcid;
+  toast('✓ Dados importados do ORCID! Revise e complete.');
+});
+
+// ── FIREBASE STORAGE UPLOAD ──
+const STORAGE_BUCKET = "som-ambiental.firebasestorage.app";
+const STORAGE_KEY = "AIzaSyBzL_Pic_2JETKQqs4tD9EC2TRynEFaZG4";
+
+async function uploadPhoto(file, onProgress){
+  return new Promise((resolve, reject) => {
+    const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+    const fname = 'cluster7/'+Date.now()+'_'+Math.random().toString(36).slice(2)+'.'+ext;
+    const url = 'https://firebasestorage.googleapis.com/v0/b/'+STORAGE_BUCKET+'/o?uploadType=media&name='+encodeURIComponent(fname)+'&key='+STORAGE_KEY;
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-Type', file.type||'image/jpeg');
+    xhr.upload.onprogress = e=>{ if(e.lengthComputable && onProgress) onProgress(Math.round(e.loaded/e.total*100)); };
+    xhr.onload = ()=>{
+      try{
+        const r = JSON.parse(xhr.responseText);
+        if(r.name){
+          resolve('https://firebasestorage.googleapis.com/v0/b/'+STORAGE_BUCKET+'/o/'+encodeURIComponent(r.name)+'?alt=media');
+        } else reject(r.error?.message||'Erro');
+      }catch(e){ reject('Erro na resposta'); }
+    };
+    xhr.onerror = ()=>reject('Erro de rede');
+    xhr.send(file);
+  });
+}
+
+// Liga um input file + campo url oculto para upload automático
+function wireUpload(fileInputId, urlHiddenId, previewId, progressId){
+  const fi=document.getElementById(fileInputId);
+  if(!fi)return;
+  fi.addEventListener('change', async function(){
+    const file=this.files[0];
+    if(!file||!file.type.startsWith('image/'))return;
+    const prog=document.getElementById(progressId);
+    const prev=document.getElementById(previewId);
+    if(prog){prog.style.display='block';prog.textContent='Enviando... 0%';}
+    try{
+      const url=await uploadPhoto(file, p=>{ if(prog)prog.textContent='Enviando... '+p+'%'; });
+      document.getElementById(urlHiddenId).value=url;
+      if(prog){prog.style.display='none';}
+      if(prev){prev.src=url;prev.style.display='block';}
+      toast('Foto enviada! 📷');
+    }catch(err){
+      if(prog){prog.style.display='none';}
+      toast('Erro no upload: '+err);
+    }
+  });
+}
+
+// ── FEED ──
+// ── MENU CRIAR (feed) ──
+document.getElementById('btnCreateMenu').addEventListener('click', function(e){
+  e.stopPropagation();
+  document.getElementById('createMenu').classList.toggle('open');
+});
+document.addEventListener('click', function(){
+  const m=document.getElementById('createMenu');
+  if(m)m.classList.remove('open');
+});
+window.createFrom = function(type){
+  document.getElementById('createMenu').classList.remove('open');
+  if(type==='post'){ resetModalToNew('feed'); ['pTitle','pContent','pImg'].forEach(id=>document.getElementById(id).value=''); openM('mPost'); }
+  else if(type==='activity'){ resetModalToNew('activities'); ['aTitle','aParts','aYear','aDesc','aImg','aLink'].forEach(id=>document.getElementById(id).value=''); openM('mActivity'); }
+  else if(type==='proposal'){ resetModalToNew('proposals'); ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value=''); openM('mProposal'); }
+  else if(type==='note'){ openM('mNote'); }
+  else if(type==='photo'){ ['phUrl','phCap'].forEach(id=>document.getElementById(id).value=''); const pv=document.getElementById('phPrev'); if(pv)pv.style.display='none'; openM('mMuralPhoto'); }
+  else if(type==='link'){ ['lkTitle','lkUrl'].forEach(id=>document.getElementById(id).value=''); openM('mLink'); }
+  else if(type==='event'){ resetModalToNew('events'); ['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value=''); openM('mEvent'); }
+};
+
+document.getElementById('btnSavePost').addEventListener('click', async function(){
+  const t=document.getElementById('pTitle').value.trim();
+  const c=document.getElementById('pContent').value.trim();
+  if(!t||!c){toast('Preencha título e mensagem.');return;}
+  const img=document.getElementById('pImg').value.trim();
+  if(_editCtx&&_editCtx.type==='feed'){
+    const o=(window._feedCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/feed/'+_editCtx.id,{title:t,content:c,image:img,author:o.author||CU,institution:o.institution||CI,ts:o.ts||Date.now(),likes:o.likes||{},comments:o.comments||{}});
+    toast('Publicação atualizada! ✏️');
+  } else {
+    await fbPost('cluster7/feed',{title:t,content:c,image:img,author:CU,institution:CI,ts:Date.now()});
+    toast('Publicação enviada! 📢');
+  }
+  ['pTitle','pContent','pImg'].forEach(id=>document.getElementById(id).value='');
+  resetModalToNew('feed'); closeM('mPost');
+});
+
+let feedFilter='all';
+let _feedPosts={};
+
+function renderFeed(data){
+  window._feedCache=data||{};
+  _feedPosts=data||{};
+  renderUnifiedFeed();
+}
+
+// Agrega todas as fontes num só feed cronológico
+function renderUnifiedFeed(){
+  const el=document.getElementById('feedList');
+  if(!el)return;
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  let items=[];
+
+  // 1. Publicações do feed
+  Object.entries(_feedPosts||{}).forEach(([id,p])=>{
+    items.push({src:'post', path:'cluster7/feed', id, ts:p.ts||0, author:p.author, data:p});
+  });
+  // 2. Atividades
+  Object.entries(allActs||{}).forEach(([id,a])=>{
+    items.push({src:'activity', path:'cluster7/activities', id, ts:a.ts||0, author:a.author, data:a});
+  });
+  // 3. Propostas
+  Object.entries(allProps||{}).forEach(([id,p])=>{
+    items.push({src:'proposal', path:'cluster7/proposals', id, ts:p.ts||0, author:p.author, data:p});
+  });
+  // 4. Mural (notas, fotos, links)
+  Object.entries(_padletCache||{}).forEach(([id,p])=>{
+    items.push({src:'mural', path:'cluster7/padlet', id, ts:p.ts||0, author:p.author, data:p});
+  });
+  // 5. Eventos/Agenda
+  Object.entries(window._eventsCache||{}).forEach(([id,e])=>{
+    items.push({src:'event', path:'cluster7/events', id, ts:e.ts||0, author:e.author, data:e});
+  });
+
+  // filtro
+  if(feedFilter!=='all') items=items.filter(x=>x.src===feedFilter);
+  // ordena por data desc
+  items.sort((a,b)=>b.ts-a.ts);
+
+  if(items.length===0){
+    el.innerHTML='<div class="empty"><div class="ei">📭</div><p>Nada por aqui ainda. Comece criando algo!</p></div>';
+    return;
+  }
+
+  el.innerHTML=items.map(it=>feedCard(it, uk)).join('');
+}
+
+const SRC_META={
+  post:{ic:'📢',lbl:'Publicação',cor:'#00C896'},
+  activity:{ic:'📌',lbl:'Atividade',cor:'#7B5EA7'},
+  proposal:{ic:'🚀',lbl:'Proposta',cor:'#F59E0B'},
+  mural:{ic:'🎨',lbl:'Mural',cor:'#EC4899'},
+  event:{ic:'📅',lbl:'Agenda',cor:'#06B6D4'}
+};
+
+function feedCard(it, uk){
+  const p=it.data;
+  const m=SRC_META[it.src];
+  const d=new Date(it.ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+  const mine=it.author===CU;
+  // ações de editar/excluir por tipo
+  let edit='';
+  if(mine){
+    const efn={post:'editFeed',activity:'editActivity',proposal:'editProposal',event:'editEvent'}[it.src];
+    if(efn) edit='<button class="dbtn" style="color:var(--accent4)" onclick="'+efn+'(\''+it.id+'\')">✏️</button>';
+    else if(it.src==='mural') edit='<button class="dbtn" style="color:var(--accent4)" onclick="editPadlet(\''+it.id+'\')">✏️</button>';
+    edit+='<button class="dbtn" onclick="delItem(\''+it.path+'\',\''+it.id+'\')">🗑</button>';
+  }
+
+  // conteúdo específico por tipo
+  let title='', body='', img='', extra='';
+  if(it.src==='post'){
+    title=p.title||''; body=(p.content||'').replace(/\n/g,'<br>');
+    if(p.image)img='<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">';
+  } else if(it.src==='activity'){
+    const tl={artigo:'Artigo',resumo:'Resumo',livro:'Livro/Capítulo',software:'App/Software',banca:'Banca',palestra:'Palestra',orientacao:'Orientação',projeto:'Projeto',acao:'Ação',reuniao:'Reunião',outro:'Outro'}[p.type]||'Atividade';
+    title=(p.title||''); body='<span style="color:var(--accent4);font-weight:600">'+tl+'</span>'+(p.year?' · '+esc(p.year):'')+(p.desc?'<br>'+esc(p.desc):'');
+    if(p.participants)body+='<br><span style="font-size:12px;color:var(--gray3)">👥 '+esc(p.participants)+'</span>';
+    if(p.image)img='<img src="'+esc(p.image)+'" onerror="this.style.display=\'none\'" alt="">';
+    if(p.link)extra='<a href="'+esc(p.link)+'" target="_blank" style="display:inline-block;margin-top:6px;font-size:12px;color:#0891B2;font-weight:600;text-decoration:none">🔗 Acessar material</a>';
+  } else if(it.src==='proposal'){
+    const st={aberta:'Aberta',em_andamento:'Em andamento',concluida:'Concluída'}[p.status||'aberta'];
+    title=(p.title||''); body=(p.desc||'')+'<br><span style="font-size:12px;color:var(--gray3)">Status: '+st+(p.deadline?' · ⏰ '+esc(p.deadline):'')+'</span>';
+  } else if(it.src==='mural'){
+    if(p.kind==='photo'){title='Foto no mural'; if(p.url)img='<img src="'+esc(p.url)+'" onerror="this.style.display=\'none\'" alt="">'; body=esc(p.caption||'');}
+    else if(p.kind==='link'){title=p.title||'Link'; if(p.prevImg)img='<img src="'+esc(p.prevImg)+'" onerror="this.style.display=\'none\'" alt="">'; body=(p.prevDesc?esc(p.prevDesc):'')+'<br><a href="'+esc(p.url)+'" target="_blank" style="color:#0891B2;font-size:12px">🔗 '+esc((p.url||'').replace(/^https?:\/\//,'').slice(0,40))+'</a>';}
+    else {title=p.title||'Nota'; body=(p.content||'').replace(/\n/g,'<br>');}
+  } else if(it.src==='event'){
+    const dt=p.date?new Date(p.date):null;
+    title=p.title||'Evento';
+    body=(dt?'📅 '+dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'')+(p.parts?'<br>👥 '+esc(p.parts):'')+(p.desc?'<br>'+esc(p.desc):'');
+  }
+
+  // like/comentário (todos os tipos suportam via caminho próprio)
+  const likes=p.likes||{}; const lc=Object.keys(likes).length; const iLiked=likes[uk];
+  const comments=p.comments||{}; const cc=Object.keys(comments).length;
+  const cHtml=Object.entries(comments).sort((a,b)=>a[1].ts-b[1].ts).map(([cid,c])=>
+    '<div class="fcomment"><span class="fcomment-a">'+esc(c.author)+'</span> '+esc(c.text)+'</div>').join('');
+
+  return '<div class="fcard" style="border-left-color:'+m.cor+'">'+
+    '<div class="fsrc" style="background:'+m.cor+'22;color:'+m.cor+'">'+m.ic+' '+m.lbl+'</div>'+
+    img+
+    (title?'<div class="fcard-t">'+esc(title)+'</div>':'')+
+    '<div class="fcard-c">'+body+'</div>'+extra+
+    '<div class="fcard-m"><span class="fcard-a">✍ '+esc(it.author||'')+'</span><span>📅 '+d+'</span>'+edit+'</div>'+
+    '<div class="fcard-actions">'+
+      '<button class="flike'+(iLiked?' on':'')+'" onclick="feedLike(\''+it.path+'\',\''+it.id+'\')">'+(iLiked?'❤️':'🤍')+' '+lc+'</button>'+
+      '<button class="fcomment-btn" onclick="toggleComments(\''+it.id+'\')">💬 '+cc+'</button>'+
+    '</div>'+
+    '<div class="fcomments" id="fc_'+it.id+'" style="display:none">'+cHtml+
+      '<div class="fcomment-input"><input type="text" id="ci_'+it.id+'" placeholder="Comentar..." onkeydown="if(event.key===\'Enter\')feedComment(\''+it.path+'\',\''+it.id+'\')"><button onclick="feedComment(\''+it.path+'\',\''+it.id+'\')">Enviar</button></div>'+
+    '</div>'+
+  '</div>';
+}
+
+// like/comment universais por caminho
+window.feedLike = async function(path, id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const it=await fbGet(path+'/'+id); if(!it)return;
+  const likes=it.likes||{};
+  if(likes[uk])delete likes[uk]; else likes[uk]={name:CU,ts:Date.now()};
+  await fbPut(path+'/'+id+'/likes',likes);
+};
+window.feedComment = async function(path, id){
+  const inp=document.getElementById('ci_'+id);
+  const t=inp.value.trim(); if(!t)return;
+  const it=await fbGet(path+'/'+id); if(!it)return;
+  const comments=it.comments||{};
+  comments['c'+Date.now()]={author:CU,text:t,ts:Date.now()};
+  await fbPut(path+'/'+id+'/comments',comments);
+  inp.value=''; toast('Comentário enviado! 💬');
+};
+
+// filtro do feed
+document.querySelectorAll('#feedFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#feedFilts .afbtn').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); feedFilter=this.dataset.f; renderUnifiedFeed();
+}));
+
+window.toggleLike = async function(id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const p=await fbGet('cluster7/feed/'+id);
+  if(!p)return;
+  const likes=p.likes||{};
+  if(likes[uk])delete likes[uk]; else likes[uk]={name:CU,ts:Date.now()};
+  await fbPut('cluster7/feed/'+id+'/likes',likes);
+};
+
+window.toggleComments = function(id){
+  const el=document.getElementById('fc_'+id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+};
+
+window.addComment = async function(id){
+  const inp=document.getElementById('ci_'+id);
+  const text=inp.value.trim();
+  if(!text)return;
+  const p=await fbGet('cluster7/feed/'+id);
+  if(!p)return;
+  const comments=p.comments||{};
+  const cid='c'+Date.now();
+  comments[cid]={author:CU,text,ts:Date.now()};
+  await fbPut('cluster7/feed/'+id+'/comments',comments);
+  inp.value='';
+  toast('Comentário enviado! 💬');
+};
+
+// ── MEMBERS ──
+document.getElementById('btnAddMember').addEventListener('click',()=>openM('mMember'));
+document.getElementById('btnSaveMember').addEventListener('click', async function(){
+  const n=document.getElementById('mName').value.trim();
+  const i=document.getElementById('mInst2').value.trim();
+  if(!n||!i){toast('Nome e instituição obrigatórios.');return;}
+  await fbPost('cluster7/members',{name:n,institution:i,area:document.getElementById('mArea').value.trim(),email:document.getElementById('mEmail').value.trim(),lattes:document.getElementById('mLattes').value.trim(),orcid:document.getElementById('mOrcid').value.trim(),photo:document.getElementById('mPhoto').value.trim(),addedBy:CU,ts:Date.now()});
+  ['mName','mInst2','mArea','mEmail','mLattes','mOrcid','mPhoto'].forEach(id=>document.getElementById(id).value='');
+  closeM('mMember'); toast('Membro adicionado! 🤝');
+});
+
+function sigla(inst){
+  const m={'unemat':'UNEMAT','ufscar':'UFSCar','ufs':'UFS','fundação universidade federal de sergipe':'UFS','unirio':'UNIRIO','ufcg':'UFCG','uff':'UFF','utfpr':'UTFPR','univ. tecnológica federal do paraná':'UTFPR','ufam':'UFAM','unioeste':'UNIOESTE','univ. estadual do oeste do paraná':'UNIOESTE','ufpe':'UFPE','ufms':'UFMS','ufmt':'UFMT'};
+  const k=inst.toLowerCase().replace(/[–-].*/,'').trim();
+  for(const[key,val] of Object.entries(m))if(k.includes(key))return val;
+  return inst.split(/[\s–-]+/).filter(w=>w.length>3).map(w=>w[0]).join('').toUpperCase().slice(0,5)||'IES';
+}
+
+function buildConnMap(acts){
+  const m={};
+  if(!acts)return m;
+  Object.values(acts).forEach(a=>{
+    if(!a.participants)return;
+    const pp=a.participants.split(',').map(p=>p.trim()).filter(Boolean);
+    pp.forEach(p=>{m[p]=(m[p]||0)+pp.length-1;});
+  });
+  return m;
+}
+
+function buildPairs(acts){
+  const s=new Set();
+  if(acts)Object.values(acts).forEach(a=>{
+    if(!a.participants)return;
+    const pp=a.participants.split(',').map(p=>p.trim()).filter(Boolean);
+    for(let i=0;i<pp.length;i++)for(let j=i+1;j<pp.length;j++)s.add([pp[i],pp[j]].sort().join('|||'));
+  });
+  // conexões manuais
+  if(window._manualLinks)Object.values(window._manualLinks).forEach(l=>{
+    if(l.a&&l.b)s.add([l.a,l.b].sort().join('|||'));
+  });
+  return s;
+}
+
+function sharedActs(na,nb,acts){
+  if(!acts)return 0;
+  return Object.values(acts).filter(a=>{
+    if(!a.participants)return false;
+    const pp=a.participants.split(',').map(p=>p.trim());
+    return pp.includes(na)&&pp.includes(nb);
+  }).length;
+}
+
+let netMembers=null, netActs=null, netSim=null;
+
+function renderNetwork(members,acts){
+  if(members) _memberCache = members;
+  netMembers=members; netActs=acts;
+  const mc=members?Object.keys(members).length:0;
+  const ac=acts?Object.keys(acts).length:0;
+  const insts=members?[...new Set(Object.values(members).map(m=>m.institution))].length:0;
+  const cp=buildPairs(acts);
+  document.getElementById('netStats').innerHTML='<div class="sbox"><div class="snum">'+mc+'</div><div class="slbl">Pesquisadores</div></div><div class="sbox"><div class="snum">'+insts+'</div><div class="slbl">Instituições</div></div><div class="sbox"><div class="snum">'+ac+'</div><div class="slbl">Atividades</div></div><div class="sbox"><div class="snum">'+cp.size+'</div><div class="slbl">Conexões</div></div>';
+  // member cards
+  const cel=document.getElementById('memberCards');
+  if(!members){cel.innerHTML='<div class="empty"><div class="ei">👥</div><p>Nenhum membro.</p></div>';return;}
+  const cm=buildConnMap(acts);
+  const iColors={};let ci=0;
+  Object.values(members).forEach(m=>{if(!iColors[m.institution])iColors[m.institution]=PAL[ci++%PAL.length];});
+  cel.innerHTML=Object.entries(members).map(([id,m])=>{
+    const ini=m.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const c=cm[m.name]||0;
+    const mActions='<div style="display:flex;gap:5px;margin-top:8px"><button class="dbtn" style="color:var(--accent4)" onclick="editMember(\''+id+'\',event)">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/members\',\''+id+'\')">🗑</button></div>';
+    return '<div class="mcard"><div class="mav" style="background:linear-gradient(135deg,'+(iColors[m.institution]||'#00C896')+','+PAL[(PAL.indexOf(iColors[m.institution]||PAL[0])+3)%PAL.length]+')">'  +(m.photo?'<img src="'+esc(m.photo)+'" onerror="this.style.display=\'none\'">':ini)+'</div><div><div class="mn">'+esc(m.name)+'</div><div class="mi">'+esc(m.institution)+'</div><div class="ma">'+esc(m.area||'')+'</div>'+(m.lattes?'<a href="'+esc(m.lattes)+'" target="_blank" style="font-size:10px;color:var(--accent);text-decoration:none;margin-top:3px;display:inline-block;margin-right:8px">🔗 Lattes</a>':'')+(m.orcid?'<a href="'+esc(m.orcid)+'" target="_blank" style="font-size:10px;color:var(--accent4);text-decoration:none;margin-top:3px;display:inline-block">🆔 ORCID</a>':'')+'</div>'+(c>0?'<div class="cbadge">'+c+'</div>':'')+'<div style="display:flex;gap:5px;margin-top:8px"><button class="dbtn" style="color:var(--accent4);border-color:rgba(123,94,167,.3)" onclick="editMember(\''+id+'\',event)">✏️ editar</button><button class="dbtn" onclick="delItem(\'cluster7/members\',\''+id+'\')">'+(m.addedBy===CU||true?'🗑 excluir':'')+'</button></div></div>';
+  }).join('');
+  if(document.getElementById('tab-network').classList.contains('on')) drawNet();
+}
+
+function drawNet(){
+  const container = document.getElementById('netCanvas');
+  const sig = JSON.stringify({m:netMembers, a:netActs, l:window._manualLinks});
+  if(container._sig === sig) return;
+  container._sig = sig;
+
+  const svg = d3.select('#netSVG');
+  svg.selectAll('*').remove();
+
+  if(!netMembers || !Object.keys(netMembers).length){
+    svg.append('text').attr('x','50%').attr('y','50%').attr('text-anchor','middle')
+      .attr('fill','#94A3B8').attr('font-size',14).attr('font-family','Sora')
+      .text('Adicione membros para visualizar a rede.');
+    return;
+  }
+
+  const W = container.offsetWidth || 800;
+  const H = 500;
+  svg.attr('viewBox', `0 0 ${W} ${H}`);
+  container.style.height = H + 'px';
+
+  const members = Object.entries(netMembers);
+  const cm = buildConnMap(netActs);
+  const pairs = buildPairs(netActs);
+
+  // Color per institution
+  const instSet = [...new Set(members.map(([,m])=>m.institution))];
+  const color = d3.scaleOrdinal().domain(instSet).range([
+    '#00C896','#7B5EA7','#FF6B6B','#FFD166','#06B6D4',
+    '#F59E0B','#10B981','#EF4444','#8B5CF6','#EC4899','#14B8A6','#F97316'
+  ]);
+
+  // Build graph data
+  const nodes = members.map(([id, m]) => ({
+    id: m.name, iid: id,
+    institution: m.institution,
+    area: m.area||'',
+    lattes: m.lattes||'',
+    conns: cm[m.name]||0,
+    r: 14 + Math.min((cm[m.name]||0)*4, 22)
+  }));
+
+  const links = [];
+  pairs.forEach(pair => {
+    const [a,b] = pair.split('|||');
+    const w = sharedActs(a, b, netActs)||1;
+    links.push({source: a, target: b, w});
+  });
+
+  // ── Defs: glow filters + gradients ──
+  const defs = svg.append('defs');
+
+  // Glow filter
+  const glow = defs.append('filter').attr('id','glow').attr('x','-50%').attr('y','-50%').attr('width','200%').attr('height','200%');
+  glow.append('feGaussianBlur').attr('stdDeviation','3').attr('result','coloredBlur');
+  const feMerge = glow.append('feMerge');
+  feMerge.append('feMergeNode').attr('in','coloredBlur');
+  feMerge.append('feMergeNode').attr('in','SourceGraphic');
+
+  // Strong glow for hovered
+  const glowStrong = defs.append('filter').attr('id','glowStrong').attr('x','-80%').attr('y','-80%').attr('width','260%').attr('height','260%');
+  glowStrong.append('feGaussianBlur').attr('stdDeviation','7').attr('result','coloredBlur');
+  const feMerge2 = glowStrong.append('feMerge');
+  feMerge2.append('feMergeNode').attr('in','coloredBlur');
+  feMerge2.append('feMergeNode').attr('in','SourceGraphic');
+
+  // Background
+  svg.append('rect').attr('width',W).attr('height',H).attr('fill','#0a1628');
+
+  // Dot grid
+  const dotG = svg.append('g').attr('opacity',0.03);
+  for(let x=30;x<W;x+=44) for(let y=30;y<H;y+=44)
+    dotG.append('circle').attr('cx',x).attr('cy',y).attr('r',1).attr('fill','#fff');
+
+  // Zoom layer
+  const g = svg.append('g').attr('class','zoom-layer');
+
+  svg.call(d3.zoom()
+    .scaleExtent([0.2, 4])
+    .on('zoom', ev => g.attr('transform', ev.transform))
+  );
+
+  // ── Force simulation ──
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d=>d.id)
+      .distance(d => Math.max(60, 140 - d.w * 18))
+      .strength(d => 0.3 + d.w * 0.08))
+    .force('charge', d3.forceManyBody().strength(-320).distanceMax(300))
+    .force('center', d3.forceCenter(W/2, H/2).strength(0.04))
+    .force('collide', d3.forceCollide().radius(d => d.r + 14).strength(0.85))
+    .alphaDecay(0.025);
+
+  // ── Draw links ──
+  const linkG = g.append('g').attr('class','links');
+  const linkEl = linkG.selectAll('line')
+    .data(links).enter().append('line')
+    .attr('stroke', d => {
+      const sn = nodes.find(n=>n.id===d.source.id||n.id===d.source);
+      const tn = nodes.find(n=>n.id===d.target.id||n.id===d.target);
+      return sn ? color(sn.institution) : '#00C896';
+    })
+    .attr('stroke-opacity', d => Math.min(0.12 + d.w * 0.16, 0.65))
+    .attr('stroke-width', d => Math.min(0.8 + d.w * 1.4, 6))
+    .attr('stroke-linecap','round');
+
+  // ── Draw node groups ──
+  const nodeG = g.append('g').attr('class','nodes');
+  const nodeEl = nodeG.selectAll('g')
+    .data(nodes).enter().append('g')
+    .attr('class','node')
+    .style('cursor','grab')
+    .call(d3.drag()
+      .on('start', (ev, d) => { if(!ev.active) sim.alphaTarget(0.25).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (ev, d) => { d.fx=ev.x; d.fy=ev.y; })
+      .on('end',   (ev, d) => { if(!ev.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+    );
+
+  // Outer glow ring
+  nodeEl.append('circle')
+    .attr('r', d => d.r + 10)
+    .attr('fill', d => color(d.institution))
+    .attr('opacity', 0.12)
+    .attr('class','glow-ring');
+
+  // Main circle
+  nodeEl.append('circle')
+    .attr('r', d => d.r)
+    .attr('fill', d => color(d.institution))
+    .attr('fill-opacity', 0.85)
+    .attr('stroke', d => color(d.institution))
+    .attr('stroke-width', 2)
+    .attr('stroke-opacity', 0.5)
+    .attr('filter','url(#glow)')
+    .attr('class','main-circle');
+
+  // Institution sigla label
+  nodeEl.append('text')
+    .attr('text-anchor','middle').attr('dominant-baseline','middle')
+    .attr('fill','white').attr('font-weight','800')
+    .attr('font-family','Space Mono, monospace')
+    .attr('font-size', d => Math.max(7, Math.min(11, d.r * 0.52)))
+    .attr('pointer-events','none')
+    .text(d => sigla(d.institution));
+
+  // First name below node
+  nodeEl.append('text')
+    .attr('text-anchor','middle').attr('dy', d => d.r + 13)
+    .attr('fill','rgba(255,255,255,0.6)').attr('font-size',9)
+    .attr('font-family','Sora, sans-serif').attr('font-weight','600')
+    .attr('pointer-events','none')
+    .text(d => d.id.split(' ')[0]);
+
+  // ── Tooltip ──
+  const tip = document.getElementById('netTip');
+
+  nodeEl
+    .on('mouseenter', function(ev, d){
+      d3.select(this).select('.main-circle')
+        .attr('r', d.r + 4).attr('filter','url(#glowStrong)').attr('stroke-opacity',0.9);
+      d3.select(this).select('.glow-ring').attr('opacity',0.28).attr('r', d.r+18);
+      // Highlight connected links
+      linkEl.attr('stroke-opacity', l =>
+        (l.source.id===d.id||l.target.id===d.id)
+          ? Math.min(0.5+l.w*0.2,0.95)
+          : 0.04
+      ).attr('stroke-width', l =>
+        (l.source.id===d.id||l.target.id===d.id)
+          ? Math.min(2+l.w*2,8) : 0.5
+      );
+      // Dim other nodes
+      nodeEl.attr('opacity', n => n.id===d.id ? 1 : 0.35);
+      d3.select(this).attr('opacity',1);
+      // Tooltip
+      const sl = sigla(d.institution);
+      tip.innerHTML = `<strong style="color:${color(d.institution)};font-size:13px">${sl}</strong><br>
+        <span style="font-weight:700">${d.id}</span><br>
+        <span style="color:#94A3B8;font-size:10px">${d.institution}</span>
+        ${d.area ? `<br><span style="color:#64748B;font-size:9px">${d.area}</span>` : ''}
+        ${d.conns > 0 ? `<br><span style="color:#00C896;font-size:11px;margin-top:3px;display:block">⬡ ${d.conns} conexões</span>` : ''}
+        ${d.lattes ? `<br><a href="${d.lattes}" target="_blank" style="color:#7B5EA7;font-size:10px;margin-right:8px">🔗 Lattes</a>` : ''}${d.orcid ? `<a href="${d.orcid}" target="_blank" style="color:#00C896;font-size:10px">🆔 ORCID</a>` : ''}`;
+      const rect = container.getBoundingClientRect();
+      let tx = ev.clientX - rect.left + 14;
+      let ty = ev.clientY - rect.top - 10;
+      if(tx + 210 > W) tx = ev.clientX - rect.left - 210;
+      if(ty + 130 > H) ty = H - 130;
+      tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
+      tip.classList.add('show');
+    })
+    .on('mouseleave', function(ev, d){
+      d3.select(this).select('.main-circle').attr('r', d.r).attr('filter','url(#glow)').attr('stroke-opacity',0.5);
+      d3.select(this).select('.glow-ring').attr('opacity',0.12).attr('r', d.r+10);
+      linkEl.attr('stroke-opacity', d => Math.min(0.12+d.w*0.16,0.65))
+             .attr('stroke-width', d => Math.min(0.8+d.w*1.4,6));
+      nodeEl.attr('opacity',1);
+      tip.classList.remove('show');
+    });
+
+  // ── Tick ──
+  sim.on('tick', () => {
+    linkEl
+      .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+    nodeEl.attr('transform', d => `translate(${d.x},${d.y})`);
+  });
+
+  // Legend
+  const legendG = svg.append('g').attr('transform',`translate(14,14)`);
+  instSet.slice(0,8).forEach((inst,i) => {
+    const row = legendG.append('g').attr('transform',`translate(0,${i*18})`);
+    row.append('circle').attr('r',5).attr('fill',color(inst)).attr('cx',5).attr('cy',5).attr('filter','url(#glow)');
+    row.append('text').attr('x',14).attr('y',9).attr('fill','rgba(255,255,255,.55)')
+      .attr('font-size',9).attr('font-family','Sora, sans-serif')
+      .text(sigla(inst));
+  });
+
+  // Zoom hint
+  svg.append('text').attr('x',W-8).attr('y',H-8)
+    .attr('text-anchor','end').attr('fill','rgba(255,255,255,.2)')
+    .attr('font-size',9).attr('font-family','Sora, sans-serif')
+    .text('scroll = zoom · arrastar = mover');
+}
+// ── EDIT MEMBER ──
+let _memberCache = {};
+window.editMember = function(id, ev){
+  if(ev) ev.stopPropagation();
+  const m = _memberCache[id];
+  if(!m) return;
+  document.getElementById('editMemberId').value = id;
+  document.getElementById('emName').value = m.name||'';
+  document.getElementById('emInst').value = m.institution||'';
+  document.getElementById('emArea').value = m.area||'';
+  document.getElementById('emEmail').value = m.email||'';
+  document.getElementById('emLattes').value = m.lattes||'';
+  document.getElementById('emOrcid').value = m.orcid||'';
+  document.getElementById('emPhoto').value = m.photo||'';
+  const emPrev=document.getElementById('emPhotoPrev');
+  if(m.photo){ emPrev.src=m.photo; emPrev.style.display='block'; } else { emPrev.style.display='none'; }
+  openM('mEditMember');
+};
+
+document.getElementById('btnUpdateMember').addEventListener('click', async function(){
+  const id = document.getElementById('editMemberId').value;
+  const n = document.getElementById('emName').value.trim();
+  const i = document.getElementById('emInst').value.trim();
+  if(!n||!i){toast('Nome e instituição obrigatórios.');return;}
+  await fbPut('cluster7/members/'+id,{
+    name:n, institution:i,
+    area:document.getElementById('emArea').value.trim(),
+    email:document.getElementById('emEmail').value.trim(),
+    lattes:document.getElementById('emLattes').value.trim(),
+    orcid:document.getElementById('emOrcid').value.trim(),
+    photo:document.getElementById('emPhoto').value.trim(),
+    addedBy:CU, ts:Date.now()
+  });
+  closeM('mEditMember');
+  toast('Membro atualizado! ✅');
+});
+
+// ── EDIT PADLET ──
+// ── LIKES + COMENTÁRIOS no Mural ──
+function muralSocial(id, p){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const likes=p.likes||{};
+  const liked=likes[uk];
+  const lc=Object.keys(likes).length;
+  const comments=p.comments||{};
+  const cc=Object.keys(comments).length;
+  return '<button class="msoc-btn'+(liked?' on':'')+'" onclick="event.preventDefault();togglePadletLike(\''+id+'\')">'+(liked?'❤️':'🤍')+' '+lc+'</button>'+
+         '<button class="msoc-btn" onclick="event.preventDefault();togglePadletComments(\''+id+'\')">💬 '+cc+'</button>';
+}
+function muralComments(id, p){
+  const comments=p.comments||{};
+  const list=Object.entries(comments).sort((a,b)=>a[1].ts-b[1].ts).map(([cid,c])=>
+    '<div class="mcmt"><span class="mcmt-a">'+esc(c.author)+':</span> '+esc(c.text)+'</div>'
+  ).join('');
+  return '<div class="mcmts" id="mc_'+id+'" style="display:none">'+list+
+    '<div class="mcmt-in"><input type="text" id="mci_'+id+'" placeholder="Comentar..." onkeydown="if(event.key===\'Enter\')addPadletComment(\''+id+'\')"><button onclick="addPadletComment(\''+id+'\')">Enviar</button></div></div>';
+}
+window.togglePadletLike = async function(id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const p=await fbGet('cluster7/padlet/'+id); if(!p)return;
+  const likes=p.likes||{};
+  if(likes[uk])delete likes[uk]; else likes[uk]={name:CU,ts:Date.now()};
+  await fbPut('cluster7/padlet/'+id+'/likes',likes);
+};
+window.togglePadletComments = function(id){
+  const el=document.getElementById('mc_'+id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+};
+window.addPadletComment = async function(id){
+  const inp=document.getElementById('mci_'+id);
+  const t=inp.value.trim(); if(!t)return;
+  const p=await fbGet('cluster7/padlet/'+id); if(!p)return;
+  const comments=p.comments||{};
+  comments['c'+Date.now()]={author:CU,text:t,ts:Date.now()};
+  await fbPut('cluster7/padlet/'+id+'/comments',comments);
+  inp.value=''; toast('Comentário enviado! 💬');
+};
+
+let _padletCache = {};
+
+window.editNote = function(id, ev){
+  if(ev) ev.stopPropagation();
+  const p = _padletCache[id]; if(!p) return;
+  document.getElementById('enId').value = id;
+  document.getElementById('enTitle').value = p.title||'';
+  document.getElementById('enContent').value = p.content||'';
+  // set color
+  let editNoteColor = p.color||'#FFE566';
+  document.querySelectorAll('#enColors .cdot').forEach(d=>{
+    d.classList.toggle('on', d.dataset.c===editNoteColor);
+    d.onclick = ()=>{ document.querySelectorAll('#enColors .cdot').forEach(x=>x.classList.remove('on')); d.classList.add('on'); editNoteColor=d.dataset.c; document.getElementById('enId').dataset.color=editNoteColor; };
+  });
+  document.getElementById('enId').dataset.color = editNoteColor;
+  openM('mEditNote');
+};
+
+document.getElementById('btnUpdateNote').addEventListener('click', async function(){
+  const id = document.getElementById('enId').value;
+  const c = document.getElementById('enContent').value.trim();
+  if(!c){toast('Escreva algo!');return;}
+  const color = document.getElementById('enId').dataset.color||'#FFE566';
+  await fbPut('cluster7/padlet/'+id,{
+    type:'note',
+    title:document.getElementById('enTitle').value.trim(),
+    content:c, color,
+    author:CU, institution:CI, ts:Date.now()
+  });
+  closeM('mEditNote'); toast('Nota atualizada! 📝');
+});
+
+window.editPhoto = function(id, ev){
+  if(ev) ev.stopPropagation();
+  const p = _padletCache[id]; if(!p) return;
+  document.getElementById('epId').value = id;
+  document.getElementById('epUrl').value = p.url||'';
+  document.getElementById('epCap').value = p.caption||'';
+  openM('mEditPhoto');
+};
+
+document.getElementById('btnUpdatePhoto').addEventListener('click', async function(){
+  const id = document.getElementById('epId').value;
+  const u = document.getElementById('epUrl').value.trim();
+  if(!u){toast('Informe a URL.');return;}
+  await fbPut('cluster7/padlet/'+id,{
+    type:'photo', url:u,
+    caption:document.getElementById('epCap').value.trim(),
+    author:CU, institution:CI, ts:Date.now()
+  });
+  closeM('mEditPhoto'); toast('Foto atualizada! 📷');
+});
+
+// ── MEU PERFIL ──
+window.showProfile = async function(){
+  const el=document.getElementById('profileContent');
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray3)">Carregando...</div>';
+  openM('mProfile');
+  let me=null, myId=null;
+  try{
+    const m=await fbGet('cluster7/members');
+    if(m){
+      const entry=Object.entries(m).find(([k,x])=>x.name.toLowerCase()===CU.toLowerCase());
+      if(entry){ myId=entry[0]; me=entry[1]; }
+    }
+  }catch(_){}
+  if(!me){
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--gray3)">Perfil não encontrado no banco.<br>Nome de acesso: <strong>'+esc(CU)+'</strong></div>';
+    return;
+  }
+  window._myProfileId=myId;
+  const ini=me.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const av=me.photo?'<img src="'+esc(me.photo)+'" onerror="this.style.display=\'none\'">':ini;
+  el.innerHTML=
+    '<div class="profile-hd"><div class="profile-av">'+av+'</div><div><div class="profile-name">'+esc(me.name)+'</div><div class="profile-inst">'+esc(me.institution)+'</div></div></div>'+
+    (me.email?'<div class="profile-row"><div class="profile-label">E-mail</div><div class="profile-val">'+esc(me.email)+'</div></div>':'')+
+    (me.area?'<div class="profile-row"><div class="profile-label">Área</div><div class="profile-val">'+esc(me.area)+'</div></div>':'')+
+    (me.orcid?'<div class="profile-row"><div class="profile-label">ORCID</div><div class="profile-val"><a href="'+esc(me.orcid)+'" target="_blank">'+esc(me.orcid)+'</a></div></div>':'')+
+    (me.lattes?'<div class="profile-row"><div class="profile-label">Lattes</div><div class="profile-val"><a href="'+esc(me.lattes)+'" target="_blank">'+esc(me.lattes)+'</a></div></div>':'');
+};
+
+document.getElementById('btnEditMyProfile').addEventListener('click',function(){
+  if(window._myProfileId && window.editMember){
+    closeM('mProfile');
+    editMember(window._myProfileId);
+  }
+});
+
+// ── START ──
+
+// ═══════════════════════════════════════════
+// EVENTOS / AGENDA
+// ═══════════════════════════════════════════
+document.getElementById('btnNewEvent').addEventListener('click',()=>{resetModalToNew('events');['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value='');openM('mEvent');});
+document.getElementById('btnSaveEvent').addEventListener('click', async function(){
+  const t=document.getElementById('eTitle').value.trim();
+  const d=document.getElementById('eDate').value;
+  if(!t){toast('Informe o título.');return;}
+  const payload={title:t,date:d,type:document.getElementById('eType').value,parts:document.getElementById('eParts').value.trim(),desc:document.getElementById('eDesc').value.trim()};
+  if(_editCtx&&_editCtx.type==='events'){
+    const o=(window._eventsCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/events/'+_editCtx.id,{...payload,author:o.author||CU,ts:o.ts||Date.now()});
+    toast('Evento atualizado! ✏️');
+  } else {
+    await fbPost('cluster7/events',{...payload,author:CU,ts:Date.now()});
+    toast('Evento agendado! 📅');
+  }
+  ['eTitle','eDate','eParts','eDesc'].forEach(id=>document.getElementById(id).value='');
+  resetModalToNew('events'); closeM('mEvent');
+});
+function renderEvents(data){
+  window._eventsCache=data||{};
+  const el=document.getElementById('eventList');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>Nenhum evento agendado.</p></div>';return;}
+  el.innerHTML=Object.entries(data).sort((a,b)=>(a[1].date||'').localeCompare(b[1].date||'')).map(([id,e])=>{
+    const dt=e.date?new Date(e.date):null;
+    const day=dt?dt.getDate():'?';
+    const mon=dt?dt.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''):'';
+    const hora=dt?dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+    const del=e.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editEvent(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/events\',\''+id+'\')">🗑</button>':'';
+    return '<div class="ecard"><div class="eDateBox"><div class="eday">'+day+'</div><div class="emon">'+mon+'</div></div><div style="flex:1"><span class="ebadge t-'+(e.type||'outro')+'">'+(e.type||'')+'</span><div class="etitle">'+esc(e.title)+'</div>'+(hora?'<div style="font-size:11px;color:var(--gray3)">🕐 '+hora+'</div>':'')+(e.parts?'<div style="font-size:11px;color:var(--gray3);margin-top:3px">👥 '+esc(e.parts)+'</div>':'')+(e.desc?'<div style="font-size:12px;color:#4A5568;margin-top:5px">'+esc(e.desc)+'</div>':'')+'<div style="margin-top:6px">'+del+'</div></div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// MURAL (Notas + Fotos)
+// ═══════════════════════════════════════════
+document.getElementById('btnNewLink').addEventListener('click',()=>{['lkTitle','lkUrl'].forEach(id=>document.getElementById(id).value='');openM('mLink');});
+// ── PREVIEW DE LINK (microlink) ──
+async function fetchLinkPreview(url){
+  try{
+    const r=await fetch('https://api.microlink.io/?url='+encodeURIComponent(url));
+    if(!r.ok)return {};
+    const j=await r.json();
+    if(j.status!=='success')return {};
+    const d=j.data||{};
+    return {
+      image: (d.image&&d.image.url)||(d.logo&&d.logo.url)||'',
+      desc: d.description||'',
+      site: d.publisher||(new URL(url)).hostname
+    };
+  }catch(e){ return {}; }
+}
+
+document.getElementById('btnSaveLink').addEventListener('click', async function(){
+  const t=document.getElementById('lkTitle').value.trim();
+  const u=document.getElementById('lkUrl').value.trim();
+  if(!t||!u){toast('Preencha título e URL.');return;}
+  let url=u; if(!/^https?:\/\//.test(url))url='https://'+url;
+  const btn=this; btn.textContent='Buscando preview...'; btn.disabled=true;
+  const prev=await fetchLinkPreview(url);
+  btn.textContent='🔗 Colocar no mural'; btn.disabled=false;
+  const linkData={kind:'link',title:t,url:url,linkType:document.getElementById('lkType').value,
+    prevImg:prev.image||'', prevDesc:prev.desc||'', prevSite:prev.site||''};
+  if(_editCtx&&_editCtx.type==='padletlink'){
+    const o=(_padletCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/padlet/'+_editCtx.id,{...linkData,author:o.author||CU,institution:o.institution||CI,ts:o.ts||Date.now()});
+    _editCtx=null; document.querySelector('#mLink h3').textContent='Link no Mural';
+    ['lkTitle','lkUrl'].forEach(id=>document.getElementById(id).value='');
+    closeM('mLink'); toast('Link atualizado! ✏️'); return;
+  }
+  await fbPost('cluster7/padlet',{...linkData,author:CU,institution:CI,ts:Date.now()});
+  ['lkTitle','lkUrl'].forEach(id=>document.getElementById(id).value='');
+  closeM('mLink'); toast('Link adicionado! 🔗');
+});
+document.getElementById('btnNewNote').addEventListener('click',()=>openM('mNote'));
+document.getElementById('btnNewPhoto').addEventListener('click',()=>{['phUrl','phCap'].forEach(id=>document.getElementById(id).value='');document.getElementById('phPrev').style.display='none';openM('mMuralPhoto');});
+document.querySelectorAll('.cdot').forEach(d=>d.addEventListener('click',function(){
+  document.querySelectorAll('.cdot').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); noteColor=this.dataset.c;
+}));
+document.getElementById('btnSaveNote').addEventListener('click', async function(){
+  const t=document.getElementById('nTitle').value.trim();
+  const c=document.getElementById('nContent').value.trim();
+  if(!c){toast('Escreva algo na nota.');return;}
+  await fbPost('cluster7/padlet',{kind:'note',title:t,content:c,color:noteColor,author:CU,institution:CI,ts:Date.now()});
+  document.getElementById('nTitle').value=''; document.getElementById('nContent').value='';
+  closeM('mNote'); toast('Nota adicionada! 📝');
+});
+document.getElementById('btnSavePhoto').addEventListener('click', async function(){
+  const u=document.getElementById('phUrl').value.trim();
+  const cap=document.getElementById('phCap').value.trim();
+  if(!u){toast('Informe a URL da imagem.');return;}
+  await fbPost('cluster7/padlet',{kind:'photo',url:u,caption:cap,author:CU,institution:CI,ts:Date.now()});
+  document.getElementById('phUrl').value=''; document.getElementById('phCap').value='';
+  closeM('mMuralPhoto'); toast('Foto adicionada! 📷');
+});
+function renderPadlet(data){
+  _padletCache=data||{};
+  const el=document.getElementById('padletBoard');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">🎨</div><p>Mural vazio. Adicione uma nota ou foto!</p></div>';return;}
+  el.innerHTML=Object.entries(data).reverse().map(([id,p])=>{
+    const mine=p.author===CU;
+    const actions=mine?'<button class="dbtn" style="color:var(--accent4)" onclick="editPadlet(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/padlet\',\''+id+'\')">🗑</button>':'';
+    if(p.kind==='photo'){
+      return '<div class="pphoto"><img src="'+esc(p.url)+'" onerror="this.style.display=\'none\'" alt=""><div class="pcap">'+esc(p.caption||'')+'<br><span style="color:var(--accent4)">'+esc(p.author)+'</span> '+actions+'</div><div class="pmural-foot">'+muralSocial(id,p)+'</div>'+muralComments(id,p)+'</div>';
+    }
+    if(p.kind==='link'){
+      const ic={material:'📄',reuniao:'📹',evento:'📅',drive:'📁',site:'🌐'}[p.linkType]||'🔗';
+      const host=(p.prevSite||p.url.replace(/^https?:\/\//,'').split('/')[0]);
+      const imgTop=p.prevImg?'<a href="'+esc(p.url)+'" target="_blank"><img class="plink-img" src="'+esc(p.prevImg)+'" onerror="this.style.display=\'none\'" alt=""></a>':'';
+      return '<div class="plink">'+imgTop+'<a href="'+esc(p.url)+'" target="_blank" class="plink-a"><div class="plink-ic">'+ic+'</div><div class="plink-body"><div class="plink-t">'+esc(p.title)+'</div>'+(p.prevDesc?'<div class="plink-d">'+esc(p.prevDesc.slice(0,80))+'</div>':'')+'<div class="plink-u">🌐 '+esc(host.slice(0,36))+'</div></div></a><div class="pmural-foot">✍ '+esc(p.author)+' '+actions+muralSocial(id,p)+'</div></div>';
+    }
+    return '<div class="pnote" style="background:'+(p.color||'#FFE566')+'">'+(p.title?'<div class="pnt">'+esc(p.title)+'</div>':'')+'<div class="pnc">'+esc(p.content).replace(/\n/g,'<br>')+'</div><div class="pnm">✍ '+esc(p.author)+' '+actions+'</div><div class="pnote-foot">'+muralSocial(id,p)+'</div>'+muralComments(id,p)+'</div>';
+  }).join('');
+}
+
+// Editar item do mural
+window.editPadlet = function(id){
+  const p=_padletCache[id];
+  if(!p)return;
+  if(p.kind==='link'){
+    _editCtx={type:'padletlink',id};
+    document.getElementById('lkTitle').value=p.title||'';
+    document.getElementById('lkUrl').value=p.url||'';
+    document.getElementById('lkType').value=p.linkType||'material';
+    document.querySelector('#mLink h3').textContent='Editar Link';
+    openM('mLink');
+    return;
+  }
+  if(p.kind==='photo'){
+    document.getElementById('epId').value=id;
+    document.getElementById('epUrl').value=p.url||'';
+    document.getElementById('epCap').value=p.caption||'';
+    openM('mEditPhoto');
+  } else {
+    document.getElementById('enId').value=id;
+    document.getElementById('enTitle').value=p.title||'';
+    document.getElementById('enContent').value=p.content||'';
+    _editNoteColor=p.color||'#FFE566';
+    document.querySelectorAll('#enColors .cdot').forEach(d=>{
+      d.classList.toggle('on', d.dataset.c===_editNoteColor);
+    });
+    openM('mEditNote');
+  }
+};
+
+let _editNoteColor='#FFE566';
+document.addEventListener('click',function(e){
+  const dot=e.target.closest('#enColors .cdot');
+  if(dot){
+    document.querySelectorAll('#enColors .cdot').forEach(x=>x.classList.remove('on'));
+    dot.classList.add('on'); _editNoteColor=dot.dataset.c;
+  }
+});
+
+// ═══════════════════════════════════════════
+// ATIVIDADES
+// ═══════════════════════════════════════════
+document.getElementById('btnNewActivity').addEventListener('click',()=>{resetModalToNew('activities');['aTitle','aParts','aYear','aDesc','aImg','aLink'].forEach(id=>document.getElementById(id).value='');openM('mActivity');});
+document.getElementById('btnSaveActivity').addEventListener('click', async function(){
+  const t=document.getElementById('aTitle').value.trim();
+  if(!t){toast('Informe o título.');return;}
+  const parts=document.getElementById('aParts').value.trim();
+  const payload={title:t,type:document.getElementById('aType').value,parts:parts,participants:parts,year:document.getElementById('aYear').value.trim(),desc:document.getElementById('aDesc').value.trim(),image:document.getElementById('aImg').value.trim(),link:document.getElementById('aLink').value.trim()};
+  if(_editCtx&&_editCtx.type==='activities'){
+    const o=(window._actsCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/activities/'+_editCtx.id,{...payload,author:o.author||CU,ts:o.ts||Date.now()});
+    toast('Atividade atualizada! ✏️');
+  } else {
+    await fbPost('cluster7/activities',{...payload,author:CU,ts:Date.now()});
+    toast('Atividade registrada! 📌');
+  }
+  ['aTitle','aParts','aYear','aDesc','aImg','aLink'].forEach(id=>document.getElementById(id).value='');
+  resetModalToNew('activities'); closeM('mActivity');
+});
+document.querySelectorAll('#actFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#actFilts .afbtn').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); actFilter=this.dataset.f; renderActs(allActs);
+}));
+const tLbl={artigo:'Artigo',resumo:'Resumo',livro:'Livro/Capítulo',software:'App/Software',banca:'Banca',palestra:'Palestra',orientacao:'Orientação',projeto:'Projeto',acao:'Ação',reuniao:'Reunião',outro:'Outro'};
+function renderActs(data){
+  allActs=data; window._actsCache=data||{};
+  const el=document.getElementById('actList');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">📌</div><p>Nenhuma atividade registrada.</p></div>';return;}
+  let items=Object.entries(data).reverse();
+  if(actFilter!=='all')items=items.filter(([id,a])=>a.type===actFilter);
+  if(items.length===0){el.innerHTML='<div class="empty"><div class="ei">🔍</div><p>Nenhuma atividade neste filtro.</p></div>';return;}
+  el.innerHTML=items.map(([id,a])=>{
+    const del=a.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editActivity(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/activities\',\''+id+'\')">🗑</button>':'';
+    const parts=(a.participants||a.parts||'').split(',').map(x=>x.trim()).filter(Boolean);
+    const ptags=parts.map(p=>'<span class="ptag">'+esc(p)+'</span>').join('');
+    return '<div class="acard" data-type="'+(a.type||'outro')+'">'+(a.image?'<img class="aimg" src="'+esc(a.image)+'" onerror="this.style.display=\'none\'" alt="">':'')+'<span class="atbadge t-'+(a.type||'outro')+'">'+(tLbl[a.type]||'Outro')+'</span><div class="atitle">'+esc(a.title)+'</div>'+(a.year?'<div style="font-size:11px;color:var(--gray3);margin-bottom:6px">📅 '+esc(a.year)+'</div>':'')+(ptags?'<div class="apart">'+ptags+'</div>':'')+(a.desc?'<div style="font-size:13px;color:#4A5568;margin-top:6px">'+esc(a.desc)+'</div>':'')+(a.link?'<a href="'+esc(a.link)+'" target="_blank" style="display:inline-block;margin-top:8px;font-size:12px;color:#0891B2;text-decoration:none;font-weight:600">🔗 Acessar material</a>':'')+'<div class="ameta">✍ '+esc(a.author||'')+' '+del+'</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// PROPOSTAS
+// ═══════════════════════════════════════════
+document.getElementById('btnNewProposal').addEventListener('click',()=>{resetModalToNew('proposals');['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');openM('mProposal');});
+document.getElementById('btnSaveProposal').addEventListener('click', async function(){
+  const t=document.getElementById('prTitle').value.trim();
+  if(!t){toast('Informe o título.');return;}
+  if(_editCtx&&_editCtx.type==='proposals'){
+    const o=(window._propsCache||{})[_editCtx.id]||{};
+    await fbPut('cluster7/proposals/'+_editCtx.id,{title:t,type:document.getElementById('prType').value,desc:document.getElementById('prDesc').value.trim(),deadline:document.getElementById('prDeadline').value.trim(),status:o.status||'aberta',author:o.author||CU,institution:o.institution||CI,votes:o.votes||{},ts:o.ts||Date.now()});
+    ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');
+    resetModalToNew('proposals'); closeM('mProposal'); toast('Proposta atualizada! ✏️'); return;
+  }
+  await fbPost('cluster7/proposals',{title:t,type:document.getElementById('prType').value,desc:document.getElementById('prDesc').value.trim(),deadline:document.getElementById('prDeadline').value.trim(),status:'aberta',author:CU,institution:CI,votes:{},ts:Date.now()});
+  ['prTitle','prDesc','prDeadline'].forEach(id=>document.getElementById(id).value='');
+  closeM('mProposal'); toast('Proposta lançada! 🚀');
+});
+document.querySelectorAll('#propFilts .afbtn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#propFilts .afbtn').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on'); propFilter=this.dataset.f; renderProps(allProps);
+}));
+const pLbl={artigo:'Artigo conjunto',edital:'Edital/Projeto',evento:'Evento/Webinar',visita:'Visita técnica',curso:'Curso',outro:'Outro'};
+const sLbl={aberta:'Aberta',em_andamento:'Em andamento',concluida:'Concluída'};
+window.voteProp = async function(id){
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  const p=await fbGet('cluster7/proposals/'+id);
+  if(!p)return;
+  const votes=p.votes||{};
+  if(votes[uk])delete votes[uk]; else votes[uk]={name:CU,ts:Date.now()};
+  await fbPut('cluster7/proposals/'+id+'/votes',votes);
+};
+window.advanceProp = async function(id,cur){
+  const next=cur==='aberta'?'em_andamento':(cur==='em_andamento'?'concluida':'aberta');
+  await fbPut('cluster7/proposals/'+id+'/status',next);
+  toast('Status: '+sLbl[next]);
+};
+function renderProps(data){
+  allProps=data; window._propsCache=data||{};
+  const el=document.getElementById('propList');
+  if(!data||Object.keys(data).length===0){el.innerHTML='<div class="empty"><div class="ei">🚀</div><p>Nenhuma proposta. Lance a primeira!</p></div>';return;}
+  let items=Object.entries(data).reverse();
+  if(propFilter!=='all')items=items.filter(([id,p])=>(p.status||'aberta')===propFilter);
+  if(items.length===0){el.innerHTML='<div class="empty"><div class="ei">🔍</div><p>Nenhuma proposta neste filtro.</p></div>';return;}
+  const uk=CU.replace(/[^a-zA-Z0-9]/g,'_');
+  el.innerHTML=items.map(([id,p])=>{
+    const votes=p.votes||{};
+    const vCount=Object.keys(votes).length;
+    const iVoted=votes[uk];
+    const st=p.status||'aberta';
+    const del=p.author===CU?'<button class="dbtn" style="color:var(--accent4)" onclick="editProposal(\''+id+'\')">✏️</button><button class="dbtn" onclick="delItem(\'cluster7/proposals\',\''+id+'\')">🗑</button>':'';
+    const adv=p.author===CU?'<button class="advbtn" onclick="advanceProp(\''+id+'\',\''+st+'\')">▶ Avançar</button>':'';
+    return '<div class="pcard" data-s="'+st+'"><div class="phdr"><div class="ptitle">'+esc(p.title)+'</div><span class="sbadge s-'+st+'">'+sLbl[st]+'</span></div><span class="atbadge t-'+(p.type||'outro')+'">'+(pLbl[p.type]||'Outro')+'</span>'+(p.desc?'<div class="pdesc">'+esc(p.desc)+'</div>':'')+(p.deadline?'<div style="font-size:11px;color:var(--gray3);margin-bottom:8px">⏰ '+esc(p.deadline)+'</div>':'')+'<div class="pmeta">✍ '+esc(p.author)+' · 🏛 '+esc(p.institution||'')+'</div><div class="vsec"><button class="vbtn'+(iVoted?' voted':'')+'" onclick="voteProp(\''+id+'\')">'+(iVoted?'✓ Apoiado':'👍 Apoiar')+' ('+vCount+')</button>'+adv+del+'</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// PLACAR
+// ═══════════════════════════════════════════
+function renderScore(){
+  const el=document.getElementById('scoreContent');
+  if(!el)return;
+  const members=netMembers||{};
+  const acts=allActs||{};
+  // pontos por pessoa: 1 por atividade que participa
+  const pts={};
+  Object.values(members).forEach(m=>{pts[m.name]={name:m.name,inst:m.institution,acts:0,conns:0};});
+  Object.values(acts).forEach(a=>{
+    const parts=(a.participants||a.parts||'').split(',').map(x=>x.trim()).filter(Boolean);
+    parts.forEach(p=>{ if(pts[p])pts[p].acts++; });
+  });
+  const cm=buildConnMap(acts);
+  Object.keys(cm).forEach(n=>{ if(pts[n])pts[n].conns=cm[n]; });
+  // por instituição
+  const inst={};
+  Object.values(pts).forEach(p=>{
+    const k=p.inst||'—';
+    if(!inst[k])inst[k]={inst:k,acts:0,people:0};
+    inst[k].acts+=p.acts; inst[k].people++;
+  });
+  const topP=Object.values(pts).sort((a,b)=>b.acts-a.acts||b.conns-a.conns).slice(0,10);
+  const topI=Object.values(inst).sort((a,b)=>b.acts-a.acts);
+  const maxP=Math.max(1,...topP.map(p=>p.acts));
+  const maxI=Math.max(1,...topI.map(i=>i.acts));
+  let html='<div class="ssec"><h2>🏆 Ranking de Pesquisadores</h2>';
+  if(topP.every(p=>p.acts===0)){
+    html+='<div style="color:var(--gray3);font-size:14px;padding:10px 0">Registre atividades para gerar o ranking.</div>';
+  } else {
+    topP.forEach((p,i)=>{
+      const rk=i===0?'g':i===1?'s':i===2?'b':'';
+      html+='<div class="srow"><div class="srank '+rk+'">'+(i+1)+'</div><div class="sbar-w"><div class="sname">'+esc(p.name)+'</div><div class="sinst">'+esc(p.inst||'')+'</div><div class="sbg"><div class="sfill" style="width:'+Math.round(p.acts/maxP*100)+'%;background:var(--accent)"></div></div></div><div class="snum2">'+p.acts+'</div></div>';
+    });
+  }
+  html+='</div><div class="ssec"><h2>🏛 Ranking de Instituições</h2>';
+  topI.forEach((it,i)=>{
+    const rk=i===0?'g':i===1?'s':i===2?'b':'';
+    html+='<div class="srow"><div class="srank '+rk+'">'+(i+1)+'</div><div class="sbar-w"><div class="sname">'+esc(it.inst)+'</div><div class="sinst">'+it.people+' pesquisador(es)</div><div class="sbg"><div class="sfill" style="width:'+Math.round(it.acts/maxI*100)+'%;background:var(--accent4)"></div></div></div><div class="snum2">'+it.acts+'</div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+
+// ═══════════════════════════════════════════
+// MAPA LEAFLET — IES do Cluster 7
+// ═══════════════════════════════════════════
+// Coordenadas reais das cidades-sede dos PPGs (não nomes de pessoas)
+const IES_CLUSTER7 = [
+  {sigla:'UNEMAT', prog:'Ciências Ambientais', cidade:'Cáceres, MT', uf:'MT', lat:-16.0706, lng:-57.6789, bioma:'Pantanal', nota:4},
+  {sigla:'UNIOESTE', prog:'Conservação e Manejo de Recursos Naturais', cidade:'Cascavel, PR', uf:'PR', lat:-24.9555, lng:-53.4552, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFF', prog:'Engenharia de Biossistemas', cidade:'Niterói, RJ', uf:'RJ', lat:-22.9035, lng:-43.1041, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFAM', prog:'Ciências do Ambiente e Sustentabilidade na Amazônia', cidade:'Manaus, AM', uf:'AM', lat:-3.1019, lng:-60.0250, bioma:'Amazônia', nota:4},
+  {sigla:'UFCG', prog:'Gestão e Sistemas Agroindustriais', cidade:'Campina Grande, PB', uf:'PB', lat:-7.2306, lng:-35.8811, bioma:'Caatinga', nota:3},
+  {sigla:'UFSCar', prog:'Planejamento e Uso de Recursos Renováveis', cidade:'Sorocaba, SP', uf:'SP', lat:-23.5015, lng:-47.4526, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UNIRIO', prog:'Ecoturismo e Conservação', cidade:'Rio de Janeiro, RJ', uf:'RJ', lat:-22.9068, lng:-43.1729, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UTFPR', prog:'Sustentabilidade Ambiental Urbana', cidade:'Curitiba, PR', uf:'PR', lat:-25.4372, lng:-49.2699, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFPE', prog:'Desenvolvimento e Meio Ambiente', cidade:'Recife, PE', uf:'PE', lat:-8.0476, lng:-34.8770, bioma:'Mata Atlântica', nota:5},
+  {sigla:'UFS', prog:'Desenvolvimento e Meio Ambiente', cidade:'São Cristóvão, SE', uf:'SE', lat:-10.9186, lng:-37.1002, bioma:'Mata Atlântica', nota:5}
+];
+const BIOMA_COR = {'Amazônia':'#1B7A3D','Caatinga':'#E8C468','Cerrado':'#C9B458','Mata Atlântica':'#3B9B6E','Pampa':'#A3D9A5','Pantanal':'#5BA3C7','Marinho':'#7FC5E8'};
+
+let _map=null, _mapMarkers=[], _mapHeat=null, _mapMode='inst';
+
+function initMap(){
+  if(_map) { setTimeout(()=>_map.invalidateSize(), 100); return; }
+  _map = L.map('mapCanvas', {scrollWheelZoom:true, zoomControl:true}).setView([-14.5, -52], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'© OpenStreetMap', maxZoom:18
+  }).addTo(_map);
+  drawMapMode();
+  setTimeout(()=>_map.invalidateSize(), 200);
+}
+
+function actsByInst(){
+  // conta atividades por sigla de instituição
+  const counts={};
+  IES_CLUSTER7.forEach(i=>counts[i.sigla]=0);
+  const acts=allActs||{};
+  Object.values(acts).forEach(a=>{
+    const parts=(a.participants||a.parts||'').toLowerCase();
+    IES_CLUSTER7.forEach(i=>{
+      // conta se algum membro dessa IES participou, ou menção à sigla
+      if(parts.includes(i.sigla.toLowerCase())) counts[i.sigla]++;
+    });
+  });
+  // também conta membros por instituição do banco
+  const mem=netMembers||{};
+  Object.values(mem).forEach(m=>{
+    IES_CLUSTER7.forEach(i=>{
+      if((m.institution||'').toUpperCase().includes(i.sigla.toUpperCase())){
+        // cada membro conta atividades dele
+        const acs=allActs||{};
+        Object.values(acs).forEach(a=>{
+          const p=(a.participants||a.parts||'');
+          if(p.includes(m.name)) counts[i.sigla]++;
+        });
+      }
+    });
+  });
+  return counts;
+}
+
+function drawMapMode(){
+  if(!_map)return;
+  // limpa
+  _mapMarkers.forEach(m=>_map.removeLayer(m)); _mapMarkers=[];
+  if(_mapHeat){_map.removeLayer(_mapHeat);_mapHeat=null;}
+
+  const counts=actsByInst();
+  const maxC=Math.max(1,...Object.values(counts));
+
+  if(_mapMode==='inst'){
+    IES_CLUSTER7.forEach(ies=>{
+      const c=counts[ies.sigla]||0;
+      const cor=BIOMA_COR[ies.bioma]||'#00C896';
+      const r=12+Math.min(c*3,20);
+      const marker=L.circleMarker([ies.lat,ies.lng],{
+        radius:r, fillColor:cor, color:'#fff', weight:2, opacity:1, fillOpacity:0.8
+      }).addTo(_map);
+      marker.bindPopup(
+        '<div style="font-family:Sora,sans-serif;min-width:180px">'+
+        '<div style="font-weight:800;color:#0D1B2A;font-size:15px">'+ies.sigla+'</div>'+
+        '<div style="font-size:12px;color:#7B5EA7;font-weight:600;margin:3px 0">'+ies.prog+'</div>'+
+        '<div style="font-size:11px;color:#64748B">📍 '+ies.cidade+'</div>'+
+        '<div style="font-size:11px;color:#64748B">🌱 '+ies.bioma+' · CAPES '+ies.nota+'</div>'+
+        '<div style="font-size:12px;color:#00A87A;font-weight:700;margin-top:5px">'+c+' atividades</div>'+
+        '</div>'
+      );
+      marker.bindTooltip(ies.sigla, {permanent:true, direction:'top', className:'map-label', offset:[0,-r-2]});
+      _mapMarkers.push(marker);
+    });
+  } else {
+    // heatmap por intensidade de atividades
+    const heatData=IES_CLUSTER7.map(ies=>{
+      const c=counts[ies.sigla]||0;
+      const intensity=0.3+(c/maxC)*0.7; // mínimo visível
+      return [ies.lat, ies.lng, intensity];
+    });
+    if(typeof L.heatLayer==='function'){
+      _mapHeat=L.heatLayer(heatData,{radius:45,blur:30,maxZoom:6,max:1.0,
+        gradient:{0.2:'#3B9B6E',0.4:'#FFD166',0.6:'#F59E0B',0.8:'#FF6B6B',1.0:'#D94F4F'}
+      }).addTo(_map);
+    }
+    // marcadores pequenos por cima
+    IES_CLUSTER7.forEach(ies=>{
+      const c=counts[ies.sigla]||0;
+      const marker=L.circleMarker([ies.lat,ies.lng],{
+        radius:5, fillColor:'#0D1B2A', color:'#fff', weight:2, fillOpacity:1
+      }).addTo(_map);
+      marker.bindPopup('<b>'+ies.sigla+'</b><br>'+c+' atividades');
+      _mapMarkers.push(marker);
+    });
+  }
+
+  // stats
+  const totalActs=Object.values(counts).reduce((a,b)=>a+b,0);
+  const estados=[...new Set(IES_CLUSTER7.map(i=>i.uf))].length;
+  const biomas=[...new Set(IES_CLUSTER7.map(i=>i.bioma))].length;
+  document.getElementById('mapStats').innerHTML=
+    '<div class="sbox"><div class="snum">'+IES_CLUSTER7.length+'</div><div class="slbl">Instituições</div></div>'+
+    '<div class="sbox"><div class="snum">'+estados+'</div><div class="slbl">Estados</div></div>'+
+    '<div class="sbox"><div class="snum">'+biomas+'</div><div class="slbl">Biomas</div></div>'+
+    '<div class="sbox"><div class="snum">'+totalActs+'</div><div class="slbl">Atividades</div></div>';
+}
+
+window.setMapMode = function(mode){
+  _mapMode=mode;
+  document.getElementById('mapModeInst').classList.toggle('on', mode==='inst');
+  document.getElementById('mapModeHeat').classList.toggle('on', mode==='heat');
+  drawMapMode();
+};
+
+
+// Salvar edição de nota/foto
+document.getElementById('btnUpdateNote').addEventListener('click', async function(){
+  const id=document.getElementById('enId').value;
+  const c=document.getElementById('enContent').value.trim();
+  if(!c){toast('Escreva algo.');return;}
+  const orig=_padletCache[id]||{};
+  await fbPut('cluster7/padlet/'+id,{
+    kind:'note',
+    title:document.getElementById('enTitle').value.trim(),
+    content:c, color:_editNoteColor,
+    author:orig.author||CU, institution:orig.institution||CI, ts:orig.ts||Date.now()
+  });
+  closeM('mEditNote'); toast('Nota atualizada! ✏️');
+});
+document.getElementById('btnUpdatePhoto').addEventListener('click', async function(){
+  const id=document.getElementById('epId').value;
+  const u=document.getElementById('epUrl').value.trim();
+  if(!u){toast('Informe a URL.');return;}
+  const orig=_padletCache[id]||{};
+  await fbPut('cluster7/padlet/'+id,{
+    kind:'photo', url:u,
+    caption:document.getElementById('epCap').value.trim(),
+    author:orig.author||CU, institution:orig.institution||CI, ts:orig.ts||Date.now()
+  });
+  closeM('mEditPhoto'); toast('Foto atualizada! ✏️');
+});
+
+// ── LIMPAR DUPLICATAS (admin) ──
+window.dedupMembers = async function(){
+  if(!confirm('Isto vai remover cadastros duplicados, mantendo o mais completo de cada pessoa. Continuar?'))return;
+  const m=await fbGet('cluster7/members');
+  if(!m){toast('Sem membros.');return;}
+  // agrupa por primeiro+ultimo nome normalizado
+  const groups={};
+  Object.entries(m).forEach(([id,x])=>{
+    const parts=(x.name||'').toLowerCase().trim().split(/\s+/);
+    const key=parts[0]+'_'+(parts[parts.length-1]||'');
+    if(!groups[key])groups[key]=[];
+    groups[key].push({id,x});
+  });
+  let removed=0;
+  for(const key in groups){
+    const list=groups[key];
+    if(list.length<2)continue;
+    // mantém o com mais campos preenchidos (nome mais longo, com orcid/lattes)
+    list.sort((a,b)=>{
+      const sa=(a.x.name||'').length+(a.x.orcid?10:0)+(a.x.lattes?10:0)+(a.x.email?5:0)+(a.x.area?3:0);
+      const sb=(b.x.name||'').length+(b.x.orcid?10:0)+(b.x.lattes?10:0)+(b.x.email?5:0)+(b.x.area?3:0);
+      return sb-sa;
+    });
+    // remove todos menos o primeiro (melhor)
+    for(let i=1;i<list.length;i++){
+      await fbDel('cluster7/members/'+list[i].id);
+      removed++;
+    }
+  }
+  toast(removed+' duplicata(s) removida(s)! 🧹');
+};
+
+// ── EXCLUIR (autor) ──
+window.delItem = async function(path, id){
+  if(!confirm('Excluir este item? Esta ação não pode ser desfeita.'))return;
+  try{ await fbDel(path+'/'+id); toast('Excluído.'); }
+  catch(e){ toast('Erro ao excluir.'); }
+};
+
+// ── EDITAR universal — reusa os modais de criação ──
+let _editCtx = null; // {type, id, orig}
+
+window.editFeed = function(id){
+  const p=(window._feedCache||{})[id]; if(!p)return;
+  _editCtx={type:'feed',id};
+  document.getElementById('pTitle').value=p.title||'';
+  document.getElementById('pContent').value=p.content||'';
+  document.getElementById('pImg').value=p.image||'';
+  document.querySelector('#mPost h3').textContent='Editar Publicação';
+  document.getElementById('btnSavePost').textContent='Salvar alterações';
+  openM('mPost');
+};
+window.editEvent = function(id){
+  const e=(window._eventsCache||{})[id]; if(!e)return;
+  _editCtx={type:'events',id};
+  document.getElementById('eTitle').value=e.title||'';
+  document.getElementById('eDate').value=e.date||'';
+  document.getElementById('eType').value=e.type||'reuniao';
+  document.getElementById('eParts').value=e.parts||'';
+  document.getElementById('eDesc').value=e.desc||'';
+  document.querySelector('#mEvent h3').textContent='Editar Evento';
+  document.getElementById('btnSaveEvent').textContent='Salvar';
+  openM('mEvent');
+};
+window.editActivity = function(id){
+  const a=(window._actsCache||allActs||{})[id]; if(!a)return;
+  _editCtx={type:'activities',id};
+  document.getElementById('aTitle').value=a.title||'';
+  document.getElementById('aType').value=a.type||'artigo';
+  document.getElementById('aParts').value=a.participants||a.parts||'';
+  document.getElementById('aYear').value=a.year||'';
+  document.getElementById('aDesc').value=a.desc||'';
+  document.getElementById('aImg').value=a.image||'';
+  document.getElementById('aLink').value=a.link||'';
+  document.querySelector('#mActivity h3').textContent='Editar Atividade';
+  document.getElementById('btnSaveActivity').textContent='Salvar';
+  openM('mActivity');
+};
+window.editProposal = function(id){
+  const p=(window._propsCache||allProps||{})[id]; if(!p)return;
+  _editCtx={type:'proposals',id};
+  document.getElementById('prTitle').value=p.title||'';
+  document.getElementById('prType').value=p.type||'artigo';
+  document.getElementById('prDesc').value=p.desc||'';
+  document.getElementById('prDeadline').value=p.deadline||'';
+  document.querySelector('#mProposal h3').textContent='Editar Proposta';
+  document.getElementById('btnSaveProposal').textContent='Salvar';
+  openM('mProposal');
+};
+
+// Reset modal titles/buttons when opening for NEW
+function resetModalToNew(type){
+  _editCtx=null;
+  if(type==='feed'){document.querySelector('#mPost h3').textContent='Nova Publicação';document.getElementById('btnSavePost').textContent='Publicar';}
+  if(type==='events'){document.querySelector('#mEvent h3').textContent='Novo Evento';document.getElementById('btnSaveEvent').textContent='Agendar';}
+  if(type==='activities'){document.querySelector('#mActivity h3').textContent='Registrar Atividade';document.getElementById('btnSaveActivity').textContent='📌 Registrar';}
+  if(type==='proposals'){document.querySelector('#mProposal h3').textContent='Nova Proposta';document.getElementById('btnSaveProposal').textContent='🚀 Lançar proposta';}
+}
+
+// ── CONECTAR PESSOAS (manual) ──
+document.getElementById('btnConnect').addEventListener('click', function(){
+  const mem=netMembers||{};
+  const opts=Object.values(mem).map(m=>'<option value="'+esc(m.name)+'">'+esc(m.name)+'</option>').join('');
+  if(!opts){toast('Cadastre membros primeiro.');return;}
+  document.getElementById('connA').innerHTML='<option value="">Selecione...</option>'+opts;
+  document.getElementById('connB').innerHTML='<option value="">Selecione...</option>'+opts;
+  document.getElementById('connWhy').value='';
+  openM('mConnect');
+});
+document.getElementById('btnSaveConnect').addEventListener('click', async function(){
+  const a=document.getElementById('connA').value;
+  const b=document.getElementById('connB').value;
+  if(!a||!b){toast('Escolha as duas pessoas.');return;}
+  if(a===b){toast('Escolha pessoas diferentes.');return;}
+  await fbPost('cluster7/links',{a,b,why:document.getElementById('connWhy').value.trim(),author:CU,ts:Date.now()});
+  closeM('mConnect'); toast('Conexão criada! 🔗');
+});
+
+function startListeners(){
+  fbListen('cluster7/feed',renderFeed);
+  fbListen('cluster7/events',d=>{renderEvents(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();});
+  fbListen('cluster7/padlet',d=>{renderPadlet(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();});
+  fbListen('cluster7/activities',d=>{allActs=d;renderActs(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();fbGet('cluster7/members').then(m=>{netMembers=m;renderNetwork(m,d);});});
+  fbListen('cluster7/members',d=>{netMembers=d;renderNetwork(d,allActs);});
+  fbListen('cluster7/proposals',d=>{allProps=d;renderProps(d);if(typeof renderUnifiedFeed==='function')renderUnifiedFeed();});
+  fbListen('cluster7/links',d=>{window._manualLinks=d;const c=document.getElementById('netCanvas');if(c)c._sig=null;if(netMembers)renderNetwork(netMembers,allActs);});
+}
+window.addEventListener('resize',()=>{if(document.getElementById('tab-network').classList.contains('on')){const c=document.getElementById('netCanvas');if(c)c._sig=null;drawNet();}});
+</script>
+</body>
+</html>
