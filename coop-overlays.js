@@ -5,7 +5,9 @@ async function loadData(){
   'dados/enriquecimento_cluster7_2026.json',
   'dados/enriquecimento_ufpe_ufs_2026.json',
   'dados/enriquecimento_uff_2026.json',
-  'dados/enriquecimento_ufam_2026.json'
+  'dados/enriquecimento_ufam_2026.json',
+  'dados/enriquecimento_unioeste_2026.json',
+  'dados/enriquecimento_ufcg_2026.json'
  ];
  const req=[
   fetch('dados/docentes_base_2026.json?ts='+ts,{cache:'no-store'}),
