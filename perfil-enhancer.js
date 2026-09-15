@@ -5,3 +5,7 @@ async function c7LoadProfiles(){
   c7ProfileData=r.ok?await r.json():{perfis:[]};
   return c7ProfileData;
 }
+function c7FindProfile(nome,ppg,ies){
+  const a=(c7ProfileData&&c7ProfileData.perfis)||[];
+  return a.find(p=>p.nome===nome&&p.ppg===ppg&&p.ies===ies)||null;
+}
