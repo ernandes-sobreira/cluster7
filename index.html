@@ -5,114 +5,83 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>CLUSTER 7</title>
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#F4F6F9}
-#clusterApp{display:block;width:100%;height:100%;border:0;background:#F4F6F9}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#F4F6F9}#clusterApp{display:block;width:100%;height:100%;border:0;background:#F4F6F9}
 </style>
 </head>
 <body>
 <iframe id="clusterApp" src="app.html" title="Cluster 7"></iframe>
 <script>
 const frame=document.getElementById('clusterApp');
-let coopData=null;
-let coopPeople=[];
+let coopData=null,coopPeople=[],coopMode='research',coopMatches=[],coopTeam=[];
+const STOP=new Set('a o as os um uma uns umas de da do das dos em no na nos nas por para com sem e ou que se sua seu suas seus meu minha meus minhas nossa nosso nossas nossos isso este esta esse essa como mais muito entre sobre ao aos às é ser ter tem preciso precisa queremos quero tenho temos projeto pesquisa trabalho estudo ação acao alguém alguem professor professora docente parceria cooperação cooperacao'.split(/\s+/));
+const RELATED={
+ clima:['climatologia','climatico','climatica','temperatura','calor','mudancas globais','atmosferica'],
+ climaticas:['clima','climatologia','mudancas globais','temperatura','calor'],
+ agua:['aquatica','aquatico','hidrologia','qualidade da agua','reuso','recursos hidricos','ecossistemas aquaticos'],
+ aquatico:['agua','aquatica','ecossistemas aquaticos','peixes','algas'],
+ peixes:['ictio','recursos pesqueiros','ecologia de peixes','genetica de peixes'],
+ biodiversidade:['ecologia','conservacao','restauracao','paisagem'],
+ conservacao:['biodiversidade','ecologia','restauracao','areas protegidas'],
+ poluicao:['poluentes','qualidade do ar','atmosferica','quimica ambiental','contaminantes'],
+ ar:['atmosferica','poluicao atmosferica','climatologia urbana'],
+ saude:['riscos a saude','saude ambiental','epidemiologia'],
+ urbano:['urbana','planejamento regional','climatologia urbana','sustentabilidade urbana'],
+ estatistica:['quantitativa','modelagem','simulacoes'],
+ modelagem:['quantitativa','simulacoes','redes neurais','estatistica'],
+ restauracao:['conservacao','ecologia da paisagem','botanica'],
+ educacao:['educacao ambiental','ensino'],
+ residuos:['economia circular','quimica ambiental','sustentabilidade urbana'],
+ turismo:['ecoturismo','areas protegidas','turismo de base comunitaria'],
+ justica:['justica climatica'],
+ amazonia:['amazonia','recursos naturais'],
+ pantanal:['pantanal','areas umidas','recursos hidricos']
+};
 function norm(s){return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
-function initials(name){return (name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
 function esc(s){return (s||'').toString().replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-function addCoopStyles(d){
- const st=d.createElement('style');
- st.id='coopInjectedStyles';
- st.textContent=`
- .coop-hero{background:linear-gradient(135deg,#0D1B2A,#17324a 68%,#0b594d);border-radius:20px;padding:25px;color:white;margin-bottom:18px;position:relative;overflow:hidden}
- .coop-hero:after{content:'🤝';position:absolute;right:24px;top:2px;font-size:95px;opacity:.07}.coop-kicker{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#00C896;font-weight:700}.coop-hero h2{font-size:27px;margin:7px 0 7px}.coop-hero p{color:#c8d2da;font-size:12px;line-height:1.65;max-width:760px}.coop-metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.coop-metric{background:#ffffff12;border:1px solid #ffffff20;padding:8px 12px;border-radius:10px}.coop-metric b{font-family:'Space Mono',monospace;color:#00C896;font-size:18px}.coop-metric span{font-size:9px;color:#c8d2da;margin-left:5px}
- .coop-tools{display:grid;grid-template-columns:1.5fr .8fr .7fr;gap:9px;margin:14px 0}.coop-tools input,.coop-tools select{width:100%;padding:11px 12px;border:2px solid #E2E8F0;background:#fff;border-radius:10px;font-family:'Sora',sans-serif;font-size:12px;outline:none;color:#1E293B}.coop-tools input:focus,.coop-tools select:focus{border-color:#00C896}
- .coop-programs{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 15px}.coop-prog{background:#fff;border:1px solid #E2E8F0;border-radius:999px;padding:6px 10px;font-size:9px;font-weight:700;cursor:pointer;color:#475569}.coop-prog:hover{border-color:#00C896}.coop-prog b{color:#7B5EA7}.coop-prog.active{background:#0D1B2A;color:#fff;border-color:#0D1B2A}.coop-prog.active b{color:#00C896}
- .coop-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:18px 0 11px}.coop-head h3{font-size:17px;color:#0D1B2A}.coop-count{font-size:10px;color:#94A3B8}.coop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}.coop-card{background:#fff;border:1px solid #e8edf2;border-radius:14px;padding:15px;box-shadow:0 3px 16px rgba(0,0,0,.05);position:relative}.coop-top{display:flex;gap:11px;align-items:center;padding-right:58px}.coop-av{width:44px;height:44px;flex:0 0 44px;border-radius:12px;background:linear-gradient(135deg,#00C896,#7B5EA7);display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}.coop-name{font-size:12px;font-weight:800;color:#0D1B2A;line-height:1.35}.coop-inst{font-size:9px;color:#7B5EA7;font-weight:700;margin-top:2px}.coop-status{position:absolute;top:12px;right:11px;font-size:7px;text-transform:uppercase;letter-spacing:.5px;padding:3px 6px;border-radius:99px;background:#eafaf5;color:#08765c;font-weight:800}.coop-status.colaborador{background:#fff5d7;color:#876400}.coop-status.associado{background:#f1eafb;color:#63468b}.coop-status.docente{background:#e8f3ff;color:#1f5d91}.coop-area{margin-top:11px;font-size:10px;color:#475569;line-height:1.55}.coop-area.empty{color:#94A3B8;font-style:italic}.coop-line{margin-top:7px;font-size:9px;color:#64748b;background:#F4F6F9;padding:6px 8px;border-radius:8px;line-height:1.45}.coop-source{display:inline-block;margin-top:10px;font-size:9px;color:#08765c;text-decoration:none;font-weight:700}.coop-source:hover{text-decoration:underline}
- .coop-call{background:linear-gradient(135deg,#eafaf5,#f2eef9);border:1px solid #dce9e4;border-radius:14px;padding:15px;margin:4px 0 14px}.coop-call b{font-size:13px;color:#0D1B2A}.coop-call p{font-size:10px;color:#64748b;line-height:1.55;margin-top:4px}.coop-empty{text-align:center;padding:36px;background:#fff;border-radius:14px;color:#94A3B8;font-size:12px}
- @media(max-width:760px){.coop-tools{grid-template-columns:1fr}.coop-hero h2{font-size:22px}.coop-grid{grid-template-columns:1fr}.coop-card{padding:14px}.coop-hero{padding:20px}.coop-hero:after{font-size:70px}}
- `;
- d.head.appendChild(st);
+function initials(name){return (name||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase()}
+function tokens(s){return [...new Set(norm(s).replace(/[^a-z0-9\s-]/g,' ').split(/\s+/).filter(x=>x.length>2&&!STOP.has(x)))]}
+function expand(ts){const out=new Set(ts);ts.forEach(t=>(RELATED[t]||[]).forEach(x=>out.add(norm(x))));return [...out]}
+function addStyles(d){
+ const st=d.createElement('style');st.id='coopInjectedStyles';st.textContent=`
+ .coop-hero{background:linear-gradient(135deg,#0D1B2A,#17324a 65%,#0b594d);border-radius:20px;padding:25px;color:#fff;margin-bottom:18px;position:relative;overflow:hidden}.coop-hero:after{content:'🤝';position:absolute;right:24px;top:0;font-size:96px;opacity:.07}.coop-kicker{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#00C896;font-weight:700}.coop-hero h2{font-size:27px;margin:7px 0}.coop-hero p{color:#c8d2da;font-size:12px;line-height:1.65;max-width:780px}.coop-metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.coop-metric{background:#ffffff12;border:1px solid #ffffff20;padding:8px 12px;border-radius:10px}.coop-metric b{font-family:'Space Mono',monospace;color:#00C896;font-size:18px}.coop-metric span{font-size:9px;color:#c8d2da;margin-left:5px}
+ .coop-builder{background:#fff;border-radius:16px;box-shadow:0 5px 24px rgba(0,0,0,.06);padding:18px;margin-bottom:17px;border:1px solid #e7edf1}.coop-builder-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.coop-builder-title h3{font-size:16px;color:#0D1B2A}.coop-builder-title span{font-size:9px;color:#64748b}.coop-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.coop-mode{border:2px solid #E2E8F0;background:#fff;border-radius:11px;padding:12px;text-align:left;cursor:pointer;font-family:Sora,sans-serif}.coop-mode:hover{border-color:#00C896}.coop-mode.on{background:#0D1B2A;border-color:#0D1B2A;color:#fff}.coop-mode b{display:block;font-size:11px;margin-bottom:4px}.coop-mode span{display:block;font-size:9px;line-height:1.45;color:#64748b}.coop-mode.on span{color:#b8c6d0}.coop-form{display:grid;grid-template-columns:1fr 1fr;gap:9px}.coop-field.full{grid-column:1/-1}.coop-field label{display:block;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin:0 0 5px}.coop-field input,.coop-field textarea,.coop-field select{width:100%;padding:10px 11px;border:2px solid #E2E8F0;border-radius:10px;font:11px Sora,sans-serif;outline:none;background:#fff;color:#1E293B;box-sizing:border-box}.coop-field textarea{min-height:78px;resize:vertical;line-height:1.5}.coop-field input:focus,.coop-field textarea:focus,.coop-field select:focus{border-color:#00C896}.coop-find{display:flex;gap:8px;align-items:center;margin-top:12px}.coop-find button{border:0;border-radius:10px;background:linear-gradient(135deg,#00C896,#00A87A);color:#fff;font:700 12px Sora,sans-serif;padding:11px 16px;cursor:pointer}.coop-find small{font-size:9px;color:#94A3B8;line-height:1.4}
+ .match-wrap{display:none;margin:0 0 18px}.match-wrap.show{display:block}.match-summary{background:linear-gradient(135deg,#eafaf5,#f3effb);border:1px solid #dbeae5;border-radius:14px;padding:14px;margin-bottom:10px}.match-summary h3{font-size:15px;color:#0D1B2A;margin:0 0 4px}.match-summary p{font-size:10px;color:#64748b;line-height:1.5;margin:0}.match-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:10px}.match-card{background:#fff;border-radius:14px;border:1px solid #e5ebef;padding:14px;position:relative;box-shadow:0 3px 14px rgba(0,0,0,.04)}.match-score{position:absolute;top:11px;right:11px;background:#0D1B2A;color:#00C896;border-radius:9px;padding:5px 7px;font:700 10px 'Space Mono',monospace}.match-name{font-size:12px;font-weight:800;color:#0D1B2A;padding-right:58px;line-height:1.35}.match-inst{font-size:9px;color:#7B5EA7;font-weight:700;margin:3px 0 8px}.match-area{font-size:10px;color:#475569;line-height:1.5}.match-why{margin-top:8px;padding-top:8px;border-top:1px solid #edf1f3;font-size:9px;color:#64748b;line-height:1.45}.match-why b{color:#08765c}.match-pick{margin-top:9px;border:1px solid #d8e3e7;background:#fff;border-radius:8px;padding:6px 9px;font:700 9px Sora,sans-serif;cursor:pointer;color:#0D1B2A}.match-pick.on{background:#eafaf5;border-color:#00C896;color:#08765c}.team-box{margin-top:11px;background:#0D1B2A;color:#fff;border-radius:14px;padding:14px;display:none}.team-box.show{display:block}.team-box h4{font-size:13px;margin:0 0 7px}.team-chips{display:flex;gap:6px;flex-wrap:wrap}.team-chip{background:#ffffff12;border:1px solid #ffffff20;border-radius:999px;padding:5px 8px;font-size:9px}.team-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}.team-actions button{border:0;border-radius:8px;padding:8px 10px;font:700 9px Sora,sans-serif;cursor:pointer}.team-actions .primary{background:#00C896;color:#073d31}.team-actions .secondary{background:#fff;color:#0D1B2A}
+ .coop-tools{display:grid;grid-template-columns:1.5fr .8fr .7fr;gap:9px;margin:14px 0}.coop-tools input,.coop-tools select{width:100%;padding:11px 12px;border:2px solid #E2E8F0;background:#fff;border-radius:10px;font-family:Sora,sans-serif;font-size:12px;outline:none;color:#1E293B}.coop-tools input:focus,.coop-tools select:focus{border-color:#00C896}.coop-programs{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 15px}.coop-prog{background:#fff;border:1px solid #E2E8F0;border-radius:999px;padding:6px 10px;font-size:9px;font-weight:700;cursor:pointer;color:#475569}.coop-prog:hover{border-color:#00C896}.coop-prog b{color:#7B5EA7}.coop-prog.active{background:#0D1B2A;color:#fff;border-color:#0D1B2A}.coop-prog.active b{color:#00C896}.coop-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:18px 0 11px}.coop-head h3{font-size:17px;color:#0D1B2A}.coop-count{font-size:10px;color:#94A3B8}.coop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}.coop-card{background:#fff;border:1px solid #e8edf2;border-radius:14px;padding:15px;box-shadow:0 3px 16px rgba(0,0,0,.05);position:relative}.coop-top{display:flex;gap:11px;align-items:center;padding-right:58px}.coop-av{width:44px;height:44px;flex:0 0 44px;border-radius:12px;background:linear-gradient(135deg,#00C896,#7B5EA7);display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px}.coop-name{font-size:12px;font-weight:800;color:#0D1B2A;line-height:1.35}.coop-inst{font-size:9px;color:#7B5EA7;font-weight:700;margin-top:2px}.coop-status{position:absolute;top:12px;right:11px;font-size:7px;text-transform:uppercase;letter-spacing:.5px;padding:3px 6px;border-radius:99px;background:#eafaf5;color:#08765c;font-weight:800}.coop-status.colaborador{background:#fff5d7;color:#876400}.coop-status.associado{background:#f1eafb;color:#63468b}.coop-status.docente{background:#e8f3ff;color:#1f5d91}.coop-area{margin-top:11px;font-size:10px;color:#475569;line-height:1.55}.coop-area.empty{color:#94A3B8;font-style:italic}.coop-line{margin-top:7px;font-size:9px;color:#64748b;background:#F4F6F9;padding:6px 8px;border-radius:8px;line-height:1.45}.coop-source{display:inline-block;margin-top:10px;font-size:9px;color:#08765c;text-decoration:none;font-weight:700}.coop-empty{text-align:center;padding:36px;background:#fff;border-radius:14px;color:#94A3B8;font-size:12px}
+ @media(max-width:760px){.coop-modes,.coop-form,.coop-tools{grid-template-columns:1fr}.coop-hero h2{font-size:22px}.coop-grid,.match-list{grid-template-columns:1fr}.coop-card{padding:14px}.coop-hero{padding:20px}.coop-hero:after{font-size:70px}.coop-field.full{grid-column:auto}.coop-find{align-items:flex-start;flex-direction:column}}
+ `;d.head.appendChild(st)
 }
-function addCoopUI(w,d){
- if(d.getElementById('tab-cooperation')) return;
- const nav=d.getElementById('mainNav');
- if(nav){
-   const b=d.createElement('button'); b.className='nb'; b.dataset.tab='cooperation'; b.textContent='🤝 Cooperação';
-   const score=nav.querySelector('[data-tab="scoreboard"]'); nav.insertBefore(b,score||null);
-   b.addEventListener('click',()=>{w.switchTab('cooperation');loadCoop(w,d)});
- }
- const mm=d.querySelector('.mm-inner');
- if(mm){
-   const b=d.createElement('button'); b.className='mm-btn'; b.dataset.tab='cooperation'; b.textContent='🤝 Cooperação';
-   const score=mm.querySelector('[data-tab="scoreboard"]'); mm.insertBefore(b,score||null);
-   b.addEventListener('click',()=>{w.switchTab('cooperation');loadCoop(w,d)});
- }
- const sec=d.createElement('section'); sec.id='tab-cooperation'; sec.className='tab';
- sec.innerHTML=`
- <div class="coop-hero">
-   <div class="coop-kicker">BANCO REAL DE COMPETÊNCIAS • CLUSTER 7</div>
-   <h2>Encontre quem pode colaborar com a sua pesquisa.</h2>
-   <p>Docentes dos programas parceiros, com vínculo e competências rastreados em fontes oficiais. Busque por tema, método, nome ou programa para localizar possíveis coorientações, bancas, projetos e outras conexões.</p>
-   <div class="coop-metrics"><div class="coop-metric"><b id="coopTotal">—</b><span>registros docentes</span></div><div class="coop-metric"><b id="coopPPGs">—</b><span>PPGs</span></div><div class="coop-metric"><b id="coopAreas">—</b><span>perfis já enriquecidos</span></div></div>
- </div>
- <div class="coop-call"><b>🧩 Quero montar uma cooperação</b><p>Digite abaixo o que você precisa — por exemplo: <i>climatologia urbana</i>, <i>peixes</i>, <i>justiça climática</i>, <i>bioestatística</i>, <i>qualidade da água</i> ou o nome de um docente. O banco filtra os potenciais parceiros.</p></div>
- <div class="coop-tools">
-   <input id="coopSearch" placeholder="🔎 O que você precisa? Tema, método ou docente...">
-   <select id="coopProgram"><option value="">Todos os PPGs</option></select>
-   <select id="coopStatus"><option value="">Todos os vínculos</option><option value="permanente">Permanente</option><option value="docente">Docente</option><option value="colaborador">Colaborador</option><option value="associado">Associado</option></select>
- </div>
- <div id="coopPrograms" class="coop-programs"></div>
- <div class="coop-head"><h3>Docentes e competências</h3><div class="coop-count" id="coopCount"></div></div>
- <div class="coop-grid" id="coopGrid"><div class="coop-empty">Carregando banco de docentes...</div></div>`;
+function addUI(w,d){
+ if(d.getElementById('tab-cooperation'))return;
+ const nav=d.getElementById('mainNav');if(nav){const b=d.createElement('button');b.className='nb';b.dataset.tab='cooperation';b.textContent='🤝 Cooperação';const s=nav.querySelector('[data-tab="scoreboard"]');nav.insertBefore(b,s||null);b.onclick=()=>{w.switchTab('cooperation');loadCoop(w,d)}}
+ const mm=d.querySelector('.mm-inner');if(mm){const b=d.createElement('button');b.className='mm-btn';b.dataset.tab='cooperation';b.textContent='🤝 Cooperação';const s=mm.querySelector('[data-tab="scoreboard"]');mm.insertBefore(b,s||null);b.onclick=()=>{w.switchTab('cooperation');loadCoop(w,d)}}
+ const sec=d.createElement('section');sec.id='tab-cooperation';sec.className='tab';sec.innerHTML=`
+ <div class="coop-hero"><div class="coop-kicker">BANCO REAL DE COMPETÊNCIAS • CLUSTER 7</div><h2>Do banco de docentes para uma cooperação concreta.</h2><p>Descreva o problema, o que sua equipe já domina e o que precisa fortalecer. O sistema procura competências documentadas nos PPGs parceiros, prioriza complementaridade e monta uma equipe sugerida.</p><div class="coop-metrics"><div class="coop-metric"><b id="coopTotal">—</b><span>registros docentes</span></div><div class="coop-metric"><b id="coopPPGs">—</b><span>PPGs</span></div><div class="coop-metric"><b id="coopAreas">—</b><span>perfis enriquecidos</span></div></div></div>
+ <div class="coop-builder"><div class="coop-builder-title"><h3>🧩 Montar uma cooperação</h3><span>O score indica aderência textual às competências documentadas; não significa disponibilidade do docente.</span></div>
+ <div class="coop-modes"><button class="coop-mode on" data-mode="research"><b>🔬 Tenho uma pesquisa</b><span>Cole a ideia, resumo ou problema científico.</span></button><button class="coop-mode" data-mode="person"><b>🎯 Preciso de alguém que…</b><span>Procure uma competência ou método específico.</span></button><button class="coop-mode" data-mode="action"><b>🚀 Quero criar uma ação</b><span>Monte equipe para artigo, projeto, disciplina ou coorientação.</span></button></div>
+ <div class="coop-form"><div class="coop-field full"><label id="coopBriefLabel">Projeto / problema científico</label><textarea id="coopBrief" placeholder="Ex.: Quero estudar calor, qualidade do ar e saúde no Pantanal usando séries climáticas e MP2,5..."></textarea></div><div class="coop-field"><label>O que meu grupo já tem / domina</label><input id="coopHave" placeholder="Ex.: clima, estatística, dados de MP2,5"></div><div class="coop-field"><label>O que preciso fortalecer</label><input id="coopNeed" placeholder="Ex.: dispersão de poluentes, saúde ambiental, redes neurais"></div><div class="coop-field"><label>Meu PPG de origem (opcional)</label><select id="coopOrigin"><option value="">Não informar</option></select></div><div class="coop-field"><label>Tipo de cooperação</label><select id="coopAction"><option value="coorientacao">Coorientação</option><option value="projeto">Projeto multicêntrico / edital</option><option value="artigo">Artigo / revisão em rede</option><option value="banca">Banca / qualificação</option><option value="disciplina">Disciplina compartilhada</option><option value="mobilidade">Mobilidade / missão / visitante</option><option value="dados">Dados / infraestrutura / campo</option></select></div></div>
+ <div class="coop-find"><button id="coopFindBtn">Encontrar parceiros</button><small>O motor usa somente competências e linhas registradas no banco. Perfis ainda sem área detalhada não são forçados no ranking.</small></div></div>
+ <div id="matchWrap" class="match-wrap"><div id="matchSummary" class="match-summary"></div><div id="matchList" class="match-list"></div><div id="teamBox" class="team-box"><h4>Equipe sugerida</h4><div id="teamChips" class="team-chips"></div><div class="team-actions"><button class="primary" id="createProposalBtn">🚀 Criar proposta no Cluster</button><button class="secondary" id="clearTeamBtn">Limpar seleção</button></div></div></div>
+ <div class="coop-head"><h3>Banco de docentes e competências</h3><div class="coop-count" id="coopCount"></div></div><div class="coop-tools"><input id="coopSearch" placeholder="🔎 Buscar docente, tema, método ou linha..."><select id="coopProgram"><option value="">Todos os PPGs</option></select><select id="coopStatus"><option value="">Todos os vínculos</option><option value="permanente">Permanente</option><option value="docente">Docente</option><option value="colaborador">Colaborador</option><option value="associado">Associado</option></select></div><div id="coopPrograms" class="coop-programs"></div><div id="coopGrid" class="coop-grid"><div class="coop-empty">Carregando banco de docentes...</div></div>`;
  d.querySelector('main').appendChild(sec);
- sec.querySelector('#coopSearch').addEventListener('input',()=>renderCoop(d));
- sec.querySelector('#coopProgram').addEventListener('change',()=>renderCoop(d));
- sec.querySelector('#coopStatus').addEventListener('change',()=>renderCoop(d));
+ sec.querySelectorAll('.coop-mode').forEach(b=>b.onclick=()=>setMode(d,b.dataset.mode));
+ d.getElementById('coopFindBtn').onclick=()=>runMatch(w,d);
+ d.getElementById('coopSearch').oninput=()=>renderBank(d);d.getElementById('coopProgram').onchange=()=>renderBank(d);d.getElementById('coopStatus').onchange=()=>renderBank(d);
+ d.getElementById('createProposalBtn').onclick=()=>createProposal(w,d);d.getElementById('clearTeamBtn').onclick=()=>{coopTeam=[];renderTeam(d);renderMatches(d)};
 }
-async function loadCoop(w,d){
- try{
-   if(!coopData){const r=await fetch('dados/docentes_base_2026.json?ts='+Date.now(),{cache:'no-store'}); if(!r.ok)throw new Error('Falha ao carregar banco'); coopData=await r.json(); buildPeople(); setupProgramFilters(d)}
-   renderCoop(d);
- }catch(e){const g=d.getElementById('coopGrid');if(g)g.innerHTML='<div class="coop-empty">Não foi possível carregar o banco agora.</div>';console.error(e)}
-}
-function buildPeople(){
- coopPeople=[];
- (coopData.programas||[]).forEach(p=>(p.docentes||[]).forEach(x=>coopPeople.push({name:x[0]||'',status:x[1]||'docente',area:x[2]||'',linha:x[3]||'',ppg:p.ppg,ies:p.ies,fonte:p.fonte||'',fonte_url:p.fonte_url||''})));
-}
-function setupProgramFilters(d){
- const sel=d.getElementById('coopProgram'), chips=d.getElementById('coopPrograms'); if(!sel||!chips)return;
- const ps=(coopData.programas||[]).map(p=>({key:p.ppg+'|'+p.ies,label:p.ppg+' • '+p.ies,n:(p.docentes||[]).length}));
- sel.innerHTML='<option value="">Todos os PPGs</option>'+ps.map(p=>`<option value="${esc(p.key)}">${esc(p.label)} (${p.n})</option>`).join('');
- chips.innerHTML='<button class="coop-prog active" data-p="">TODOS <b>'+coopPeople.length+'</b></button>'+ps.map(p=>`<button class="coop-prog" data-p="${esc(p.key)}">${esc(p.label)} <b>${p.n}</b></button>`).join('');
- chips.querySelectorAll('.coop-prog').forEach(b=>b.addEventListener('click',()=>{sel.value=b.dataset.p;renderCoop(d)}));
- const enriched=coopPeople.filter(x=>x.area).length;
- d.getElementById('coopTotal').textContent=coopPeople.length;
- d.getElementById('coopPPGs').textContent=ps.length;
- d.getElementById('coopAreas').textContent=enriched;
-}
-function renderCoop(d){
- if(!coopData)return;
- const q=norm(d.getElementById('coopSearch')?.value), pk=d.getElementById('coopProgram')?.value||'', st=d.getElementById('coopStatus')?.value||'';
- d.querySelectorAll('.coop-prog').forEach(b=>b.classList.toggle('active',b.dataset.p===pk));
- const rows=coopPeople.filter(x=>{
-   if(pk && x.ppg+'|'+x.ies!==pk)return false;
-   if(st && x.status!==st)return false;
-   if(q){const hay=norm([x.name,x.ppg,x.ies,x.status,x.area,x.linha].join(' '));if(!hay.includes(q))return false;}
-   return true;
- });
- d.getElementById('coopCount').textContent=rows.length+' resultado'+(rows.length===1?'':'s');
- const grid=d.getElementById('coopGrid');
- if(!rows.length){grid.innerHTML='<div class="coop-empty">Nenhum docente encontrado com esses filtros. Tente outro termo.</div>';return;}
- grid.innerHTML=rows.map(x=>`<article class="coop-card"><span class="coop-status ${esc(x.status)}">${esc(x.status)}</span><div class="coop-top"><div class="coop-av">${esc(initials(x.name))}</div><div><div class="coop-name">${esc(x.name)}</div><div class="coop-inst">${esc(x.ppg)} • ${esc(x.ies)}</div></div></div>${x.area?`<div class="coop-area">${esc(x.area)}</div>`:`<div class="coop-area empty">Competências individuais em enriquecimento — nome e vínculo já validados.</div>`}${x.linha?`<div class="coop-line"><b>Linha:</b> ${esc(x.linha)}</div>`:''}${x.fonte_url?`<a class="coop-source" href="${esc(x.fonte_url)}" target="_blank" rel="noopener">↗ fonte oficial</a>`:''}</article>`).join('');
-}
-function inject(){
- try{
-   const w=frame.contentWindow,d=frame.contentDocument;
-   if(!d||!d.head||!d.body)return;
-   if(!d.getElementById('coopInjectedStyles'))addCoopStyles(d);
-   addCoopUI(w,d);
- }catch(e){console.error('Falha ao integrar Cooperação',e)}
-}
-frame.addEventListener('load',()=>{setTimeout(inject,150)});
+function setMode(d,m){coopMode=m;d.querySelectorAll('.coop-mode').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));const L=d.getElementById('coopBriefLabel'),B=d.getElementById('coopBrief');if(m==='research'){L.textContent='Projeto / problema científico';B.placeholder='Ex.: Quero estudar calor, qualidade do ar e saúde no Pantanal usando séries climáticas e MP2,5...'}else if(m==='person'){L.textContent='Descreva quem você precisa';B.placeholder='Ex.: Preciso de alguém que trabalhe com microplásticos em água e análise de contaminantes...'}else{L.textContent='Ação que você quer montar';B.placeholder='Ex.: Quero montar um artigo comparando qualidade da água em diferentes regiões do Brasil...'}}
+async function loadCoop(w,d){try{if(!coopData){const r=await fetch('dados/docentes_base_2026.json?ts='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('banco');coopData=await r.json();buildPeople();setupFilters(d)}renderBank(d)}catch(e){d.getElementById('coopGrid').innerHTML='<div class="coop-empty">Não foi possível carregar o banco.</div>'}}
+function buildPeople(){coopPeople=[];(coopData.programas||[]).forEach(p=>(p.docentes||[]).forEach(x=>coopPeople.push({name:x[0]||'',status:x[1]||'docente',area:x[2]||'',linha:x[3]||'',ppg:p.ppg,ies:p.ies,fonte:p.fonte||'',fonte_url:p.fonte_url||''})))}
+function setupFilters(d){const ps=(coopData.programas||[]).map(p=>({key:p.ppg+'|'+p.ies,label:p.ppg+' • '+p.ies,n:(p.docentes||[]).length}));const sel=d.getElementById('coopProgram'),org=d.getElementById('coopOrigin'),chips=d.getElementById('coopPrograms');sel.innerHTML='<option value="">Todos os PPGs</option>'+ps.map(p=>`<option value="${esc(p.key)}">${esc(p.label)} (${p.n})</option>`).join('');org.innerHTML='<option value="">Não informar</option>'+ps.map(p=>`<option value="${esc(p.key)}">${esc(p.label)}</option>`).join('');chips.innerHTML='<button class="coop-prog active" data-p="">TODOS <b>'+coopPeople.length+'</b></button>'+ps.map(p=>`<button class="coop-prog" data-p="${esc(p.key)}">${esc(p.label)} <b>${p.n}</b></button>`).join('');chips.querySelectorAll('.coop-prog').forEach(b=>b.onclick=()=>{sel.value=b.dataset.p;renderBank(d)});d.getElementById('coopTotal').textContent=coopPeople.length;d.getElementById('coopPPGs').textContent=ps.length;d.getElementById('coopAreas').textContent=coopPeople.filter(x=>x.area).length}
+function renderBank(d){if(!coopData)return;const q=norm(d.getElementById('coopSearch').value),pk=d.getElementById('coopProgram').value,st=d.getElementById('coopStatus').value;d.querySelectorAll('.coop-prog').forEach(b=>b.classList.toggle('active',b.dataset.p===pk));const rows=coopPeople.filter(x=>(!pk||x.ppg+'|'+x.ies===pk)&&(!st||x.status===st)&&(!q||norm([x.name,x.ppg,x.ies,x.status,x.area,x.linha].join(' ')).includes(q)));d.getElementById('coopCount').textContent=rows.length+' resultado'+(rows.length===1?'':'s');const g=d.getElementById('coopGrid');if(!rows.length){g.innerHTML='<div class="coop-empty">Nenhum docente encontrado.</div>';return}g.innerHTML=rows.map(x=>`<article class="coop-card"><span class="coop-status ${esc(x.status)}">${esc(x.status)}</span><div class="coop-top"><div class="coop-av">${esc(initials(x.name))}</div><div><div class="coop-name">${esc(x.name)}</div><div class="coop-inst">${esc(x.ppg)} • ${esc(x.ies)}</div></div></div>${x.area?`<div class="coop-area">${esc(x.area)}</div>`:`<div class="coop-area empty">Competências individuais ainda em enriquecimento — nome e vínculo já validados.</div>`}${x.linha?`<div class="coop-line"><b>Linha:</b> ${esc(x.linha)}</div>`:''}${x.fonte_url?`<a class="coop-source" href="${esc(x.fonte_url)}" target="_blank" rel="noopener">↗ fonte oficial</a>`:''}</article>`).join('')}
+function scorePerson(p,needTs,briefTs,haveTs,origin){if(!p.area&&!p.linha)return null;const area=norm(p.area),line=norm(p.linha),hay=area+' '+line,why=[];let s=0;const all=expand([...needTs,...briefTs]);all.forEach(t=>{if(!t)return;if(area.includes(t)){s+=needTs.includes(t)?15:9;why.push(t)}else if(line.includes(t)){s+=needTs.includes(t)?10:6;why.push(t)}});haveTs.forEach(t=>{if(hay.includes(t)&&!needTs.includes(t))s-=2});if(origin&&origin!==p.ppg+'|'+p.ies)s+=8;if(p.status==='permanente')s+=2;if(s<=0)return null;return {p,score:s,why:[...new Set(why)].slice(0,5)}}
+function runMatch(w,d){if(!coopData){loadCoop(w,d).then(()=>runMatch(w,d));return}const brief=d.getElementById('coopBrief').value.trim(),have=d.getElementById('coopHave').value.trim(),need=d.getElementById('coopNeed').value.trim(),origin=d.getElementById('coopOrigin').value;if(!brief&&!need){w.toast&&w.toast('Descreva o problema ou o que você precisa.');return}const briefTs=tokens(brief),needTs=tokens(need),haveTs=tokens(have);let scored=coopPeople.map(p=>scorePerson(p,needTs,briefTs,haveTs,origin)).filter(Boolean).sort((a,b)=>b.score-a.score);if(!scored.length){d.getElementById('matchWrap').classList.add('show');d.getElementById('matchSummary').innerHTML='<h3>Nenhum match forte ainda</h3><p>O banco encontrou poucos perfis com competências detalhadas para esse pedido. Isso não significa que o Cluster não tenha especialistas; significa que esses perfis ainda precisam ser enriquecidos.</p>';d.getElementById('matchList').innerHTML='';coopMatches=[];coopTeam=[];renderTeam(d);return}const max=scored[0].score;coopMatches=scored.slice(0,12).map((x,i)=>({...x,display:Math.max(35,Math.min(98,Math.round(58+40*x.score/max-i*.8)))}));coopTeam=[];const used=new Set();for(const m of coopMatches){const k=m.p.ppg+'|'+m.p.ies;if(!used.has(k)&&coopTeam.length<4){coopTeam.push(m.p.name);used.add(k)}}renderMatches(d);renderTeam(d);const label=actionLabel(d.getElementById('coopAction').value);d.getElementById('matchWrap').classList.add('show');d.getElementById('matchSummary').innerHTML=`<h3>${coopMatches.length} parceiros potenciais • ${esc(label)}</h3><p>O ranking priorizou competências que aparecem no seu pedido e deu bônus para complementaridade entre PPGs quando você informou a origem. A equipe inicial tenta distribuir os nomes entre programas diferentes.</p>`;d.getElementById('matchWrap').scrollIntoView({behavior:'smooth',block:'start'})}
+function renderMatches(d){const el=d.getElementById('matchList');el.innerHTML=coopMatches.map(m=>{const on=coopTeam.includes(m.p.name),why=m.why.length?m.why.join(' • '):'aderência ao conjunto do pedido';return `<article class="match-card"><div class="match-score">${m.display}/100</div><div class="match-name">${esc(m.p.name)}</div><div class="match-inst">${esc(m.p.ppg)} • ${esc(m.p.ies)}</div><div class="match-area">${esc(m.p.area||m.p.linha)}</div><div class="match-why"><b>Por que entrou:</b> ${esc(why)}<br><b>Papel potencial:</b> ${esc(roleFor(m))}</div><button class="match-pick ${on?'on':''}" data-name="${esc(m.p.name)}">${on?'✓ Na equipe':'+ Adicionar à equipe'}</button></article>`}).join('');el.querySelectorAll('.match-pick').forEach(b=>b.onclick=()=>{const n=b.dataset.name;coopTeam=coopTeam.includes(n)?coopTeam.filter(x=>x!==n):[...coopTeam,n];renderMatches(d);renderTeam(d)})}
+function roleFor(m){const w=m.why.slice(0,2).join(' + ');return w?'especialista em '+w:'especialista complementar ao tema'}
+function renderTeam(d){const box=d.getElementById('teamBox'),chips=d.getElementById('teamChips');if(!coopTeam.length){box.classList.remove('show');chips.innerHTML='';return}box.classList.add('show');chips.innerHTML=coopTeam.map(n=>{const p=coopPeople.find(x=>x.name===n);return `<span class="team-chip">${esc(n)} • ${esc(p?.ies||'')}</span>`}).join('')}
+function actionLabel(v){return {coorientacao:'Coorientação',projeto:'Projeto multicêntrico / edital',artigo:'Artigo / revisão em rede',banca:'Banca / qualificação',disciplina:'Disciplina compartilhada',mobilidade:'Mobilidade / missão / visitante',dados:'Dados / infraestrutura / campo'}[v]||'Cooperação'}
+function createProposal(w,d){if(!coopTeam.length){w.toast&&w.toast('Selecione pelo menos um parceiro.');return}const action=d.getElementById('coopAction').value,label=actionLabel(action),brief=d.getElementById('coopBrief').value.trim(),need=d.getElementById('coopNeed').value.trim(),have=d.getElementById('coopHave').value.trim();const team=coopTeam.map(n=>{const p=coopPeople.find(x=>x.name===n);return '- '+n+' ('+(p?.ppg||'')+' / '+(p?.ies||'')+') — '+(p?.area||p?.linha||'perfil em enriquecimento')}).join('\n');const desc=`Objetivo / problema:\n${brief||need}\n\nO que o grupo já tem:\n${have||'Não informado'}\n\nO que precisa fortalecer:\n${need||'Não informado'}\n\nEquipe sugerida pelo banco do Cluster 7:\n${team}\n\nAção proposta: ${label}.\n\nObservação: a sugestão é baseada em competências documentadas no banco e não confirma disponibilidade dos docentes.`;const type={artigo:'artigo',projeto:'edital',disciplina:'curso',mobilidade:'visita'}[action]||'outro';w.switchTab('proposals');w.resetModalToNew&&w.resetModalToNew('proposals');d.getElementById('prTitle').value='Cooperação Cluster 7 — '+label;d.getElementById('prType').value=type;d.getElementById('prDesc').value=desc;d.getElementById('prDeadline').value='';w.openM('mProposal');w.toast&&w.toast('Proposta preenchida. Revise e publique! 🚀')}
+function inject(){try{const w=frame.contentWindow,d=frame.contentDocument;if(!d||!d.head||!d.body)return;if(!d.getElementById('coopInjectedStyles'))addStyles(d);addUI(w,d)}catch(e){console.error('Falha ao integrar Cooperação',e)}}
+frame.addEventListener('load',()=>setTimeout(inject,150));
 </script>
 </body>
 </html>
