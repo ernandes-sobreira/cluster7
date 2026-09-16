@@ -279,7 +279,13 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 .ods-why strong{font-size:9px;letter-spacing:.8px;color:#FFD166;margin-bottom:6px}.ods-why span{font-size:11px;font-weight:700;line-height:1.45}
 .ods-card.topizera:hover .ods-why,.ods-card.topizera:focus .ods-why,.ods-card.topizera:focus-within .ods-why{opacity:1;transform:translateY(0)}
 .ods-card.topizera:focus{outline:5px solid #FFD166;outline-offset:3px}
+.pitch-shell{background:#0D1B2A;border-radius:18px;padding:16px;box-shadow:0 18px 48px rgba(13,27,42,.22)}
+.pitch-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;color:#fff}
+.pitch-actions p{font-size:12px;color:rgba(255,255,255,.68)}
+.pitch-links{display:flex;gap:8px;flex-wrap:wrap}.pitch-link{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;font-size:11px;font-weight:800}.pitch-link.alt{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2)}
+.pitch-frame{width:100%;height:min(72vh,760px);min-height:520px;border:0;border-radius:12px;background:#fff;display:block}
 @media(max-width:760px){.ods-grid{grid-template-columns:repeat(2,1fr)}.ods-card{min-height:120px}.ods-intro{padding:20px}.map-program-label{font-size:9px!important;max-width:150px;white-space:normal!important}}
+@media(max-width:760px){.pitch-shell{padding:9px}.pitch-frame{height:68vh;min-height:430px}.pitch-actions{align-items:flex-start}.pitch-links{width:100%}.pitch-link{flex:1;justify-content:center}}
 
 .plink{background:#fff;border-radius:13px;box-shadow:var(--shadow);overflow:hidden;animation:up .4s ease;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease;will-change:transform}
 .plink:hover{transform:translateY(-30px) scale(1.055);box-shadow:0 32px 64px rgba(13,27,42,.24)}
@@ -439,6 +445,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <button class="nb" data-tab="network">🕸 Rede</button>
     <button class="nb" data-tab="mapa">🗺 Mapa</button>
     <button class="nb" data-tab="ods">🌍 ODS</button>
+    <button class="nb" data-tab="pitch">🎤 Pitch</button>
     <button class="nb" data-tab="agenda">📅 Agenda</button>
     <button class="nb" data-tab="padlet">🎨 Mural</button>
     <button class="nb" data-tab="activities">📌 Atividades</button>
@@ -465,6 +472,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <button class="mm-btn" data-tab="network">🕸 Rede</button>
     <button class="mm-btn" data-tab="mapa">🗺 Mapa</button>
     <button class="mm-btn" data-tab="ods">🌍 ODS</button>
+    <button class="mm-btn" data-tab="pitch">🎤 Apresentação</button>
     <button class="mm-btn" data-tab="agenda">📅 Agenda</button>
     <button class="mm-btn" data-tab="padlet">🎨 Mural</button>
     <button class="mm-btn" data-tab="activities">📌 Atividades</button>
@@ -547,6 +555,19 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
       <article class="ods-card topizera" style="--ods:#56C02B" data-number="15" tabindex="0"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">15</div><div class="ods-name">Vida terrestre</div><div class="ods-why"><strong>POR QUE SOMOS FORTES?</strong><span>Conservação, biodiversidade e manejo de ecossistemas estão no centro dos PPGs.</span></div></article>
       <article class="ods-card" style="--ods:#00689D" data-number="16"><div class="ods-num">16</div><div class="ods-name">Paz, justiça e instituições eficazes</div></article>
       <article class="ods-card topizera" style="--ods:#19486A" data-number="17" tabindex="0"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">17</div><div class="ods-name">Parcerias e meios de implementação</div><div class="ods-why"><strong>POR QUE SOMOS FORTES?</strong><span>Dez PPGs conectados, com mobilidade, redes e cooperação internacional.</span></div></article>
+    </div>
+  </section>
+  <section id="tab-pitch" class="tab">
+    <div class="shdr"><h1>Apresentação do Cluster 7</h1></div>
+    <div class="pitch-shell">
+      <div class="pitch-actions">
+        <p>Pitch de internacionalização, ODS e evidências do Cluster 7</p>
+        <div class="pitch-links">
+          <a class="pitch-link alt" href="cluster7-pitch-ods.pptx" target="_blank" rel="noopener">↗ Abrir</a>
+          <a class="pitch-link" href="cluster7-pitch-ods.pptx" download>⬇ Baixar PowerPoint</a>
+        </div>
+      </div>
+      <iframe class="pitch-frame" loading="lazy" title="Apresentação do Cluster 7" src="https://view.officeapps.live.com/op/embed.aspx?src=https%3A%2F%2Fernandes-sobreira.github.io%2Fcluster7%2Fcluster7-pitch-ods.pptx"></iframe>
     </div>
   </section>
   <section id="tab-agenda" class="tab">
