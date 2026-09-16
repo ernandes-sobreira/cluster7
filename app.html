@@ -275,6 +275,10 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 .ods-card.topizera{transform:translateY(-5px);filter:saturate(1.12) brightness(1.04);outline:4px solid #FFD166;box-shadow:0 15px 34px color-mix(in srgb,var(--ods) 45%,transparent)}
 .ods-card.topizera:hover{transform:translateY(-18px) scale(1.06)}
 .ods-num{font-family:'Space Mono',monospace;font-size:28px;font-weight:800;line-height:1}.ods-name{font-size:12px;font-weight:800;line-height:1.35;margin-top:8px;max-width:115px}.ods-star{position:absolute;top:9px;right:9px;background:#FFD166;color:#0D1B2A;border-radius:999px;padding:4px 7px;font-size:9px;font-weight:900;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+.ods-why{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;justify-content:center;padding:15px;background:rgba(13,27,42,.94);color:#fff;opacity:0;transform:translateY(10px);transition:opacity .22s ease,transform .22s ease;pointer-events:none}
+.ods-why strong{font-size:9px;letter-spacing:.8px;color:#FFD166;margin-bottom:6px}.ods-why span{font-size:11px;font-weight:700;line-height:1.45}
+.ods-card.topizera:hover .ods-why,.ods-card.topizera:focus .ods-why,.ods-card.topizera:focus-within .ods-why{opacity:1;transform:translateY(0)}
+.ods-card.topizera:focus{outline:5px solid #FFD166;outline-offset:3px}
 @media(max-width:760px){.ods-grid{grid-template-columns:repeat(2,1fr)}.ods-card{min-height:120px}.ods-intro{padding:20px}.map-program-label{font-size:9px!important;max-width:150px;white-space:normal!important}}
 
 .plink{background:#fff;border-radius:13px;box-shadow:var(--shadow);overflow:hidden;animation:up .4s ease;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease;will-change:transform}
@@ -531,18 +535,18 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
       <article class="ods-card" style="--ods:#4C9F38" data-number="3"><div class="ods-num">03</div><div class="ods-name">Saúde e bem-estar</div></article>
       <article class="ods-card" style="--ods:#C5192D" data-number="4"><div class="ods-num">04</div><div class="ods-name">Educação de qualidade</div></article>
       <article class="ods-card" style="--ods:#FF3A21" data-number="5"><div class="ods-num">05</div><div class="ods-name">Igualdade de gênero</div></article>
-      <article class="ods-card topizera" style="--ods:#26BDE2" data-number="6"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">06</div><div class="ods-name">Água potável e saneamento</div></article>
+      <article class="ods-card topizera" style="--ods:#26BDE2" data-number="6" tabindex="0"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">06</div><div class="ods-name">Água potável e saneamento</div><div class="ods-why"><strong>POR QUE SOMOS FORTES?</strong><span>Pesquisa em água, recursos hídricos, qualidade ambiental e saneamento.</span></div></article>
       <article class="ods-card" style="--ods:#FCC30B;color:#0D1B2A" data-number="7"><div class="ods-num">07</div><div class="ods-name">Energia limpa e acessível</div></article>
       <article class="ods-card" style="--ods:#A21942" data-number="8"><div class="ods-num">08</div><div class="ods-name">Trabalho decente e crescimento econômico</div></article>
       <article class="ods-card" style="--ods:#FD6925" data-number="9"><div class="ods-num">09</div><div class="ods-name">Indústria, inovação e infraestrutura</div></article>
       <article class="ods-card" style="--ods:#DD1367" data-number="10"><div class="ods-num">10</div><div class="ods-name">Redução das desigualdades</div></article>
       <article class="ods-card" style="--ods:#FD9D24;color:#0D1B2A" data-number="11"><div class="ods-num">11</div><div class="ods-name">Cidades e comunidades sustentáveis</div></article>
       <article class="ods-card" style="--ods:#BF8B2E" data-number="12"><div class="ods-num">12</div><div class="ods-name">Consumo e produção responsáveis</div></article>
-      <article class="ods-card topizera" style="--ods:#3F7E44" data-number="13"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">13</div><div class="ods-name">Ação contra a mudança global do clima</div></article>
+      <article class="ods-card topizera" style="--ods:#3F7E44" data-number="13" tabindex="0"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">13</div><div class="ods-name">Ação contra a mudança global do clima</div><div class="ods-why"><strong>POR QUE SOMOS FORTES?</strong><span>Estudos sobre clima, emissões, incêndios e adaptação nos biomas brasileiros.</span></div></article>
       <article class="ods-card" style="--ods:#0A97D9" data-number="14"><div class="ods-num">14</div><div class="ods-name">Vida na água</div></article>
-      <article class="ods-card topizera" style="--ods:#56C02B" data-number="15"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">15</div><div class="ods-name">Vida terrestre</div></article>
+      <article class="ods-card topizera" style="--ods:#56C02B" data-number="15" tabindex="0"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">15</div><div class="ods-name">Vida terrestre</div><div class="ods-why"><strong>POR QUE SOMOS FORTES?</strong><span>Conservação, biodiversidade e manejo de ecossistemas estão no centro dos PPGs.</span></div></article>
       <article class="ods-card" style="--ods:#00689D" data-number="16"><div class="ods-num">16</div><div class="ods-name">Paz, justiça e instituições eficazes</div></article>
-      <article class="ods-card topizera" style="--ods:#19486A" data-number="17"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">17</div><div class="ods-name">Parcerias e meios de implementação</div></article>
+      <article class="ods-card topizera" style="--ods:#19486A" data-number="17" tabindex="0"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">17</div><div class="ods-name">Parcerias e meios de implementação</div><div class="ods-why"><strong>POR QUE SOMOS FORTES?</strong><span>Dez PPGs conectados, com mobilidade, redes e cooperação internacional.</span></div></article>
     </div>
   </section>
   <section id="tab-agenda" class="tab">
