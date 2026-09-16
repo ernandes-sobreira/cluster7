@@ -260,6 +260,22 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 .map-label{background:rgba(13,27,42,.85)!important;color:#fff!important;border:none!important;border-radius:6px!important;font-family:'Space Mono',monospace!important;font-size:10px!important;font-weight:700!important;padding:2px 6px!important;box-shadow:none!important}
 .map-label::before{display:none!important}
 .leaflet-popup-content-wrapper{border-radius:12px!important}
+.map-program-label{background:#fff!important;color:#0D1B2A!important;border:1px solid rgba(13,27,42,.14)!important;border-radius:8px!important;font-family:'Sora',sans-serif!important;font-size:10px!important;font-weight:700!important;padding:5px 8px!important;box-shadow:0 7px 18px rgba(13,27,42,.2)!important;white-space:nowrap!important}
+.map-program-label::before{display:none!important}
+.map-arrow-icon{background:transparent!important;border:none!important;color:#0D1B2A;font-size:17px;font-weight:900;filter:drop-shadow(0 2px 2px rgba(255,255,255,.95))}
+
+/* ODS */
+.ods-intro{background:linear-gradient(135deg,#0D1B2A,#17334c);border-radius:18px;padding:24px 26px;color:#fff;margin-bottom:18px;box-shadow:0 14px 36px rgba(13,27,42,.18);display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.ods-intro h2{font-size:22px;margin-bottom:5px}.ods-intro p{font-size:13px;color:rgba(255,255,255,.72);line-height:1.55;max-width:670px}
+.ods-legend{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:8px 13px;font-size:11px;font-weight:800;color:#FFD166;white-space:nowrap}
+.ods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:10px 0 34px}
+.ods-card{position:relative;min-height:132px;border-radius:14px;padding:14px;background:var(--ods);color:#fff;box-shadow:0 6px 18px rgba(13,27,42,.12);overflow:hidden;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s,filter .25s;filter:saturate(.72) brightness(.98);isolation:isolate}
+.ods-card::after{content:attr(data-number);position:absolute;right:-5px;bottom:-22px;font-family:'Space Mono',monospace;font-size:72px;font-weight:800;color:rgba(255,255,255,.14);z-index:-1}
+.ods-card:hover{transform:translateY(-12px) scale(1.04);box-shadow:0 22px 42px rgba(13,27,42,.24);filter:saturate(1.08) brightness(1.03);z-index:2}
+.ods-card.topizera{transform:translateY(-5px);filter:saturate(1.12) brightness(1.04);outline:4px solid #FFD166;box-shadow:0 15px 34px color-mix(in srgb,var(--ods) 45%,transparent)}
+.ods-card.topizera:hover{transform:translateY(-18px) scale(1.06)}
+.ods-num{font-family:'Space Mono',monospace;font-size:28px;font-weight:800;line-height:1}.ods-name{font-size:12px;font-weight:800;line-height:1.35;margin-top:8px;max-width:115px}.ods-star{position:absolute;top:9px;right:9px;background:#FFD166;color:#0D1B2A;border-radius:999px;padding:4px 7px;font-size:9px;font-weight:900;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+@media(max-width:760px){.ods-grid{grid-template-columns:repeat(2,1fr)}.ods-card{min-height:120px}.ods-intro{padding:20px}.map-program-label{font-size:9px!important;max-width:150px;white-space:normal!important}}
 
 .plink{background:#fff;border-radius:13px;box-shadow:var(--shadow);overflow:hidden;animation:up .4s ease;transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease;will-change:transform}
 .plink:hover{transform:translateY(-30px) scale(1.055);box-shadow:0 32px 64px rgba(13,27,42,.24)}
@@ -418,6 +434,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <button class="nb on" data-tab="feed">🏠 Feed</button>
     <button class="nb" data-tab="network">🕸 Rede</button>
     <button class="nb" data-tab="mapa">🗺 Mapa</button>
+    <button class="nb" data-tab="ods">🌍 ODS</button>
     <button class="nb" data-tab="agenda">📅 Agenda</button>
     <button class="nb" data-tab="padlet">🎨 Mural</button>
     <button class="nb" data-tab="activities">📌 Atividades</button>
@@ -443,6 +460,7 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     <button class="mm-btn on" data-tab="feed">🏠 Feed</button>
     <button class="mm-btn" data-tab="network">🕸 Rede</button>
     <button class="mm-btn" data-tab="mapa">🗺 Mapa</button>
+    <button class="mm-btn" data-tab="ods">🌍 ODS</button>
     <button class="mm-btn" data-tab="agenda">📅 Agenda</button>
     <button class="mm-btn" data-tab="padlet">🎨 Mural</button>
     <button class="mm-btn" data-tab="activities">📌 Atividades</button>
@@ -500,6 +518,32 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
     </div>
     <div id="mapCanvas" style="height:520px;border-radius:14px;box-shadow:var(--shadow);overflow:hidden;background:#eef3f8"></div>
     <p style="font-size:12px;color:var(--gray3);margin-top:10px;text-align:center">O mapa de calor mostra a intensidade de atividades por instituição. Quanto mais quente, mais ações registradas.</p>
+  </section>
+  <section id="tab-ods" class="tab">
+    <div class="shdr"><h1>ODS do Cluster 7</h1></div>
+    <div class="ods-intro">
+      <div><h2>Os 17 Objetivos. Quatro são a nossa força.</h2><p>A apresentação do Cluster 7 identifica água e saneamento, ação climática, vida terrestre e parcerias como a base comum que conecta os dez programas.</p></div>
+      <div class="ods-legend">⭐ FORÇA DO CLUSTER</div>
+    </div>
+    <div class="ods-grid" aria-label="Quadro dos 17 Objetivos de Desenvolvimento Sustentável">
+      <article class="ods-card" style="--ods:#E5243B" data-number="1"><div class="ods-num">01</div><div class="ods-name">Erradicação da pobreza</div></article>
+      <article class="ods-card" style="--ods:#DDA63A" data-number="2"><div class="ods-num">02</div><div class="ods-name">Fome zero e agricultura sustentável</div></article>
+      <article class="ods-card" style="--ods:#4C9F38" data-number="3"><div class="ods-num">03</div><div class="ods-name">Saúde e bem-estar</div></article>
+      <article class="ods-card" style="--ods:#C5192D" data-number="4"><div class="ods-num">04</div><div class="ods-name">Educação de qualidade</div></article>
+      <article class="ods-card" style="--ods:#FF3A21" data-number="5"><div class="ods-num">05</div><div class="ods-name">Igualdade de gênero</div></article>
+      <article class="ods-card topizera" style="--ods:#26BDE2" data-number="6"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">06</div><div class="ods-name">Água potável e saneamento</div></article>
+      <article class="ods-card" style="--ods:#FCC30B;color:#0D1B2A" data-number="7"><div class="ods-num">07</div><div class="ods-name">Energia limpa e acessível</div></article>
+      <article class="ods-card" style="--ods:#A21942" data-number="8"><div class="ods-num">08</div><div class="ods-name">Trabalho decente e crescimento econômico</div></article>
+      <article class="ods-card" style="--ods:#FD6925" data-number="9"><div class="ods-num">09</div><div class="ods-name">Indústria, inovação e infraestrutura</div></article>
+      <article class="ods-card" style="--ods:#DD1367" data-number="10"><div class="ods-num">10</div><div class="ods-name">Redução das desigualdades</div></article>
+      <article class="ods-card" style="--ods:#FD9D24;color:#0D1B2A" data-number="11"><div class="ods-num">11</div><div class="ods-name">Cidades e comunidades sustentáveis</div></article>
+      <article class="ods-card" style="--ods:#BF8B2E" data-number="12"><div class="ods-num">12</div><div class="ods-name">Consumo e produção responsáveis</div></article>
+      <article class="ods-card topizera" style="--ods:#3F7E44" data-number="13"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">13</div><div class="ods-name">Ação contra a mudança global do clima</div></article>
+      <article class="ods-card" style="--ods:#0A97D9" data-number="14"><div class="ods-num">14</div><div class="ods-name">Vida na água</div></article>
+      <article class="ods-card topizera" style="--ods:#56C02B" data-number="15"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">15</div><div class="ods-name">Vida terrestre</div></article>
+      <article class="ods-card" style="--ods:#00689D" data-number="16"><div class="ods-num">16</div><div class="ods-name">Paz, justiça e instituições eficazes</div></article>
+      <article class="ods-card topizera" style="--ods:#19486A" data-number="17"><span class="ods-star">⭐ TOPIZERA</span><div class="ods-num">17</div><div class="ods-name">Parcerias e meios de implementação</div></article>
+    </div>
   </section>
   <section id="tab-agenda" class="tab">
     <div class="shdr"><h1>Agenda Colaborativa</h1><button class="badd" id="btnNewEvent">+ Novo evento</button></div>
@@ -2120,18 +2164,23 @@ function renderScore(){
 // ═══════════════════════════════════════════
 // Coordenadas reais das cidades-sede dos PPGs (não nomes de pessoas)
 const IES_CLUSTER7 = [
-  {sigla:'UNEMAT', prog:'Ciências Ambientais', cidade:'Cáceres, MT', uf:'MT', lat:-16.0706, lng:-57.6789, bioma:'Pantanal', nota:4},
-  {sigla:'UNIOESTE', prog:'Conservação e Manejo de Recursos Naturais', cidade:'Cascavel, PR', uf:'PR', lat:-24.9555, lng:-53.4552, bioma:'Mata Atlântica', nota:4},
-  {sigla:'UFF', prog:'Engenharia de Biossistemas', cidade:'Niterói, RJ', uf:'RJ', lat:-22.9035, lng:-43.1041, bioma:'Mata Atlântica', nota:4},
-  {sigla:'UFAM', prog:'Ciências do Ambiente e Sustentabilidade na Amazônia', cidade:'Manaus, AM', uf:'AM', lat:-3.1019, lng:-60.0250, bioma:'Amazônia', nota:4},
-  {sigla:'UFCG', prog:'Gestão e Sistemas Agroindustriais', cidade:'Campina Grande, PB', uf:'PB', lat:-7.2306, lng:-35.8811, bioma:'Caatinga', nota:3},
-  {sigla:'UFSCar', prog:'Planejamento e Uso de Recursos Renováveis', cidade:'Sorocaba, SP', uf:'SP', lat:-23.5015, lng:-47.4526, bioma:'Mata Atlântica', nota:4},
-  {sigla:'UNIRIO', prog:'Ecoturismo e Conservação', cidade:'Rio de Janeiro, RJ', uf:'RJ', lat:-22.9068, lng:-43.1729, bioma:'Mata Atlântica', nota:4},
-  {sigla:'UTFPR', prog:'Sustentabilidade Ambiental Urbana', cidade:'Curitiba, PR', uf:'PR', lat:-25.4372, lng:-49.2699, bioma:'Mata Atlântica', nota:4},
-  {sigla:'UFPE', prog:'Desenvolvimento e Meio Ambiente', cidade:'Recife, PE', uf:'PE', lat:-8.0476, lng:-34.8770, bioma:'Mata Atlântica', nota:5},
-  {sigla:'UFS', prog:'Desenvolvimento e Meio Ambiente', cidade:'São Cristóvão, SE', uf:'SE', lat:-10.9186, lng:-37.1002, bioma:'Mata Atlântica', nota:5}
+  {sigla:'UNEMAT', ppg:'PPGCA', prog:'Ciências Ambientais', cidade:'Cáceres, MT', uf:'MT', lat:-16.0706, lng:-57.6789, bioma:'Pantanal', nota:4},
+  {sigla:'UNIOESTE', ppg:'PPRN', prog:'Conservação e Manejo de Recursos Naturais', cidade:'Cascavel, PR', uf:'PR', lat:-24.9555, lng:-53.4552, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFF', ppg:'PGEB', prog:'Engenharia de Biossistemas', cidade:'Niterói, RJ', uf:'RJ', lat:-22.9035, lng:-43.1041, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFAM', ppg:'PPGCASA', prog:'Ciências do Ambiente e Sustentabilidade na Amazônia', cidade:'Manaus, AM', uf:'AM', lat:-3.1019, lng:-60.0250, bioma:'Amazônia', nota:4},
+  {sigla:'UFCG', ppg:'PPGGSA', prog:'Gestão e Sistemas Agroindustriais', cidade:'Campina Grande, PB', uf:'PB', lat:-7.2306, lng:-35.8811, bioma:'Caatinga', nota:3},
+  {sigla:'UFSCar', ppg:'PPGPUR', prog:'Planejamento e Uso de Recursos Renováveis', cidade:'Sorocaba, SP', uf:'SP', lat:-23.5015, lng:-47.4526, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UNIRIO', ppg:'PPGEC', prog:'Ecoturismo e Conservação', cidade:'Rio de Janeiro, RJ', uf:'RJ', lat:-22.9068, lng:-43.1729, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UTFPR', ppg:'PPGSAU', prog:'Sustentabilidade Ambiental Urbana', cidade:'Curitiba, PR', uf:'PR', lat:-25.4372, lng:-49.2699, bioma:'Mata Atlântica', nota:4},
+  {sigla:'UFPE', ppg:'PRODEMA', prog:'Desenvolvimento e Meio Ambiente', cidade:'Recife, PE', uf:'PE', lat:-8.0476, lng:-34.8770, bioma:'Mata Atlântica', nota:5},
+  {sigla:'UFS', ppg:'PRODEMA', prog:'Desenvolvimento e Meio Ambiente', cidade:'São Cristóvão, SE', uf:'SE', lat:-10.9186, lng:-37.1002, bioma:'Mata Atlântica', nota:5}
 ];
 const BIOMA_COR = {'Amazônia':'#1B7A3D','Caatinga':'#E8C468','Cerrado':'#C9B458','Mata Atlântica':'#3B9B6E','Pampa':'#A3D9A5','Pantanal':'#5BA3C7','Marinho':'#7FC5E8'};
+const MAP_CALLOUTS={
+  UNEMAT:[-14.7,-61.0], UFAM:[-1.5,-63.0], UFCG:[-5.4,-37.8],
+  UFPE:[-6.2,-32.4], UFS:[-12.6,-34.8], UNIOESTE:[-27.2,-56.0],
+  UFSCar:[-20.7,-49.0], UTFPR:[-29.0,-50.5], UFF:[-19.6,-40.4], UNIRIO:[-25.4,-40.8]
+};
 
 let _map=null, _mapMarkers=[], _mapHeat=null, _mapMode='inst';
 
@@ -2200,8 +2249,16 @@ function drawMapMode(){
         '<div style="font-size:12px;color:#00A87A;font-weight:700;margin-top:5px">'+c+' atividades</div>'+
         '</div>'
       );
-      marker.bindTooltip(ies.sigla, {permanent:true, direction:'top', className:'map-label', offset:[0,-r-2]});
-      _mapMarkers.push(marker);
+      const labelPos=MAP_CALLOUTS[ies.sigla]||[ies.lat,ies.lng];
+      const line=L.polyline([[ies.lat,ies.lng],labelPos],{color:'#0D1B2A',weight:1.6,opacity:.62,dashArray:'4 5',interactive:false}).addTo(_map);
+      const arrowLat=ies.lat+(labelPos[0]-ies.lat)*.78;
+      const arrowLng=ies.lng+(labelPos[1]-ies.lng)*.78;
+      const angle=Math.atan2(-(labelPos[0]-ies.lat),labelPos[1]-ies.lng)*180/Math.PI;
+      const arrow=L.marker([arrowLat,arrowLng],{interactive:false,icon:L.divIcon({className:'map-arrow-icon',html:'<div style="transform:rotate('+angle+'deg)">➤</div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(_map);
+      const labelPoint=L.circleMarker(labelPos,{radius:4,fillColor:cor,color:'#fff',weight:2,fillOpacity:1}).addTo(_map);
+      labelPoint.bindTooltip('<b>'+ies.ppg+'</b> · '+ies.sigla,{permanent:true,direction:labelPos[1]>=ies.lng?'right':'left',className:'map-program-label',offset:[labelPos[1]>=ies.lng?7:-7,0]});
+      labelPoint.on('click',()=>marker.openPopup());
+      _mapMarkers.push(line,arrow,labelPoint,marker);
     });
   } else {
     // heatmap por intensidade de atividades
