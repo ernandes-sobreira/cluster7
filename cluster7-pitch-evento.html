@@ -216,6 +216,29 @@
     .slide { overflow:auto; padding-bottom:80px; }
     html,body{ overflow:auto; }
   }
+
+/* Ajuste integral: conteúdo medido antes de reduzir, controles fora do slide. */
+@media(min-width:701px){
+ html,body{overflow:hidden}
+ .deck{position:relative;width:100%;height:calc(100vh - 68px);overflow:hidden}
+ .slide{inset:auto;top:0;left:0;width:1280px;height:auto;min-height:0;overflow:visible;padding:28px 42px 24px;transform-origin:top left}
+ .slide .footnote{position:static;margin-top:20px;gap:20px}
+ .slide h1{font-size:54px}.slide h2{font-size:42px}.slide .lead{font-size:24px}
+ .slide .grid-2{grid-template-columns:1.2fr .9fr}
+ .slide .grid-3{grid-template-columns:repeat(3,1fr)}
+ .slide .grid-4{grid-template-columns:repeat(2,1fr)}
+ .slide .two-col-list{grid-template-columns:repeat(2,1fr)}
+ .slide .platform{grid-template-columns:1.1fr 1fr}
+}
+@media(max-width:700px){
+ html,body{overflow:hidden}
+ .deck{height:calc(100dvh - 72px);overflow:hidden}
+ .slide{height:100%;overflow-y:auto;padding:20px 18px 30px;transform:none!important;left:0!important;top:0!important;width:100%!important}
+ .slide .footnote{position:static;margin-top:24px;gap:12px;flex-wrap:wrap}
+ .controls{bottom:14px}.controls button{font-size:12px}
+ .counter{font-size:12px;left:10px}
+}
+
 </style>
 </head>
 <body>
@@ -519,8 +542,24 @@
   const slides = Array.from(document.querySelectorAll('.slide'));
   let index = 0;
 
+  function fitSlide() {
+    if (innerWidth <= 700) return;
+    const slide=slides[index], deck=document.querySelector('.deck');
+    if(!slide||!deck)return;
+    slide.style.transform='none';
+    const height=Math.max(slide.scrollHeight,slide.offsetHeight);
+    const scale=Math.min(deck.clientWidth/1280,deck.clientHeight/height,1.5);
+    slide.style.transform='scale('+scale+')';
+    slide.style.left=Math.max(0,(deck.clientWidth-1280*scale)/2)+'px';
+    slide.style.top=Math.max(0,(deck.clientHeight-height*scale)/2)+'px';
+  }
+  window.addEventListener('resize',()=>requestAnimationFrame(fitSlide));
+  window.addEventListener('load',fitSlide);
+  document.querySelectorAll('img').forEach(img=>img.addEventListener('load',fitSlide));
+  if(document.fonts)document.fonts.ready.then(fitSlide);
   function render() {
     slides.forEach((s,i)=>s.classList.toggle('active', i===index));
+    requestAnimationFrame(fitSlide);
     document.getElementById('counter').textContent = `${index+1} / ${slides.length}`;
     document.getElementById('progress').style.width = `${((index+1)/slides.length)*100}%`;
   }
