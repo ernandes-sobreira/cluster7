@@ -2178,8 +2178,8 @@ const IES_CLUSTER7 = [
 const BIOMA_COR = {'Amazônia':'#1B7A3D','Caatinga':'#E8C468','Cerrado':'#C9B458','Mata Atlântica':'#3B9B6E','Pampa':'#A3D9A5','Pantanal':'#5BA3C7','Marinho':'#7FC5E8'};
 const MAP_CALLOUTS={
   UNEMAT:[-14.7,-61.0], UFAM:[-1.5,-63.0], UFCG:[-5.4,-37.8],
-  UFPE:[-6.2,-32.4], UFS:[-12.6,-34.8], UNIOESTE:[-27.2,-56.0],
-  UFSCar:[-20.7,-49.0], UTFPR:[-29.0,-50.5], UFF:[-19.6,-40.4], UNIRIO:[-25.4,-40.8]
+  UFPE:[-7.2,-38.2], UFS:[-12.4,-39.4], UNIOESTE:[-27.2,-56.0],
+  UFSCar:[-20.7,-49.0], UTFPR:[-29.0,-50.5], UFF:[-20.0,-45.7], UNIRIO:[-25.6,-45.8]
 };
 
 let _map=null, _mapMarkers=[], _mapHeat=null, _mapMode='inst';
@@ -2251,14 +2251,14 @@ function drawMapMode(){
       );
       const labelPos=MAP_CALLOUTS[ies.sigla]||[ies.lat,ies.lng];
       const line=L.polyline([[ies.lat,ies.lng],labelPos],{color:'#0D1B2A',weight:1.6,opacity:.62,dashArray:'4 5',interactive:false}).addTo(_map);
-      const arrowLat=ies.lat+(labelPos[0]-ies.lat)*.78;
-      const arrowLng=ies.lng+(labelPos[1]-ies.lng)*.78;
-      const angle=Math.atan2(-(labelPos[0]-ies.lat),labelPos[1]-ies.lng)*180/Math.PI;
+      const arrowLat=ies.lat+(labelPos[0]-ies.lat)*.18;
+      const arrowLng=ies.lng+(labelPos[1]-ies.lng)*.18;
+      const angle=Math.atan2(-(ies.lat-labelPos[0]),ies.lng-labelPos[1])*180/Math.PI;
       const arrow=L.marker([arrowLat,arrowLng],{interactive:false,icon:L.divIcon({className:'map-arrow-icon',html:'<div style="transform:rotate('+angle+'deg)">➤</div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(_map);
-      const labelPoint=L.circleMarker(labelPos,{radius:4,fillColor:cor,color:'#fff',weight:2,fillOpacity:1}).addTo(_map);
-      labelPoint.bindTooltip('<b>'+ies.ppg+'</b> · '+ies.sigla,{permanent:true,direction:labelPos[1]>=ies.lng?'right':'left',className:'map-program-label',offset:[labelPos[1]>=ies.lng?7:-7,0]});
-      labelPoint.on('click',()=>marker.openPopup());
-      _mapMarkers.push(line,arrow,labelPoint,marker);
+      const labelAnchor=L.marker(labelPos,{opacity:0,icon:L.divIcon({className:'',html:'',iconSize:[1,1],iconAnchor:[0,0]})}).addTo(_map);
+      labelAnchor.bindTooltip('<b>'+ies.ppg+'</b> · '+ies.sigla,{permanent:true,direction:labelPos[1]>=ies.lng?'right':'left',className:'map-program-label',offset:[labelPos[1]>=ies.lng?5:-5,0]});
+      labelAnchor.on('click',()=>marker.openPopup());
+      _mapMarkers.push(line,arrow,labelAnchor,marker);
     });
   } else {
     // heatmap por intensidade de atividades
