@@ -283,7 +283,19 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
 .pitch-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;color:#fff}
 .pitch-actions p{font-size:12px;color:rgba(255,255,255,.68)}
 .pitch-links{display:flex;gap:8px;flex-wrap:wrap}.pitch-link{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;font-size:11px;font-weight:800}.pitch-link.alt{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2)}
-.pitch-frame{width:100%;height:min(72vh,760px);min-height:520px;border:0;border-radius:12px;background:#fff;display:block}
+.pitch-slide{background:#f7f5ee;color:#0D1B2A;border-radius:12px;padding:clamp(22px,4vw,54px);min-height:550px;overflow-wrap:anywhere}
+.pitch-slide[hidden]{display:none}.pitch-slide>small{font-size:11px;letter-spacing:2px;font-weight:800;color:#59756c}
+.pitch-slide h2{font-size:clamp(28px,3.5vw,50px);line-height:1.12;margin:20px 0;letter-spacing:-1.5px}.pitch-slide em{font-style:normal;color:#07846d}
+.pitch-slide>p{font-size:clamp(15px,1.6vw,21px);line-height:1.6;max-width:780px}.pitch-slide footer{font-size:13px;line-height:1.6;margin-top:26px;border-top:1px solid #d8dfd9;padding-top:16px;color:#526369}
+.pitch-odss{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}.pitch-odss>span{font-size:36px;font-weight:800;color:white;padding:16px;border-radius:10px;flex:1;min-width:110px}.pitch-odss small{display:block;font-size:12px;margin-top:6px}
+.pitch-countries{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}.pitch-countries p{font-size:13px;line-height:1.5;border-bottom:1px solid #d8dfd9;padding-bottom:10px}.pitch-countries b{display:block;color:#07846d;font-size:13px;margin-bottom:4px}
+.pitch-steps{list-style:none;counter-reset:steps;display:grid;gap:14px}.pitch-steps li{counter-increment:steps;position:relative;padding:8px 0 8px 58px}.pitch-steps li:before{content:'0' counter(steps);position:absolute;left:0;top:8px;color:#07846d;font-size:27px;font-weight:800}.pitch-steps b{display:block;font-size:19px}.pitch-steps span{display:block;font-size:14px;color:#526369;margin-top:5px}
+.pitch-controls{display:flex;justify-content:space-between;align-items:center;padding-top:14px;color:white}.pitch-controls button{padding:12px 20px;border:0;border-radius:9px;background:#00a87a;color:white;font:700 13px Sora,sans-serif;cursor:pointer}.pitch-controls button:disabled{opacity:.35;cursor:default}
+.pitch-slide.active>*{animation:pitchReveal .5s both}.pitch-slide.active>:nth-child(2){animation-delay:.08s}.pitch-slide.active>:nth-child(3){animation-delay:.16s}.pitch-slide.active>:nth-child(4){animation-delay:.24s}.pitch-slide.active>:nth-child(5){animation-delay:.32s}
+@keyframes pitchReveal{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+#tab-pitch.pitch-expanded{position:fixed;inset:0;z-index:2500;background:#F4F6F9;overflow:auto;padding:20px}#tab-pitch.pitch-expanded .pitch-slide{min-height:70vh}
+@media(max-width:600px){.pitch-countries{grid-template-columns:1fr}.pitch-slide{min-height:0}.pitch-steps b{font-size:16px}.pitch-slide h2{letter-spacing:-.5px}}
+@media(prefers-reduced-motion:reduce){.pitch-slide.active>*{animation:none}}
 @media(max-width:760px){.ods-grid{grid-template-columns:repeat(2,1fr)}.ods-card{min-height:120px}.ods-intro{padding:20px}.map-program-label{font-size:9px!important;max-width:150px;white-space:normal!important}}
 @media(max-width:760px){.pitch-shell{padding:9px}.pitch-frame{height:68vh;min-height:430px}.pitch-actions{align-items:flex-start}.pitch-links{width:100%}.pitch-link{flex:1;justify-content:center}}
 
@@ -563,11 +575,18 @@ main{margin-top:var(--hh);padding:28px 24px;max-width:1200px;margin-left:auto;ma
       <div class="pitch-actions">
         <p>Pitch de internacionalização, ODS e evidências do Cluster 7</p>
         <div class="pitch-links">
-          <a class="pitch-link alt" href="cluster7-pitch-ods.pptx" target="_blank" rel="noopener">↗ Abrir</a>
+          <button class="pitch-link alt" onclick="document.getElementById('tab-pitch').classList.toggle('pitch-expanded')">⛶ Expandir / recolher</button>
           <a class="pitch-link" href="cluster7-pitch-ods.pptx" download>⬇ Baixar PowerPoint</a>
         </div>
       </div>
-      <iframe class="pitch-frame" loading="lazy" title="Apresentação do Cluster 7" src="https://view.officeapps.live.com/op/embed.aspx?src=https%3A%2F%2Fernandes-sobreira.github.io%2Fcluster7%2Fcluster7-pitch-ods.pptx"></iframe>
+      <div id="pitchDeck" tabindex="0" aria-label="Apresentação interativa: use as setas para navegar">
+        <article class="pitch-slide active"><small>CLUSTER 7 · INTERNACIONALIZAÇÃO · 2026</small><h2>A gente já tá<br>no mundo.<br><em>Agora é fazer junto.</em></h2><p>Mobilidades, pesquisadores estrangeiros, eventos e redes internacionais já existem nos nossos programas.</p><div class="pitch-odss"><span style="background:#26BDE2">06<small>Água e saneamento</small></span><span style="background:#3F7E44">13<small>Ação climática</small></span><span style="background:#56C02B">15<small>Vida terrestre</small></span><span style="background:#19486A">17<small>Parcerias</small></span></div><footer>10 PPGs. Conexões ainda dispersas. Uma capacidade coletiva a construir.</footer></article>
+        <article class="pitch-slide" hidden><small>PROGRAMAS + PAÍSES</small><h2>Dez programas.<br><em>Portas para o mundo.</em></h2><div class="pitch-countries"><p><b>PPGCA / UNEMAT</b>Países Baixos · Colômbia · Angola · Inglaterra</p><p><b>PGEB / UFF</b>Espanha</p><p><b>PPRN / UNIOESTE</b>Colômbia</p><p><b>PPGCASA / UFAM</b>País específico ainda não confirmado</p><p><b>PPGGSA / UFCG</b>País específico ainda não confirmado</p><p><b>PPGPUR / UFSCar</b>Mobilidade / PDSE · país a confirmar</p><p><b>PPGEC / UNIRIO</b>Estrutura de internacionalização · país a confirmar</p><p><b>PPGSAU / UTFPR</b>Costa Rica · Armênia · rede com 10 instituições estrangeiras</p><p><b>PRODEMA / UFPE</b>Rede consolidada · país específico a confirmar</p><p><b>PRODEMA / UFS</b>Espanha · México</p></div><footer>Países e ressalvas conforme a apresentação fornecida.</footer></article>
+        <article class="pitch-slide" hidden><small>EVIDÊNCIAS · 2025–2026</small><h2>Tem notícia.<br><em>Tem por onde começar.</em></h2><div class="pitch-countries"><p><b>UNIOESTE · 24 ABR 2025</b>Pesquisadora da Universidad de Antioquia chega pelo Move La América.</p><p><b>UFF · 2025</b>Doutorado sanduíche no Barcelona Supercomputing Center, via PDSE/CAPES.</p><p><b>UFS · 12 FEV 2026</b>Aula Magna com pesquisador da Universidade de Sevilha.</p><p><b>UFSCar · 2025</b>Seleção interna para Doutorado Sanduíche alinhada à internacionalização.</p><p><b>UNEMAT · 2026</b>Cotutela e cooperação Brasil–Holanda: Radboud University e Pantanal.</p><p><b>REDE PRODEMA · 2025–2026</b>UFPE e UFS já integram uma rede de pós-graduação.</p></div><footer>São ações dos programas, ainda não uma ação conjunta do Cluster. Essa é a oportunidade.</footer></article>
+        <article class="pitch-slide" hidden><small>PLANO DE EVIDÊNCIAS</small><h2>Se não deixar rastro,<br><em>parece que não aconteceu.</em></h2><p>O Cluster já começou a construir sua memória de internacionalização.</p><ol class="pitch-steps"><li><b>Aconteceu</b><span>Mobilidade, evento, visita ou projeto.</span></li><li><b>Registrou</b><span>Quem, onde, quando e com quem.</span></li><li><b>Conectou</b><span>PPGs, pesquisadores e parceiros.</span></li><li><b>Virou produto</b><span>Proposta, artigo, disciplina ou missão.</span></li></ol><footer>Devagar? Sim. Mas agora estamos deixando evidência.</footer></article>
+        <article class="pitch-slide" hidden><small>PRÓXIMO PASSO</small><h2>A primeira ação<br><em>realmente nossa.</em></h2><ol class="pitch-steps"><li><b>Visitante do PPG → visitante do Cluster</b><span>Agenda aberta aos dez programas.</span></li><li><b>Um seminário internacional</b><span>Rodízio: cada PPG traz uma conexão que já possui.</span></li><li><b>Banco de oportunidades</b><span>PDSE, Move La América, coorientação, disciplinas e missões.</span></li><li><b>Um produto com a cara do Cluster</b><span>Projeto multicêntrico, artigo/revisão e escola de campo.</span></li></ol><footer>Não precisamos criar uma rede do zero. Precisamos conectar as redes que já temos.</footer></article>
+      </div>
+      <div class="pitch-controls"><button id="pitchPrev" onclick="pitchMove(-1)" disabled>← Voltar</button><span id="pitchCounter" aria-live="polite">1 / 5</span><button id="pitchNext" onclick="pitchMove(1)">Avançar →</button></div>
     </div>
   </section>
   <section id="tab-agenda" class="tab">
@@ -844,6 +863,19 @@ document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',
 document.querySelectorAll('.overlay').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m&&m.id!=='accessModal')closeM(m.id); }));
 
 // ── TABS ──
+let pitchIndex=0;
+window.pitchMove=function(delta){
+  const slides=Array.from(document.querySelectorAll('.pitch-slide'));
+  pitchIndex=Math.max(0,Math.min(slides.length-1,pitchIndex+delta));
+  slides.forEach((slide,i)=>{slide.hidden=i!==pitchIndex;slide.classList.toggle('active',i===pitchIndex);});
+  document.getElementById('pitchCounter').textContent=(pitchIndex+1)+' / '+slides.length;
+  document.getElementById('pitchPrev').disabled=pitchIndex===0;
+  document.getElementById('pitchNext').disabled=pitchIndex===slides.length-1;
+};
+document.getElementById('tab-pitch').addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();pitchMove(e.key==='ArrowRight'?1:-1);}
+  if(e.key==='Escape')this.classList.remove('pitch-expanded');
+});
 function switchTab(tab){
   document.querySelectorAll('.nb,.mm-btn').forEach(x=>x.classList.toggle('on', x.dataset.tab===tab));
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
