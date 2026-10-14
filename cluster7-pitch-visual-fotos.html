@@ -68,7 +68,7 @@ try{if(!window.html2canvas||!window.pptxgen)throw Error('Bibliotecas de exporta�
 const pptx=new pptxgen();pptx.defineLayout({name:'CUSTOM_CLUSTER',width:13.333,height:7.5});pptx.layout='CUSTOM_CLUSTER';pptx.author='Cluster 7 — Ciências Ambientais';pptx.subject='Pitch visual: mapa das IES, mapa da internacionalização e fotos reais da galeria';pptx.title='Cluster 7 — Internacionalização em rede';pptx.lang='pt-BR';
 for(let i=0;i<5;i++){btn.innerText='Gerando '+(i+1)+' / 5';const el=slides[i];let prev=el.style.cssText;let was=el.classList.contains('active');el.classList.add('active');el.style.cssText+=';position:fixed!important;left:0!important;top:0!important;transform:none!important;display:block!important;z-index:100;';
 await new Promise(res=>requestAnimationFrame(()=>requestAnimationFrame(res)));
-const canvas=await html2canvas(el,{scale:1.5,width:1280,height:720,backgroundColor:'#f6f7f4',useCORS:true,logging:false});const slide=pptx.addSlide();slide.addImage({data:canvas.toDataURL('image/jpeg',0.94),x:0,y:0,w:13.333,h:7.5});slide.addNotes('Fonte: https://ernandes-sobreira.github.io/cluster7/ · Imagens: galeria pública da plataforma. Slide '+(i+1));el.style.cssText=prev;if(!was)el.classList.remove('active');}
+const canvas=await html2canvas(el,{scale:1.5,width:1280,height:720,backgroundColor:'#f6f7f4',useCORS:true,logging:false});const slide=pptx.addSlide();slide.addImage({data:canvas.toDataURL('image/jpeg',0.94),x:0,y:0,w:13.333,h:7.5});el.style.cssText=prev;if(!was)el.classList.remove('active');}
 await pptx.writeFile({fileName:'CLUSTER7_PITCH_VISUAL_FOTOS_MAPAS.pptx'});btn.innerText=old;
 }catch(e){alert('Não foi possível gerar o arquivo: '+e.message);btn.innerText=old}finally{btn.disabled=false;navigate(0)}}
 </script></body></html>
